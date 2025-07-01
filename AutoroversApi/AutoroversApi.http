@@ -1,0 +1,6 @@
+@AutoroversApi_HostAddress = http://localhost:5029
+
+GET {{AutoroversApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
