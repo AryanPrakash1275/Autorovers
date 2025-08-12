@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autorovers.Application")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0823181e0db27cc5d975841ac0297346cc8d211")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autorovers.Application")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autorovers.Application")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
