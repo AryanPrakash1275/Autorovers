@@ -1,3 +1,6 @@
-﻿namespace SharedKernel;
+namespace Autorovers.Common;
 
-public interface IDomainEvent;
+public interface IDomainEvent
+{
+    DateTime OccurredOnUtc { get; }
+}

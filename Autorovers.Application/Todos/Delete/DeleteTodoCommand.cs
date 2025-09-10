@@ -1,5 +1,5 @@
-﻿using Application.Abstractions.Messaging;
+using Autorovers.Application.Abstractions.Messaging;
 
-namespace Application.Todos.Delete;
+namespace Autorovers.Application.Todos.Delete;
 
 public sealed record DeleteTodoCommand(Guid TodoItemId) : ICommand;

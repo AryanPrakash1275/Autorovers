@@ -1,10 +1,10 @@
-﻿using Application.Abstractions.Messaging;
-using Application.Users.Login;
-using SharedKernel;
-using Web.Api.Extensions;
-using Web.Api.Infrastructure;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Application.Users.Login;
+using Autorovers.Common;
+using AutoroversApi.Extensions;
+using AutoroversApi.Infrastructure;
 
-namespace Web.Api.Endpoints.Users;
+namespace AutoroversApi.Endpoints.Users;
 
 internal sealed class Login : IEndpoint
 {

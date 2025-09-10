@@ -1,4 +1,4 @@
-﻿namespace Autorovers.InfrastructureTests
+namespace Autorovers.InfrastructureTests
 {
     public class Class1
     {

@@ -1,7 +1,7 @@
-﻿using Application.Abstractions.Authentication;
+using Autorovers.Application.Abstractions.Authentication;
 using Microsoft.AspNetCore.Http;
 
-namespace Infrastructure.Authentication;
+namespace Autorovers.Infrastructure.Authentication;
 
 internal sealed class UserContext : IUserContext
 {

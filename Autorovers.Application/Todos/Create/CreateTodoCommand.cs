@@ -1,7 +1,7 @@
-﻿using Application.Abstractions.Messaging;
-using Domain.Todos;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Domain.Todos;
 
-namespace Application.Todos.Create;
+namespace Autorovers.Application.Todos.Create;
 
 public sealed class CreateTodoCommand : ICommand<Guid>
 {

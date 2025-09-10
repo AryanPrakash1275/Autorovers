@@ -1,6 +1,6 @@
-﻿using SharedKernel;
+using Autorovers.Common;
 
-namespace Infrastructure.Time;
+namespace Autorovers.Infrastructure.Time;
 
 internal sealed class DateTimeProvider : IDateTimeProvider
 {

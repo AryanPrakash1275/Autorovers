@@ -1,27 +1,32 @@
-﻿using Application.Abstractions.Messaging;
-using Application.Todos.Complete;
-using SharedKernel;
-using Web.Api.Extensions;
-using Web.Api.Infrastructure;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Application.Todos.Complete;
+using Autorovers.Common;                         // Result
+using AutoroversApi.Endpoints;                  // CustomResults, Tags (your API project namespace)
+using Microsoft.AspNetCore.Builder;              // for MapPut, Results
+using Microsoft.AspNetCore.Routing;              // for IEndpointRouteBuilder
 
-namespace Web.Api.Endpoints.Todos;
-
-internal sealed class Complete : IEndpoint
+namespace AutoroversApi.Endpoints.Todos
 {
-    public void MapEndpoint(IEndpointRouteBuilder app)
+    internal sealed class Complete : IEndpoint
     {
-        app.MapPut("todos/{id:guid}/complete", async (
-            Guid id,
-            ICommandHandler<CompleteTodoCommand> handler,
-            CancellationToken cancellationToken) =>
+        public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            var command = new CompleteTodoCommand(id);
+            app.MapPut("todos/{id:guid}/complete", async (
+                Guid id,
+                ICommandHandler<CompleteTodoCommand> handler,
+                CancellationToken cancellationToken) =>
+            {
+                var command = new CompleteTodoCommand(id);
 
-            Result result = await handler.Handle(command, cancellationToken);
+                Result result = await handler.Handle(command, cancellationToken);
 
-            return result.Match(Results.NoContent, CustomResults.Problem);
-        })
-        .WithTags(Tags.Todos)
-        .RequireAuthorization();
+                return result.Match(Results.NoContent, CustomResults.Problem);
+            })
+            .WithTags(Tags.Todos)
+            .RequireAuthorization();
+        }
     }
 }

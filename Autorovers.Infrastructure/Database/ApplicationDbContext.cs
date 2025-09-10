@@ -1,11 +1,11 @@
-﻿using Application.Abstractions.Data;
-using Domain.Todos;
-using Domain.Users;
-using Infrastructure.DomainEvents;
+﻿using Autorovers.Application.Abstractions.Data;
+using Autorovers.Domain.Todos;
+using Autorovers.Domain.Users;
+using Autorovers.Application.Abstractions.DomainEvents;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using Autorovers.Common;
 
-namespace Infrastructure.Database;
+namespace Autorovers.Infrastructure.Database;
 
 public sealed class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
@@ -49,7 +49,7 @@ public sealed class ApplicationDbContext(
             .Select(entry => entry.Entity)
             .SelectMany(entity =>
             {
-                List<IDomainEvent> domainEvents = entity.DomainEvents;
+                var domainEvents = entity.DomainEvents;
 
                 entity.ClearDomainEvents();
 
@@ -57,6 +57,6 @@ public sealed class ApplicationDbContext(
             })
             .ToList();
 
-        await domainEventsDispatcher.DispatchAsync(domainEvents);
+        await domainEventsDispatcher.DispatchEventsAsync();
     }
 }

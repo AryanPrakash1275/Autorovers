@@ -11,11 +11,10 @@
 using System;
 using System.Reflection;
 
-[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("5c32ed4a-8a20-49bd-9595-eb3c2c38d7cb")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c0823181e0db27cc5d975841ac0297346cc8d211")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b731990be9d3c64c26a16db49434218bfc4d2f2e")]
 [assembly: System.Reflection.AssemblyProductAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

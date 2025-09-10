@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 
-namespace SharedKernel;
+namespace Autorovers.Common;
 
 public class Result
 {

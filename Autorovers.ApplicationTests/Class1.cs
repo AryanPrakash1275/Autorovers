@@ -1,4 +1,4 @@
-﻿namespace Autorovers.ApplicationTests
+namespace Autorovers.ApplicationTests
 {
     public class Class1
     {

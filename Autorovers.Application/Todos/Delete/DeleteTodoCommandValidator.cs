@@ -1,6 +1,6 @@
-﻿using FluentValidation;
+using FluentValidation;
 
-namespace Application.Todos.Delete;
+namespace Autorovers.Application.Todos.Delete;
 
 internal sealed class DeleteTodoCommandValidator : AbstractValidator<DeleteTodoCommand>
 {

@@ -1,4 +1,4 @@
-﻿namespace SharedKernel;
+namespace Autorovers.Common;
 
 public interface IDateTimeProvider
 {

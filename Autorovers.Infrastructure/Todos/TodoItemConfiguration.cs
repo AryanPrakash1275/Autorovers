@@ -1,9 +1,9 @@
-﻿using Domain.Todos;
-using Domain.Users;
+using Autorovers.Domain.Todos;
+using Autorovers.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Todos;
+namespace Autorovers.Infrastructure.Todos;
 
 internal sealed class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
 {

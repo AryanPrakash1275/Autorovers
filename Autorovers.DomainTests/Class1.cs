@@ -1,4 +1,4 @@
-﻿namespace Autorovers.DomainTests
+namespace Autorovers.DomainTests
 {
     public class Class1
     {

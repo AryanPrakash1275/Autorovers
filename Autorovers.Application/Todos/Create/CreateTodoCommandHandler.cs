@@ -1,12 +1,12 @@
-﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
-using Application.Abstractions.Messaging;
-using Domain.Todos;
-using Domain.Users;
+using Autorovers.Application.Abstractions.Authentication;
+using Autorovers.Application.Abstractions.Data;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Domain.Todos;
+using Autorovers.Domain.Users;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using Autorovers.Common;
 
-namespace Application.Todos.Create;
+namespace Autorovers.Application.Todos.Create;
 
 internal sealed class CreateTodoCommandHandler(
     IApplicationDbContext context,
@@ -18,7 +18,7 @@ internal sealed class CreateTodoCommandHandler(
     {
         if (userContext.UserId != command.UserId)
         {
-            return Result.Failure<Guid>(UserErrors.Unauthorized());
+            return Result.Failure<Guid>(UserErrors.Unauthorized);
         }
 
         User? user = await context.Users.AsNoTracking()
@@ -26,7 +26,7 @@ internal sealed class CreateTodoCommandHandler(
 
         if (user is null)
         {
-            return Result.Failure<Guid>(UserErrors.NotFound(command.UserId));
+            return Result.Failure<Guid>(UserErrors.NotFound);
         }
 
         var todoItem = new TodoItem

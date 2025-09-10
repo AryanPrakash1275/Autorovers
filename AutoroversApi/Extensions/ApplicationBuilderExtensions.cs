@@ -1,4 +1,4 @@
-﻿namespace Web.Api.Extensions;
+namespace AutoroversApi.Extensions;
 
 public static class ApplicationBuilderExtensions
 {

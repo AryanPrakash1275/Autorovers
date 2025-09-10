@@ -1,11 +1,11 @@
-﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
-using Application.Abstractions.Messaging;
-using Domain.Todos;
+using Autorovers.Application.Abstractions.Authentication;
+using Autorovers.Application.Abstractions.Data;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Domain.Todos;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using Autorovers.Common;
 
-namespace Application.Todos.Complete;
+namespace Autorovers.Application.Todos.Complete;
 
 internal sealed class CompleteTodoCommandHandler(
     IApplicationDbContext context,
@@ -20,12 +20,12 @@ internal sealed class CompleteTodoCommandHandler(
 
         if (todoItem is null)
         {
-            return Result.Failure(TodoItemErrors.NotFound(command.TodoItemId));
+            return Result.Failure(TodoItemErrors.NotFound);
         }
 
         if (todoItem.IsCompleted)
         {
-            return Result.Failure(TodoItemErrors.AlreadyCompleted(command.TodoItemId));
+            return Result.Failure(TodoItemErrors.AlreadyCompleted);
         }
 
         todoItem.IsCompleted = true;

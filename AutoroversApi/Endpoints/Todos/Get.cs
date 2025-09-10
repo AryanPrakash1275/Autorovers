@@ -1,10 +1,10 @@
-﻿using Application.Abstractions.Messaging;
-using Application.Todos.Get;
-using SharedKernel;
-using Web.Api.Extensions;
-using Web.Api.Infrastructure;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Application.Todos.Get;
+using Autorovers.Common;
+using AutoroversApi.Extensions;
+using AutoroversApi.Infrastructure;
 
-namespace Web.Api.Endpoints.Todos;
+namespace AutoroversApi.Endpoints.Todos;
 
 internal sealed class Get : IEndpoint
 {

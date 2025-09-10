@@ -1,4 +1,4 @@
-﻿namespace Application.Abstractions.Authentication;
+namespace Autorovers.Application.Abstractions.Authentication;
 
 public interface IUserContext
 {

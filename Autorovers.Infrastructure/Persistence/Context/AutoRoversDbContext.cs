@@ -1,25 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Autorovers.Domain.Entities;
-using Autorovers.Infrastructure.Persistence.Configurations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Autorovers.Application.Abstractions.Data;
+
+using DomainUsers = Autorovers.Domain.Users;
+using DomainTodos = Autorovers.Domain.Todos;
+using DomainEntities = Autorovers.Domain.Entities;
 
 namespace Autorovers.Infrastructure.Persistence.Context
 {
-    public class AutoRoversDbContext: DbContext
+    public class AutoRoversDbContext : DbContext, IApplicationDbContext
     {
-        public AutoRoversDbContext(DbContextOptions<AutoRoversDbContext> options)
-         : base(options)
-        {
-        }
-        public DbSet<Vehicle> Vehicles { get; set; }
-        public DbSet<Location> Locations { get; set; }
-        public DbSet<VehicleDetails> VehicleDetails { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserDetails> UserDetails { get; set; }
+        public AutoRoversDbContext(DbContextOptions<AutoRoversDbContext> options) : base(options) { }
+        public DbSet<DomainUsers.User> Users => Set<DomainUsers.User>();
+        public DbSet<DomainTodos.TodoItem> TodoItems => Set<DomainTodos.TodoItem>();
+        public DbSet<DomainEntities.Vehicle> Vehicles => Set<DomainEntities.Vehicle>();
+        public DbSet<DomainEntities.Location> Locations => Set<DomainEntities.Location>();
+        public DbSet<DomainEntities.VehicleDetails> VehicleDetails => Set<DomainEntities.VehicleDetails>();
+        public DbSet<DomainEntities.UserDetails> UserDetails => Set<DomainEntities.UserDetails>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

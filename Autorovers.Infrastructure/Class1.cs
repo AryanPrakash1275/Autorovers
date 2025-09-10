@@ -1,4 +1,4 @@
-﻿namespace Autorovers.Infrastructure
+namespace Autorovers.Infrastructure
 {
     public class Class1
     {

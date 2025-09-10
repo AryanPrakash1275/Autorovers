@@ -11,4 +11,8 @@
     <Folder Include="Events\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Autorovers.Common\Autorovers.Common.csproj" />
+  </ItemGroup>
+
 </Project>

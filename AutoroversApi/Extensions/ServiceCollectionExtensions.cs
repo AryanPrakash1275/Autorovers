@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 
-namespace Web.Api.Extensions;
+namespace AutoroversApi.Extensions;
 
 internal static class ServiceCollectionExtensions
 {

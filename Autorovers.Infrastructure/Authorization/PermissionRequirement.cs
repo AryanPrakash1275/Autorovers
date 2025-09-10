@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
-namespace Infrastructure.Authorization;
+namespace Autorovers.Infrastructure.Authorization;
 
 internal sealed class PermissionRequirement : IAuthorizationRequirement
 {

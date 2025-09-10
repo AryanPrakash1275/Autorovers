@@ -1,4 +1,4 @@
-﻿namespace Application.Todos.Get;
+namespace Autorovers.Application.Todos.Get;
 
 public sealed class TodoResponse
 {

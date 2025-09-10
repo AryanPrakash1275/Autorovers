@@ -1,4 +1,4 @@
-﻿namespace Autorovers.Application
+namespace Autorovers.Application
 {
     public class Class1
     {

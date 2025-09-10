@@ -1,22 +1,17 @@
-﻿using SharedKernel;
+using Autorovers.Common;
 
-namespace Domain.Users;
+namespace Autorovers.Domain.Users;
 
 public static class UserErrors
 {
-    public static Error NotFound(Guid userId) => Error.NotFound(
-        "Users.NotFound",
-        $"The user with the Id = '{userId}' was not found");
+    public static readonly Error NotFound = new("User.NotFound", "User not found.", ErrorType.NotFound);
+    public static readonly Error DuplicateEmail = new("User.DuplicateEmail", "Email already in use.", ErrorType.Conflict);
+    public static readonly Error Unauthorized = new("User.Unauthorized", "User is not authorized.", ErrorType.Unauthorized);
+    public static readonly Error NotFoundByEmail = new("User.NotFoundByEmail", "User Email Not Found", ErrorType.NotFound);
+    public static readonly Error EmailNotUnique = new("User.EmailNotUnique", "User Email Not Unique", ErrorType.Conflict);
 
-    public static Error Unauthorized() => Error.Failure(
-        "Users.Unauthorized",
-        "You are not authorized to perform this action.");
-
-    public static readonly Error NotFoundByEmail = Error.NotFound(
-        "Users.NotFoundByEmail",
-        "The user with the specified email was not found");
-
-    public static readonly Error EmailNotUnique = Error.Conflict(
-        "Users.EmailNotUnique",
-        "The provided email is not unique");
+    // OPTIONAL convenience methods if your code insists on calling them like functions:
+    public static Error NotFoundError() => NotFound;
+    public static Error DuplicateEmailError() => DuplicateEmail;
+    public static Error UnauthorizedError() => Unauthorized;
 }

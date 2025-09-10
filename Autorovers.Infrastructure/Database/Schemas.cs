@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Database;
+namespace Autorovers.Infrastructure.Database;
 
 internal static class Schemas
 {

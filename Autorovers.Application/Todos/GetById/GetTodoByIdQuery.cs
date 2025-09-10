@@ -1,5 +1,5 @@
-﻿using Application.Abstractions.Messaging;
+using Autorovers.Application.Abstractions.Messaging;
 
-namespace Application.Todos.GetById;
+namespace Autorovers.Application.Todos.GetById;
 
 public sealed record GetTodoByIdQuery(Guid TodoItemId) : IQuery<TodoResponse>;

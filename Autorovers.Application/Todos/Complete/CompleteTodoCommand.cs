@@ -1,5 +1,5 @@
-﻿using Application.Abstractions.Messaging;
+using Autorovers.Application.Abstractions.Messaging;
 
-namespace Application.Todos.Complete;
+namespace Autorovers.Application.Todos.Complete;
 
 public sealed record CompleteTodoCommand(Guid TodoItemId) : ICommand;

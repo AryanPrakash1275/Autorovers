@@ -1,6 +1,6 @@
-﻿using Domain.Users;
+using Autorovers.Domain.Users;
 
-namespace Application.Abstractions.Authentication;
+namespace Autorovers.Application.Abstractions.Authentication;
 
 public interface ITokenProvider
 {

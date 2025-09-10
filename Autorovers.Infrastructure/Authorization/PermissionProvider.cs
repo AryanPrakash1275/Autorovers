@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Authorization;
+namespace Autorovers.Infrastructure.Authorization;
 
 internal sealed class PermissionProvider
 {

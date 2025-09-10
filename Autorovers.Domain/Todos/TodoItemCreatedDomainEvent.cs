@@ -1,5 +1,14 @@
-﻿using SharedKernel;
+using Autorovers.Common;
 
-namespace Domain.Todos;
+namespace Autorovers.Domain.Todos;
 
-public sealed record TodoItemCreatedDomainEvent(Guid TodoItemId) : IDomainEvent;
+public sealed class TodoItemCreatedDomainEvent : IDomainEvent
+{
+    public Guid TodoId { get; }
+    public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;
+
+    public TodoItemCreatedDomainEvent(Guid todoId)
+    {
+        TodoId = todoId;
+    }
+}

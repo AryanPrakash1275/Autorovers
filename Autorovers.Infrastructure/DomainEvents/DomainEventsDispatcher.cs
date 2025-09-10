@@ -1,17 +1,42 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
-using SharedKernel;
+using Autorovers.Common; // Entity, IDomainEvent
+using Autorovers.Application.Abstractions.DomainEvents; // IDomainEventsDispatcher, IDomainEventHandler<>
+using Autorovers.Infrastructure.Persistence.Context; // AutoRoversDbContext
 
-namespace Infrastructure.DomainEvents;
+namespace Autorovers.Infrastructure.DomainEvents;
 
-internal sealed class DomainEventsDispatcher(IServiceProvider serviceProvider) : IDomainEventsDispatcher
+public sealed class DomainEventsDispatcher(IServiceProvider serviceProvider,
+                                           AutoRoversDbContext db)
+    : IDomainEventsDispatcher
 {
     private static readonly ConcurrentDictionary<Type, Type> HandlerTypeDictionary = new();
     private static readonly ConcurrentDictionary<Type, Type> WrapperTypeDictionary = new();
 
-    public async Task DispatchAsync(
-        IEnumerable<IDomainEvent> domainEvents,
-        CancellationToken cancellationToken = default)
+    // ? This matches your interface exactly
+    public async Task DispatchEventsAsync(CancellationToken cancellationToken = default)
+    {
+        // 1) collect events from tracked entities
+        var domainEntities = db.ChangeTracker
+            .Entries<Entity>()
+            .Where(e => e.Entity.DomainEvents.Any())
+            .Select(e => e.Entity)
+            .ToList();
+
+        var eventsToPublish = domainEntities
+            .SelectMany(e => e.DomainEvents)
+            .ToList();
+
+        // 2) clear them on entities so they aren't re-published
+        domainEntities.ForEach(e => e.ClearDomainEvents());
+
+        // 3) delegate to your existing method
+        await DispatchAsync(eventsToPublish, cancellationToken);
+    }
+
+    // ? keep your existing helper
+    public async Task DispatchAsync(IEnumerable<IDomainEvent> domainEvents,
+                                    CancellationToken cancellationToken = default)
     {
         foreach (IDomainEvent domainEvent in domainEvents)
         {
@@ -26,13 +51,9 @@ internal sealed class DomainEventsDispatcher(IServiceProvider serviceProvider) :
 
             foreach (object? handler in handlers)
             {
-                if (handler is null)
-                {
-                    continue;
-                }
+                if (handler is null) continue;
 
                 var handlerWrapper = HandlerWrapper.Create(handler, domainEventType);
-
                 await handlerWrapper.Handle(domainEvent, cancellationToken);
             }
         }
@@ -48,7 +69,7 @@ internal sealed class DomainEventsDispatcher(IServiceProvider serviceProvider) :
                 domainEventType,
                 et => typeof(HandlerWrapper<>).MakeGenericType(et));
 
-            return (HandlerWrapper)Activator.CreateInstance(wrapperType, handler);
+            return (HandlerWrapper)Activator.CreateInstance(wrapperType, handler)!;
         }
     }
 
@@ -56,9 +77,7 @@ internal sealed class DomainEventsDispatcher(IServiceProvider serviceProvider) :
     {
         private readonly IDomainEventHandler<T> _handler = (IDomainEventHandler<T>)handler;
 
-        public override async Task Handle(IDomainEvent domainEvent, CancellationToken cancellationToken)
-        {
-            await _handler.Handle((T)domainEvent, cancellationToken);
-        }
+        public override Task Handle(IDomainEvent domainEvent, CancellationToken cancellationToken)
+            => _handler.Handle((T)domainEvent, cancellationToken);
     }
 }

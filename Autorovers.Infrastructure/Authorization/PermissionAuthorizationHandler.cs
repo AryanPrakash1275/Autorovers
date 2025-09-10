@@ -1,8 +1,8 @@
-﻿using Infrastructure.Authentication;
+using Autorovers.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.Authorization;
+namespace Autorovers.Infrastructure.Authorization;
 
 internal sealed class PermissionAuthorizationHandler(IServiceScopeFactory serviceScopeFactory)
     : AuthorizationHandler<PermissionRequirement>

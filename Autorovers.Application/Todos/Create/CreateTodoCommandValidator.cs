@@ -1,6 +1,6 @@
-﻿using FluentValidation;
+using FluentValidation;
 
-namespace Application.Todos.Create;
+namespace Autorovers.Application.Todos.Create;
 
 public class CreateTodoCommandValidator : AbstractValidator<CreateTodoCommand>
 {

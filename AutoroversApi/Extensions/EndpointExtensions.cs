@@ -1,8 +1,8 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Web.Api.Endpoints;
+using AutoroversApi.Endpoints;
 
-namespace Web.Api.Extensions;
+namespace AutoroversApi.Extensions;
 
 public static class EndpointExtensions
 {

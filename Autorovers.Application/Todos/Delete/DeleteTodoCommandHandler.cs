@@ -1,11 +1,11 @@
-﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
-using Application.Abstractions.Messaging;
-using Domain.Todos;
+using Autorovers.Application.Abstractions.Authentication;
+using Autorovers.Application.Abstractions.Data;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Domain.Todos;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using Autorovers.Common;
 
-namespace Application.Todos.Delete;
+namespace Autorovers.Application.Todos.Delete;
 
 internal sealed class DeleteTodoCommandHandler(IApplicationDbContext context, IUserContext userContext)
     : ICommandHandler<DeleteTodoCommand>
@@ -17,7 +17,7 @@ internal sealed class DeleteTodoCommandHandler(IApplicationDbContext context, IU
 
         if (todoItem is null)
         {
-            return Result.Failure(TodoItemErrors.NotFound(command.TodoItemId));
+            return Result.Failure(TodoItemErrors.NotFound);
         }
 
         context.TodoItems.Remove(todoItem);

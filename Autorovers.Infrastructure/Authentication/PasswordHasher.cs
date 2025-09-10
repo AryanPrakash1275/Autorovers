@@ -1,7 +1,7 @@
-﻿using System.Security.Cryptography;
-using Application.Abstractions.Authentication;
+using System.Security.Cryptography;
+using Autorovers.Application.Abstractions.Authentication;
 
-namespace Infrastructure.Authentication;
+namespace Autorovers.Infrastructure.Authentication;
 
 internal sealed class PasswordHasher : IPasswordHasher
 {

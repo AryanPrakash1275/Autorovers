@@ -1,5 +1,14 @@
-﻿using SharedKernel;
+using Autorovers.Common;
 
-namespace Domain.Users;
+namespace Autorovers.Domain.Users;
 
-public sealed record UserRegisteredDomainEvent(Guid UserId) : IDomainEvent;
+public sealed class UserRegisteredDomainEvent : IDomainEvent
+{
+    public Guid UserId { get; }
+    public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;
+
+    public UserRegisteredDomainEvent(Guid userId)
+    {
+        UserId = userId;
+    }
+}

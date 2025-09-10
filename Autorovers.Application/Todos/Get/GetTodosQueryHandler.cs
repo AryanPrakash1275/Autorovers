@@ -1,11 +1,11 @@
-﻿using Application.Abstractions.Authentication;
-using Application.Abstractions.Data;
-using Application.Abstractions.Messaging;
-using Domain.Users;
+using Autorovers.Application.Abstractions.Authentication;
+using Autorovers.Application.Abstractions.Data;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Domain.Users;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel;
+using Autorovers.Common;
 
-namespace Application.Todos.Get;
+namespace Autorovers.Application.Todos.Get;
 
 internal sealed class GetTodosQueryHandler(IApplicationDbContext context, IUserContext userContext)
     : IQueryHandler<GetTodosQuery, List<TodoResponse>>
@@ -14,7 +14,7 @@ internal sealed class GetTodosQueryHandler(IApplicationDbContext context, IUserC
     {
         if (query.UserId != userContext.UserId)
         {
-            return Result.Failure<List<TodoResponse>>(UserErrors.Unauthorized());
+            return Result.Failure<List<TodoResponse>>(UserErrors.Unauthorized);
         }
 
         List<TodoResponse> todos = await context.TodoItems

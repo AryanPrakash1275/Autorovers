@@ -1,5 +1,5 @@
-﻿using Application.Abstractions.Messaging;
+using Autorovers.Application.Abstractions.Messaging;
 
-namespace Application.Todos.Get;
+namespace Autorovers.Application.Todos.Get;
 
 public sealed record GetTodosQuery(Guid UserId) : IQuery<List<TodoResponse>>;
