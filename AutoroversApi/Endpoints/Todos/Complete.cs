@@ -23,7 +23,7 @@ namespace AutoroversApi.Endpoints.Todos
 
                 Result result = await handler.Handle(command, cancellationToken);
 
-                return result.Match(Results.NoContent, CustomResults.Problem);
+                return result;
             })
             .WithTags(Tags.Todos)
             .RequireAuthorization();
