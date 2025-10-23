@@ -1,4 +1,4 @@
-using Autorovers.Infrastructure.Database;
+using Autorovers.Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace AutoroversApi.Extensions;
@@ -9,8 +9,8 @@ public static class MigrationExtensions
     {
         using IServiceScope scope = app.ApplicationServices.CreateScope();
 
-        using ApplicationDbContext dbContext =
-            scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        using AutoroversDbContext dbContext =
+            scope.ServiceProvider.GetRequiredService<AutoroversDbContext>();
 
         dbContext.Database.Migrate();
     }

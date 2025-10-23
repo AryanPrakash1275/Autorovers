@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Autorovers.Application.Abstractions.DomainEvents;
 
+public interface IDomainEvent { }
+
 public interface IDomainEventsDispatcher
 {
-    Task DispatchEventsAsync(CancellationToken CancellationToken = default);
+    Task DispatchAsync(CancellationToken ct = default);
 }
+

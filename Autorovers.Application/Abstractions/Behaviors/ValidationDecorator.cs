@@ -1,72 +1,77 @@
-﻿using Autorovers.Application.Abstractions.Messaging;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentValidation;
-using FluentValidation.Results;
-using Autorovers.Common;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Common; // Result<T>, Error, ErrorType
 
 namespace Autorovers.Application.Abstractions.Behaviors;
 
-internal static class ValidationDecorator
+public static class ValidationDecorator
 {
-    internal sealed class CommandHandler<TCommand, TResponse>(
-        ICommandHandler<TCommand, TResponse> innerHandler,
-        IEnumerable<IValidator<TCommand>> validators)
-        : ICommandHandler<TCommand, TResponse>
+    public sealed class CommandHandler<TCommand, TResponse> : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
     {
-        public async Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken)
-        {
-            ValidationFailure[] validationFailures = await ValidateAsync(command, validators);
+        private readonly ICommandHandler<TCommand, TResponse> _inner;
+        private readonly IEnumerable<IValidator<TCommand>> _validators;
 
-            if (validationFailures.Length == 0)
+        public CommandHandler(
+            ICommandHandler<TCommand, TResponse> inner,
+            IEnumerable<IValidator<TCommand>> validators)
+        {
+            _inner = inner;
+            _validators = validators;
+        }
+
+        public async Task<Result<TResponse>> Handle(TCommand command, CancellationToken cancellationToken = default)
+        {
+            if (_validators.Any())
             {
-                return await innerHandler.Handle(command, cancellationToken);
+                var context = new ValidationContext<TCommand>(command);
+                var results = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+                var failures = results.SelectMany(r => r.Errors).Where(f => f is not null).ToList();
+
+                if (failures.Count > 0)
+                {
+                    var message = string.Join("; ", failures.Select(f => f.ErrorMessage));
+                    return Result.Failure<TResponse>(new Error("validation_failed", message, ErrorType.Validation));
+                }
             }
 
-            return Result.Failure<TResponse>(CreateValidationError(validationFailures));
+            return await _inner.Handle(command, cancellationToken);
         }
     }
 
-    internal sealed class CommandBaseHandler<TCommand>(
-        ICommandHandler<TCommand> innerHandler,
-        IEnumerable<IValidator<TCommand>> validators)
-        : ICommandHandler<TCommand>
-        where TCommand : ICommand
+    public sealed class QueryHandler<TQuery, TResponse> : IQueryHandler<TQuery, TResponse>
+        where TQuery : IQuery<TResponse>
     {
-        public async Task<Result> Handle(TCommand command, CancellationToken cancellationToken)
-        {
-            ValidationFailure[] validationFailures = await ValidateAsync(command, validators);
+        private readonly IQueryHandler<TQuery, TResponse> _inner;
+        private readonly IEnumerable<IValidator<TQuery>> _validators;
 
-            if (validationFailures.Length == 0)
+        public QueryHandler(
+            IQueryHandler<TQuery, TResponse> inner,
+            IEnumerable<IValidator<TQuery>> validators)
+        {
+            _inner = inner;
+            _validators = validators;
+        }
+
+        public async Task<Result<TResponse>> Handle(TQuery query, CancellationToken cancellationToken = default)
+        {
+            if (_validators.Any())
             {
-                return await innerHandler.Handle(command, cancellationToken);
+                var context = new ValidationContext<TQuery>(query);
+                var results = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+                var failures = results.SelectMany(r => r.Errors).Where(f => f is not null).ToList();
+
+                if (failures.Count > 0)
+                {
+                    var message = string.Join("; ", failures.Select(f => f.ErrorMessage));
+                    return Result.Failure<TResponse>(new Error("validation_failed", message, ErrorType.Validation));
+                }
             }
 
-            return Result.Failure(CreateValidationError(validationFailures));
+            return await _inner.Handle(query, cancellationToken);
         }
     }
-
-    private static async Task<ValidationFailure[]> ValidateAsync<TCommand>(
-        TCommand command,
-        IEnumerable<IValidator<TCommand>> validators)
-    {
-        if (!validators.Any())
-        {
-            return [];
-        }
-
-        var context = new ValidationContext<TCommand>(command);
-
-        ValidationResult[] validationResults = await Task.WhenAll(
-            validators.Select(validator => validator.ValidateAsync(context)));
-
-        ValidationFailure[] validationFailures = validationResults
-            .Where(validationResult => !validationResult.IsValid)
-            .SelectMany(validationResult => validationResult.Errors)
-            .ToArray();
-
-        return validationFailures;
-    }
-
-    private static ValidationError CreateValidationError(ValidationFailure[] validationFailures) =>
-        new(validationFailures.Select(f => Error.Problem(f.ErrorCode, f.ErrorMessage)).ToArray());
 }

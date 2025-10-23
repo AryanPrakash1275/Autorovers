@@ -1,40 +1,43 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Autorovers.Infrastructure.Persistence.Context;
 
-// Keep these only if the interfaces/classes actually exist and compile:
-using Autorovers.Application.Abstractions.Data;
+// Abstractions
 using Autorovers.Application.Abstractions.DomainEvents;
-using Autorovers.Infrastructure.DomainEvents;
+using Autorovers.Application.Abstractions.Authentication;
+using Autorovers.Application.Abstractions.Persistence;
+using Autorovers.Common;
 
-namespace Autorovers.Infrastructure;
+// Implementations
+using Autorovers.Infrastructure.Authorization;
+using Autorovers.Infrastructure.Persistence;
+using Autorovers.Infrastructure.Time;
 
-public static class DependencyInjection
+namespace Autorovers.Infrastructure // ⬅️ THIS NAMESPACE MUST MATCH
 {
-    public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services, IConfiguration cfg)
+    public static class DependencyInjection // ⬅️ AND THIS CLASS NAME
     {
-        // Use the same key as in appsettings.json of API
-        var conn = cfg.GetConnectionString("DefaultConnection");
-        services.AddDbContext<AutoRoversDbContext>(opt => opt.UseNpgsql(conn));
+        // Extension or non-extension is fine; we’ll call it explicitly anyway.
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration cfg)
+        {
+            var conn = cfg.GetConnectionString("DefaultConnection")
+                      ?? "Host=localhost;Database=autorovers;Username=postgres;Password=postgres";
 
-        // Only keep this if your AutoRoversDbContext *implements* IApplicationDbContext
-        // (recommended � see interface sample below)
-        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AutoRoversDbContext>());
+            services.AddDbContext<AutoroversDbContext>(opt => opt.UseNpgsql(conn));
+            services.AddScoped<Autorovers.Application.Abstractions.Data.IApplicationDbContext>(
+            sp => sp.GetRequiredService<Autorovers.Infrastructure.Persistence.Context.AutoroversDbContext>());
 
-        // keep this if both the interface and class exist and compile
-        // Otherwise, comment it out for now.
-        services.AddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<IDateTimeProvider, SystemDateTimeProvider>();
+            services.AddScoped<IUserContext, UserContext>();
+            services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 
-        services.AddScoped<
-        Autorovers.Application.Abstractions.DomainEvents.IDomainEventsDispatcher,
-        Autorovers.Infrastructure.DomainEvents.DomainEventsDispatcher>();
+            services.AddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-
-        services.AddHttpContextAccessor();
-
-        return services;
+            return services;
+        }
     }
 }

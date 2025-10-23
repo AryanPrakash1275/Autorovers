@@ -1,4 +1,4 @@
-using Autorovers.Domain.Entities;
+using Autorovers.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
