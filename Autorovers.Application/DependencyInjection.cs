@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using System.Reflection;
+using Autorovers.Application.Abstractions.Behaviors;
+using Autorovers.Application.Abstractions.Messaging;
+using Autorovers.Application.Vehicles;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using Autorovers.Application.Abstractions.Messaging;
-using Autorovers.Application.Abstractions.Behaviors;
 
 namespace Autorovers.Application;
 
@@ -29,6 +30,8 @@ public static class DependencyInjection
         {
             services.Decorate(typeof(ICommandHandler<,>), typeof(ValidationDecorator.CommandHandler<,>));
         }
+
+        services.AddScoped<IVehicleService, VehicleService>();// added for new service 
 
         // ⚠️ Skip query decorator entirely until you actually have queries
         // If you want it later, add the same guard as above and re-enable.

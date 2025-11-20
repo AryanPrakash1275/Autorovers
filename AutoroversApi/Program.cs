@@ -18,10 +18,19 @@ AppDI.AddApplication(builder.Services);
 InfraDI.AddInfrastructure(builder.Services, builder.Configuration);
 
 // MVC / auth
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+//swagger
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Pipeline
 app.UseSerilogRequestLogging();

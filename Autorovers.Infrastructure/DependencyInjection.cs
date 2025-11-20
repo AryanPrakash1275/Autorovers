@@ -8,6 +8,7 @@ using Autorovers.Infrastructure.Persistence.Context;
 using Autorovers.Application.Abstractions.DomainEvents;
 using Autorovers.Application.Abstractions.Authentication;
 using Autorovers.Application.Abstractions.Persistence;
+using Autorovers.Application.Vehicles;
 using Autorovers.Common;
 
 // Implementations
@@ -46,6 +47,7 @@ namespace Autorovers.Infrastructure
 
             services.AddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IVehicleService, VehicleService>(); // added VehicleService
 
             return services;
         }
