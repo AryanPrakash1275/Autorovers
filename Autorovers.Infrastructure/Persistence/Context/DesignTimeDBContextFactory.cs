@@ -2,27 +2,32 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 
-namespace Autorovers.Infrastructure.Persistence.Context;
-
-public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AutoroversDbContext>
+namespace Autorovers.Infrastructure.Persistence.Context
 {
-    public AutoroversDbContext CreateDbContext(string[] args)
+    public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AutoroversDbContext>
     {
-        var cfg = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true)
-            .AddJsonFile("appsettings.Development.json", optional: true)
-            .AddEnvironmentVariables()
-            .Build();
+        public AutoroversDbContext CreateDbContext(string[] args)
+        {
+            var cfg = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile("appsettings.Development.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
 
-        var conn = cfg.GetConnectionString("DefaultConnection")
-                 ?? "Host=localhost;Database=autorovers;Username=postgres;Password=postgres";
+            var conn = cfg.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrWhiteSpace(conn))
+                throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing.");
 
-        var options = new DbContextOptionsBuilder<AutoroversDbContext>()
-            .UseNpgsql(conn)
-            .Options;
+            var options = new DbContextOptionsBuilder<AutoroversDbContext>()
+                .UseSqlServer(conn, sql =>
+                {
+                    sql.MigrationsAssembly(typeof(AutoroversDbContext).Assembly.FullName);
+                    sql.EnableRetryOnFailure();
+                })
+                .Options;
 
-        // ✅ DbContext ctor now takes ONLY options.
-        return new AutoroversDbContext(options);
+            return new AutoroversDbContext(options);
+        }
     }
 }

@@ -15,19 +15,29 @@ using Autorovers.Infrastructure.Authorization;
 using Autorovers.Infrastructure.Persistence;
 using Autorovers.Infrastructure.Time;
 
-namespace Autorovers.Infrastructure // ⬅️ THIS NAMESPACE MUST MATCH
+namespace Autorovers.Infrastructure
 {
-    public static class DependencyInjection // ⬅️ AND THIS CLASS NAME
+    public static class DependencyInjection
     {
-        // Extension or non-extension is fine; we’ll call it explicitly anyway.
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration cfg)
         {
-            var conn = cfg.GetConnectionString("DefaultConnection")
-                      ?? "Host=localhost;Database=autorovers;Username=postgres;Password=postgres";
+            var conn = cfg.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrWhiteSpace(conn))
+                throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing.");
 
-            services.AddDbContext<AutoroversDbContext>(opt => opt.UseNpgsql(conn));
+            services.AddDbContext<AutoroversDbContext>(opt =>
+                opt.UseSqlServer(
+                    conn,
+                    sql =>
+                    {
+                        sql.MigrationsAssembly(typeof(AutoroversDbContext).Assembly.FullName);
+                        sql.EnableRetryOnFailure(maxRetryCount: 5,
+                                                 maxRetryDelay: TimeSpan.FromSeconds(10),
+                                                 errorNumbersToAdd: null);
+                    }));
+
             services.AddScoped<Autorovers.Application.Abstractions.Data.IApplicationDbContext>(
-            sp => sp.GetRequiredService<Autorovers.Infrastructure.Persistence.Context.AutoroversDbContext>());
+                sp => sp.GetRequiredService<AutoroversDbContext>());
 
             services.AddHttpContextAccessor();
             services.AddScoped<IDateTimeProvider, SystemDateTimeProvider>();

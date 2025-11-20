@@ -24,7 +24,7 @@ namespace Autorovers.Infrastructure.Persistence.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasDefaultSchema(Schemas.Default);
+            modelBuilder.HasDefaultSchema("dbo");
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AutoroversDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
