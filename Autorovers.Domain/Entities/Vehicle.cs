@@ -17,7 +17,7 @@ public class Vehicle
     public string Slug { get; set; } = null!;
 
     // Navigation (1:1) have to ratio it to vehicleDetails
-    public VehicleDetails Details { get; set; }
+    public VehicleDetails? Details { get; set; }
 
     //This is slug-gen. Might need to edit more. 
     public static string GenerateSlug(string brand, string model, string variant)

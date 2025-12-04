@@ -41,5 +41,33 @@ namespace AutoroversApi.Controllers
 
             return Ok(vehicle);
         }
+
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> UpdateVehicle(int id, [FromBody] UpdateVehicleRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                await _vehicleService.UpdateVehicleAsync(id, request);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteVehicle(int id)
+        {
+            var deleted = await _vehicleService.DeleteVehicleAsync(id);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
+        }
     }
 }

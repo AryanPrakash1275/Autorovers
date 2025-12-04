@@ -118,4 +118,39 @@ public class VehicleService : IVehicleService
             .FirstOrDefaultAsync();
     }
 
+    public async Task UpdateVehicleAsync(int id, UpdateVehicleRequest request)
+    {
+        var entity = await _db.Vehicles
+            .FirstOrDefaultAsync(v => v.Id == id);
+
+        if (entity is null)
+            throw new KeyNotFoundException($"Vehicle with id {id} not found.");
+
+        entity.Brand = request.Brand;
+        entity.Model = request.Model;
+        entity.Variant = request.Variant;
+        entity.Year = request.Year;
+        entity.Price = request.Price;
+        entity.Category = request.Category;
+        entity.Transmission = request.Transmission;
+
+        // For slug. 
+        entity.Slug = Vehicle.GenerateSlug(request.Brand, request.Model, request.Variant);
+
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task<bool> DeleteVehicleAsync(int id)
+    {
+        var entity = await _db.Vehicles
+            .FirstOrDefaultAsync(v => v.Id == id);
+
+        if (entity is null)
+            return false;
+
+        _db.Vehicles.Remove(entity);
+        await _db.SaveChangesAsync();
+
+        return true;
+    }
 }

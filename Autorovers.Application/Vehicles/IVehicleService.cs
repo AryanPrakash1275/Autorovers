@@ -11,5 +11,7 @@ public interface IVehicleService
     Task<int> CreateVehicleAsync(CreateVehicleRequest request);
     Task<IReadOnlyList<VehicleListItemDto>> GetAllAsync();
     Task<VehicleListItemDto?> GetByIdAsync(int id);
+    Task UpdateVehicleAsync(int id, UpdateVehicleRequest request);
+    Task<bool> DeleteVehicleAsync(int id);
 
 }
