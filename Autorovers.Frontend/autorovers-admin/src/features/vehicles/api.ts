@@ -1,21 +1,30 @@
+// src/features/vehicles/api.ts
 import { apiGet, apiPost, apiPut, apiDelete } from "../../api/client";
 import type { Vehicle } from "./types";
 
-const BASE = "/api/admin/vehicles";
+const VEHICLES_PATH = "/api/AdminVehicles";
 
-export function getVehicles() {
-  return apiGet<Vehicle[]>(BASE);
+// GET ALL VEHICLES
+export async function getVehicles(): Promise<Vehicle[]> {
+  return apiGet<Vehicle[]>(VEHICLES_PATH);
 }
 
-export function createVehicle(data: Vehicle) {
-  // backend returns { id: number }
-  return apiPost<Partial<Vehicle>, { id: number }>(BASE, data);
+// GET SINGLE VEHICLE
+export async function getVehicle(id: number): Promise<Vehicle> {
+  return apiGet<Vehicle>(`${VEHICLES_PATH}/${id}`);
 }
 
-export function updateVehicle(id: number, data: Vehicle) {
-  return apiPut<Partial<Vehicle>>(`${BASE}/${id}`, data);
+// CREATE
+export async function createVehicle(payload: Vehicle): Promise<{ id: number }> {
+  return apiPost<Vehicle, { id: number }>(VEHICLES_PATH, payload);
 }
 
-export function deleteVehicleById(id: number) {
-  return apiDelete(`${BASE}/${id}`);
+// UPDATE
+export async function updateVehicle(id: number, payload: Vehicle): Promise<void> {
+  return apiPut<Vehicle>(`${VEHICLES_PATH}/${id}`, payload);
+}
+
+// DELETE
+export async function deleteVehicleById(id: number): Promise<void> {
+  return apiDelete(`${VEHICLES_PATH}/${id}`);
 }

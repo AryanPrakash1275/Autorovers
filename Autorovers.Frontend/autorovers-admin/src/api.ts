@@ -1,5 +1,7 @@
+import { apiGet } from "./api/client";
+
 export interface VehicleListItem {
-  id: string;
+  id: number;            // backend is int, not string
   brand: string;
   model: string;
   variant: string;
@@ -8,19 +10,11 @@ export interface VehicleListItem {
   category: string;
   transmission: string;
   slug: string;
+  imageUrl: string;      // you almost certainly have this on the DTO
 }
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5029";
-
-const VEHICLES_PATH = "/api/admin/vehicles"; // ✅ you said this is your real path
+const VEHICLES_PATH = "/api/AdminVehicles";
 
 export async function fetchVehicles(): Promise<VehicleListItem[]> {
-  const res = await fetch(`${API_BASE_URL}${VEHICLES_PATH}`);
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch vehicles: ${res.status}`);
-  }
-
-  return res.json();
+  return apiGet<VehicleListItem[]>(VEHICLES_PATH);
 }

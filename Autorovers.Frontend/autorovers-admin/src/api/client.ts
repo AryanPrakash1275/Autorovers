@@ -3,6 +3,8 @@ const API_BASE_URL =
 
 export async function apiGet<T>(path: string): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
+  console.log("apiGet →", url);  // LOG THE REAL URL
+
   const res = await fetch(url);
 
   if (!res.ok) {
@@ -12,10 +14,7 @@ export async function apiGet<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function apiPost<TBody, TResp = any>(
-  path: string,
-  body: TBody
-): Promise<TResp> {
+export async function apiPost<TBody, TResp = any>(path: string, body: TBody): Promise<TResp> {
   const url = `${API_BASE_URL}${path}`;
   const res = await fetch(url, {
     method: "POST",
@@ -31,10 +30,7 @@ export async function apiPost<TBody, TResp = any>(
   return (await res.json()) as TResp;
 }
 
-export async function apiPut<TBody>(
-  path: string,
-  body: TBody
-): Promise<void> {
+export async function apiPut<TBody>(path: string, body: TBody): Promise<void> {
   const url = `${API_BASE_URL}${path}`;
   const res = await fetch(url, {
     method: "PUT",

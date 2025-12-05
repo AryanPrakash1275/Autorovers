@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AutoroversApi.Controllers
 {
     [ApiController]
-    [Route("api/admin/vehicles")]
+    [Route("api/AdminVehicles")]
     public class AdminVehiclesController : ControllerBase
     {
         private readonly IVehicleService _vehicleService;
