@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+30de24955dd5065b3184d2f8f91bf861bcc22a25")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f7d3779834e19bff3f9c11ed667297629dba4937")]
 [assembly: System.Reflection.AssemblyProductAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

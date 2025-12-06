@@ -1,10 +1,38 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { VehiclesPage } from "./public/VehiclesPage";
 import { VehicleDetailsPage } from "./public/VehicleDetailsPage";
 import { VehicleListPage } from "./features/vehicles/components/VehicleListPage";
 
 import "./styles/admin.css";
-import "./styles/public.css"; // make sure this path matches where you created it
+import "./styles/public.css";
+
+type LayoutProps = {
+  children: React.ReactNode;
+};
+
+function PublicLayout({ children }: LayoutProps) {
+  return (
+    <div className="public-root">
+      <header className="public-header">
+        <div className="public-logo">
+          <Link to="/vehicles">Autorovers</Link>
+        </div>
+        <nav className="public-nav">
+          <Link to="/vehicles" className="public-nav-link">
+            Vehicles
+          </Link>
+          <Link to="/admin" className="public-nav-link">
+            Admin
+          </Link>
+        </nav>
+      </header>
+
+      <main className="public-main">
+        {children}
+      </main>
+    </div>
+  );
+}
 
 function AdminLayout() {
   return (
@@ -26,14 +54,28 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public catalog */}
-        <Route path="/vehicles" element={<VehiclesPage />} />
-        <Route path="/vehicles/:id" element={<VehicleDetailsPage />} />
+        {/* Public catalog + details wrapped in PublicLayout with navbar */}
+        <Route
+          path="/vehicles"
+          element={
+            <PublicLayout>
+              <VehiclesPage />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/vehicles/:id"
+          element={
+            <PublicLayout>
+              <VehicleDetailsPage />
+            </PublicLayout>
+          }
+        />
 
         {/* Admin dashboard */}
         <Route path="/admin" element={<AdminLayout />} />
 
-        {/* Default redirect: send root to public catalog */}
+        {/* Default: send everything else to public catalog */}
         <Route path="*" element={<Navigate to="/vehicles" replace />} />
       </Routes>
     </BrowserRouter>
