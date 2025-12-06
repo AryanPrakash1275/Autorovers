@@ -31,4 +31,15 @@ export interface Vehicle {
   doors: number;
   bootSpace: number;
   tankSize: number;
+
+  frontTyre: string;
+  backType: string;
+  frontBrake: string;
+  backBrake: string;
+  poweredSteering: string;
+  tyreSizeFront: string;
+  tyreSizeBack: string;
+  tyreType: string;
+  wheelMaterial: string;
+  spare: string;
 }
