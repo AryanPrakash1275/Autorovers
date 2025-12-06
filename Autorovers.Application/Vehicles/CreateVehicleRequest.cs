@@ -21,10 +21,10 @@ namespace Autorovers.Application.Vehicles
         public string EngineType { get; set; }
         public string Specification { get; set; }
         public string InductionType { get; set; }
-        public int Power { get; set; }
-        public int Torque { get; set; }
+        public double Power { get; set; }
+        public double Torque { get; set; }
         public string Emission { get; set; }
-        public int Mileage { get; set; }
+        public double Mileage { get; set; }
         //null problem
         [JsonPropertyName("autoStartStop")]
         public string AutoStartStop { get; set; } = "";
@@ -41,7 +41,7 @@ namespace Autorovers.Application.Vehicles
         public int Rows { get; set; }
         public int Doors { get; set; }
         public int BootSpace { get; set; }
-        public int TankSize { get; set; }
+        public double TankSize { get; set; }
 
         public string FrontTyre { get; set; }
         public string BackType { get; set; }

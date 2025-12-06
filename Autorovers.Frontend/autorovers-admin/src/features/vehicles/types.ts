@@ -8,4 +8,27 @@ export interface Vehicle {
   category: string;
   transmission: string;
   slug: string;
+
+  engineType: string;
+  specification: string;
+  inductionType: string;
+  power: number;
+  torque: number;
+  emission: string;
+  mileage: number;
+  autoStartStop: string;
+  range: number;
+
+  length: number;
+  width: number;
+  height: number;
+  weight: number;
+  groundClearance: number;
+  wheelBase: number;
+
+  personCapacity: number;
+  rows: number;
+  doors: number;
+  bootSpace: number;
+  tankSize: number;
 }

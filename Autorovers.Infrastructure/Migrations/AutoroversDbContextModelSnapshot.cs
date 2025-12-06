@@ -178,14 +178,14 @@ namespace Autorovers.Infrastructure.Migrations
                     b.Property<int>("Length")
                         .HasColumnType("int");
 
-                    b.Property<int>("Mileage")
-                        .HasColumnType("int");
+                    b.Property<double>("Mileage")
+                        .HasColumnType("float");
 
                     b.Property<int>("PersonCapacity")
                         .HasColumnType("int");
 
-                    b.Property<int>("Power")
-                        .HasColumnType("int");
+                    b.Property<double>("Power")
+                        .HasColumnType("float");
 
                     b.Property<string>("PoweredSteering")
                         .IsRequired()
@@ -205,11 +205,11 @@ namespace Autorovers.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TankSize")
-                        .HasColumnType("int");
+                    b.Property<double>("TankSize")
+                        .HasColumnType("float");
 
-                    b.Property<int>("Torque")
-                        .HasColumnType("int");
+                    b.Property<double>("Torque")
+                        .HasColumnType("float");
 
                     b.Property<string>("Transmission")
                         .IsRequired()
@@ -333,8 +333,7 @@ namespace Autorovers.Infrastructure.Migrations
 
             modelBuilder.Entity("Autorovers.Domain.Entities.Vehicle", b =>
                 {
-                    b.Navigation("Details")
-                        .IsRequired();
+                    b.Navigation("Details");
                 });
 #pragma warning restore 612, 618
         }

@@ -14,10 +14,10 @@ public class VehicleDetails
     public string EngineType { get; set; } = null!;
     public string Specification { get; set; } = null!;
     public string InductionType { get; set; } = null!;
-    public int Power { get; set; }
-    public int Torque { get; set; }
+    public double Power { get; set; }
+    public double Torque { get; set; }
     public string Emission { get; set; } = null!;
-    public int Mileage { get; set; }
+    public double Mileage { get; set; }
     public string AutoStartStop { get; set; } = "";
 
     public int Range { get; set; }
@@ -36,7 +36,7 @@ public class VehicleDetails
     public int Rows { get; set; }
     public int Doors { get; set; }
     public int BootSpace { get; set; }
-    public int TankSize { get; set; }
+    public double TankSize { get; set; }
 
     // Dynamics
     public string FrontTyre { get; set; } = null!;
