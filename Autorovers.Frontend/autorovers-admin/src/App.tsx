@@ -34,6 +34,7 @@ function PublicLayout({ children }: LayoutProps) {
   );
 }
 
+
 function AdminLayout() {
   return (
     <div className="admin-root">
@@ -64,7 +65,7 @@ function App() {
           }
         />
         <Route
-          path="/vehicles/:id"
+          path="/vehicles/:slug"
           element={
             <PublicLayout>
               <VehicleDetailsPage />
