@@ -163,3 +163,119 @@ body.public-view {
     padding: 1.25rem 1rem 2rem;
   }
 }
+
+.public-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+/* SEARCH & FILTER BAR */
+.catalog-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.catalog-search {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 0.95rem;
+}
+
+.catalog-search::placeholder {
+  color: #6b7280;
+}
+
+.catalog-select {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.no-results {
+  font-size: 1rem;
+  margin-top: 1rem;
+  color: #9ca3af;
+  grid-column: 1 / -1;
+}
+
+/* GRID POLISH */
+.vehicle-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  margin-top: 0.75rem;
+}
+
+/* DARK CARD STYLE */
+.vehicle-card {
+  display: block;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #020617;          /* very dark */
+  border: 1px solid #111827;    /* subtle border */
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.6);
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease, background 0.15s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-3px);
+  border-color: #2563eb;
+  background: #030712;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.9);
+}
+
+.vehicle-card-header {
+  margin-bottom: 0.35rem;
+}
+
+.vehicle-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.vehicle-card-variant {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.vehicle-card-specs {
+  margin: 0.4rem 0 0.2rem;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.vehicle-card-price {
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.vehicle-card-footer {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.vehicle-card-tag {
+  background: #111827;
+  color: #9ca3af;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid #1f2937;
+}
