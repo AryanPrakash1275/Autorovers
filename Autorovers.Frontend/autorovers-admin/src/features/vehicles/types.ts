@@ -9,6 +9,7 @@ export interface Vehicle {
   transmission: string;
   slug: string;
 
+  // Engine & performance
   engineType: string;
   specification: string;
   inductionType: string;
@@ -19,6 +20,7 @@ export interface Vehicle {
   autoStartStop: string;
   range: number;
 
+  // Dimensions & weight
   length: number;
   width: number;
   height: number;
@@ -26,12 +28,14 @@ export interface Vehicle {
   groundClearance: number;
   wheelBase: number;
 
+  // Capacity
   personCapacity: number;
   rows: number;
   doors: number;
   bootSpace: number;
   tankSize: number;
 
+  // Tyres, brakes & steering
   frontTyre: string;
   backType: string;
   frontBrake: string;

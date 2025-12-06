@@ -39,3 +39,11 @@ export async function getPublicVehicles(): Promise<Vehicle[]> {
 export async function getPublicVehicleBySlug(slug: string): Promise<Vehicle> {
   return apiGet<Vehicle>(`${PUBLIC_VEHICLES_PATH}/slug/${slug}`);
 }
+
+export function getVehicleWithDetails(id: number) {
+  return apiGet(`/api/AdminVehicles/${id}/details`);
+}
+
+export function updateVehicleDetails(id: number, payload: any) {
+  return apiPut(`/api/AdminVehicles/${id}/details`, payload);
+}

@@ -7,6 +7,8 @@ import {
   createVehicle,
   updateVehicle,
   deleteVehicleById,
+  getVehicleWithDetails,
+  updateVehicleDetails,
 } from "../api";
 
 type SortKey =
@@ -29,6 +31,7 @@ export function VehicleListPage() {
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Vehicle | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
 
   const handleSortChange = (key: string) => {
     const typedKey = key as SortKey;
@@ -106,11 +109,72 @@ export function VehicleListPage() {
     setActionError(null);
   }
 
-  function openEdit(v: Vehicle) {
-    setMode("edit");
-    setEditing(v);
-    setIsPanelOpen(true);
-    setActionError(null);
+  async function openEdit(row: Vehicle) {
+    try {
+      setMode("edit");
+      setIsPanelOpen(true);
+      setActionError(null);
+      setEditLoading(true);
+
+      const full: any = await getVehicleWithDetails(row.id);
+
+      const d = full.details ?? {};
+
+      const merged: Vehicle = {
+        // basics from API row + fallback to full
+        id: full.id,
+        brand: full.brand,
+        model: full.model,
+        variant: full.variant,
+        year: full.year,
+        price: full.price,
+        category: full.category,
+        transmission: full.transmission,
+        slug: full.slug,
+
+        // specs
+        engineType: d.engineType ?? "",
+        specification: d.specification ?? "",
+        inductionType: d.inductionType ?? "",
+        power: d.power ?? 0,
+        torque: d.torque ?? 0,
+        emission: d.emission ?? "",
+        mileage: d.mileage ?? 0,
+        autoStartStop: d.autoStartStop ?? "",
+        range: d.range ?? 0,
+
+        length: d.length ?? 0,
+        width: d.width ?? 0,
+        height: d.height ?? 0,
+        weight: d.weight ?? 0,
+        groundClearance: d.groundClearance ?? 0,
+        wheelBase: d.wheelBase ?? 0,
+
+        personCapacity: d.personCapacity ?? 0,
+        rows: d.rows ?? 0,
+        doors: d.doors ?? 0,
+        bootSpace: d.bootSpace ?? 0,
+        tankSize: d.tankSize ?? 0,
+
+        frontTyre: d.frontTyre ?? "",
+        backType: d.backType ?? "",
+        frontBrake: d.frontBrake ?? "",
+        backBrake: d.backBrake ?? "",
+        poweredSteering: d.poweredSteering ?? "",
+        tyreSizeFront: d.tyreSizeFront ?? "",
+        tyreSizeBack: d.tyreSizeBack ?? "",
+        tyreType: d.tyreType ?? "",
+        wheelMaterial: d.wheelMaterial ?? "",
+        spare: d.spare ?? "",
+      };
+
+      setEditing(merged);
+    } catch (err: any) {
+      console.error(err);
+      setActionError(err.message ?? "Failed to load vehicle details");
+    } finally {
+      setEditLoading(false);
+    }
   }
 
   function closePanel() {
@@ -121,14 +185,55 @@ export function VehicleListPage() {
   async function handleSubmit(data: Vehicle) {
     try {
       setActionError(null);
+
       if (mode === "create") {
         await createVehicle(data);
       } else if (mode === "edit" && editing?.id) {
+        // 1) Update core vehicle
         await updateVehicle(editing.id, data);
+
+        // 2) Update details via dedicated endpoint
+        await updateVehicleDetails(editing.id, {
+          engineType: data.engineType,
+          specification: data.specification,
+          inductionType: data.inductionType,
+          power: data.power,
+          torque: data.torque,
+          emission: data.emission,
+          mileage: data.mileage,
+          autoStartStop: data.autoStartStop,
+          range: data.range,
+
+          length: data.length,
+          width: data.width,
+          height: data.height,
+          weight: data.weight,
+          groundClearance: data.groundClearance,
+          wheelBase: data.wheelBase,
+
+          personCapacity: data.personCapacity,
+          rows: data.rows,
+          doors: data.doors,
+          bootSpace: data.bootSpace,
+          tankSize: data.tankSize,
+
+          frontTyre: data.frontTyre,
+          backType: data.backType,
+          frontBrake: data.frontBrake,
+          backBrake: data.backBrake,
+          poweredSteering: data.poweredSteering,
+          tyreSizeFront: data.tyreSizeFront,
+          tyreSizeBack: data.tyreSizeBack,
+          tyreType: data.tyreType,
+          wheelMaterial: data.wheelMaterial,
+          spare: data.spare,
+        });
       }
+
       await reload();
       closePanel();
     } catch (err: any) {
+      console.error(err);
       setActionError(err.message ?? "Action failed");
     }
   }
@@ -140,6 +245,7 @@ export function VehicleListPage() {
       await deleteVehicleById(id);
       await reload();
     } catch (err: any) {
+      console.error(err);
       setActionError(err.message ?? "Delete failed");
     }
   }
@@ -193,10 +299,14 @@ export function VehicleListPage() {
         onDelete={handleDelete}
       />
 
-      {/* Slide-over */}
       <div className={`slide-over ${isPanelOpen ? "is-open" : ""}`}>
         <div className="slide-over-backdrop" onClick={closePanel} />
         <div className="slide-over-panel">
+          {editLoading && (
+            <p className="muted" style={{ marginBottom: "0.5rem" }}>
+              Loading full specs…
+            </p>
+          )}
           {isPanelOpen && (
             <VehicleForm
               initial={editing}

@@ -1,73 +1,75 @@
 ﻿using Autorovers.Application.Vehicles;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AutoroversApi.Controllers
+namespace AutoroversApi.Controllers;
+
+[ApiController]
+[Route("api/AdminVehicles")]
+public class AdminVehiclesController : ControllerBase
 {
-    [ApiController]
-    [Route("api/AdminVehicles")]
-    public class AdminVehiclesController : ControllerBase
+    private readonly IVehicleService _vehicleService;
+
+    public AdminVehiclesController(IVehicleService vehicleService)
     {
-        private readonly IVehicleService _vehicleService;
+        _vehicleService = vehicleService;
+    }
 
-        public AdminVehiclesController(IVehicleService vehicleService)
-        {
-            _vehicleService = vehicleService;
-        }
+    // GET: /api/AdminVehicles
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var list = await _vehicleService.GetAllAsync();
+        return Ok(list);
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateVehicle([FromBody] CreateVehicleRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+    // GET: /api/AdminVehicles/{id}
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(int id)
+    {
+        var v = await _vehicleService.GetByIdAsync(id);
+        if (v is null) return NotFound();
+        return Ok(v);
+    }
 
-            var id = await _vehicleService.CreateVehicleAsync(request);
+    // GET: /api/AdminVehicles/{id}/details
+    [HttpGet("{id}/details")]
+    public async Task<IActionResult> GetWithDetails(int id)
+    {
+        var v = await _vehicleService.GetWithDetailsByIdAsync(id);
+        if (v is null) return NotFound();
+        return Ok(v);
+    }
 
-            return StatusCode(StatusCodes.Status201Created, new { id });
-        }
+    // POST: /api/AdminVehicles
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateVehicleRequest req)
+    {
+        var id = await _vehicleService.CreateVehicleAsync(req);
+        return CreatedAtAction(nameof(Get), new { id }, new { id });
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<VehicleListItemDto>>> GetAll()
-        {
-            var items = await _vehicleService.GetAllAsync();
-            return Ok(items);
-        }
+    // PUT: /api/AdminVehicles/{id}
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateVehicleRequest req)
+    {
+        await _vehicleService.UpdateVehicleAsync(id, req);
+        return NoContent();
+    }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<VehicleListItemDto>> GetById(int id)
-        {
-            var vehicle = await _vehicleService.GetByIdAsync(id);
-            if (vehicle is null)
-                return NotFound();
+    // PUT: /api/AdminVehicles/{id}/details
+    [HttpPut("{id}/details")]
+    public async Task<IActionResult> UpdateDetails(int id, [FromBody] UpdateVehicleDetailsRequest req)
+    {
+        await _vehicleService.UpdateVehicleDetailsAsync(id, req);
+        return NoContent();
+    }
 
-            return Ok(vehicle);
-        }
-
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> UpdateVehicle(int id, [FromBody] UpdateVehicleRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                await _vehicleService.UpdateVehicleAsync(id, request);
-                return NoContent();
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-        }
-
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> DeleteVehicle(int id)
-        {
-            var deleted = await _vehicleService.DeleteVehicleAsync(id);
-
-            if (!deleted)
-                return NotFound();
-
-            return NoContent();
-        }
+    // DELETE: /api/AdminVehicles/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var ok = await _vehicleService.DeleteVehicleAsync(id);
+        if (!ok) return NotFound();
+        return NoContent();
     }
 }

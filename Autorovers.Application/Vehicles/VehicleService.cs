@@ -19,7 +19,11 @@ public class VehicleService : IVehicleService
     // =====================================================
     public async Task<int> CreateVehicleAsync(CreateVehicleRequest r)
     {
-        // STEP 1: Create vehicle WITHOUT slug first
+        // 1) Decide slug
+        var slug = string.IsNullOrWhiteSpace(r.Slug)
+            ? Vehicle.GenerateSlug(r.Brand, r.Model, r.Variant)
+            : r.Slug.Trim();
+
         var vehicle = new Vehicle
         {
             Brand = r.Brand,
@@ -28,21 +32,17 @@ public class VehicleService : IVehicleService
             Year = r.Year,
             Category = r.Category,
             Price = r.Price,
-            Transmission = r.Transmission
+            Transmission = r.Transmission,
+            Slug = slug
         };
 
         _db.Vehicles.Add(vehicle);
-        await _db.SaveChangesAsync(); // Generates ID
 
-        // STEP 2: Now generate slug with ID appended
-        vehicle.Slug = SlugHelper.ToSlug(r.Brand, r.Model, r.Variant) + "-" + vehicle.Id;
-        await _db.SaveChangesAsync();
-
-        // STEP 3: Create details
         var details = new VehicleDetails
         {
-            VehicleId = vehicle.Id,
+            Vehicle = vehicle,
 
+            // Engine Specs
             EngineType = r.EngineType,
             Specification = r.Specification,
             InductionType = r.InductionType,
@@ -54,6 +54,7 @@ public class VehicleService : IVehicleService
             Range = r.Range,
             Transmission = r.Transmission,
 
+            // Size & weight
             Length = r.Length,
             Width = r.Width,
             Height = r.Height,
@@ -61,12 +62,14 @@ public class VehicleService : IVehicleService
             GroundClearance = r.GroundClearance,
             WheelBase = r.WheelBase,
 
+            // Capacity
             PersonCapacity = r.PersonCapacity,
             Rows = r.Rows,
             Doors = r.Doors,
             BootSpace = r.BootSpace,
             TankSize = r.TankSize,
 
+            // Dynamics
             FrontTyre = r.FrontTyre,
             BackType = r.BackType,
             FrontBrake = r.FrontBrake,
@@ -80,10 +83,12 @@ public class VehicleService : IVehicleService
         };
 
         _db.VehicleDetails.Add(details);
+
         await _db.SaveChangesAsync();
 
         return vehicle.Id;
     }
+
 
     // =====================================================
     // GET ALL
@@ -190,5 +195,106 @@ public class VehicleService : IVehicleService
         await _db.SaveChangesAsync();
 
         return true;
+    }
+
+    // Update stuff
+    public async Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id)
+    {
+        return await _db.Vehicles
+            .Include(v => v.Details)
+            .Where(v => v.Id == id)
+            .Select(v => new VehicleWithDetailsDto
+            {
+                Id = v.Id,
+                Brand = v.Brand,
+                Model = v.Model,
+                Variant = v.Variant,
+                Year = v.Year,
+                Price = v.Price,
+                Category = v.Category,
+                Transmission = v.Transmission,
+                Slug = v.Slug,
+                Details = new VehicleDetailsDto
+                {
+                    EngineType = v.Details.EngineType,
+                    Specification = v.Details.Specification,
+                    InductionType = v.Details.InductionType,
+                    Power = v.Details.Power,
+                    Torque = v.Details.Torque,
+                    Emission = v.Details.Emission,
+                    Mileage = v.Details.Mileage,
+                    AutoStartStop = v.Details.AutoStartStop,
+                    Range = v.Details.Range,
+
+                    Length = v.Details.Length,
+                    Width = v.Details.Width,
+                    Height = v.Details.Height,
+                    Weight = v.Details.Weight,
+                    GroundClearance = v.Details.GroundClearance,
+                    WheelBase = v.Details.WheelBase,
+
+                    PersonCapacity = v.Details.PersonCapacity,
+                    Rows = v.Details.Rows,
+                    Doors = v.Details.Doors,
+                    BootSpace = v.Details.BootSpace,
+                    TankSize = v.Details.TankSize,
+
+                    FrontTyre = v.Details.FrontTyre,
+                    BackType = v.Details.BackType,
+                    FrontBrake = v.Details.FrontBrake,
+                    BackBrake = v.Details.BackBrake,
+                    PoweredSteering = v.Details.PoweredSteering,
+                    TyreSizeFront = v.Details.TyreSizeFront,
+                    TyreSizeBack = v.Details.TyreSizeBack,
+                    TyreType = v.Details.TyreType,
+                    WheelMaterial = v.Details.WheelMaterial,
+                    Spare = v.Details.Spare
+                }
+            })
+            .FirstOrDefaultAsync();
+    }
+    public async Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req)
+    {
+        var details = await _db.VehicleDetails
+            .FirstOrDefaultAsync(d => d.VehicleId == id);
+
+        if (details == null)
+            throw new KeyNotFoundException($"Vehicle details for id {id} not found.");
+
+        details.EngineType = req.EngineType ?? details.EngineType;
+        details.Specification = req.Specification ?? details.Specification;
+        details.InductionType = req.InductionType ?? details.InductionType;
+        details.Power = req.Power ?? details.Power;
+        details.Torque = req.Torque ?? details.Torque;
+        details.Emission = req.Emission ?? details.Emission;
+        details.Mileage = req.Mileage ?? details.Mileage;
+        details.AutoStartStop = req.AutoStartStop ?? details.AutoStartStop;
+        details.Range = req.Range ?? details.Range;
+
+        details.Length = req.Length ?? details.Length;
+        details.Width = req.Width ?? details.Width;
+        details.Height = req.Height ?? details.Height;
+        details.Weight = req.Weight ?? details.Weight;
+        details.GroundClearance = req.GroundClearance ?? details.GroundClearance;
+        details.WheelBase = req.WheelBase ?? details.WheelBase;
+
+        details.PersonCapacity = req.PersonCapacity ?? details.PersonCapacity;
+        details.Rows = req.Rows ?? details.Rows;
+        details.Doors = req.Doors ?? details.Doors;
+        details.BootSpace = req.BootSpace ?? details.BootSpace;
+        details.TankSize = req.TankSize ?? details.TankSize;
+
+        details.FrontTyre = req.FrontTyre ?? details.FrontTyre;
+        details.BackType = req.BackType ?? details.BackType;
+        details.FrontBrake = req.FrontBrake ?? details.FrontBrake;
+        details.BackBrake = req.BackBrake ?? details.BackBrake;
+        details.PoweredSteering = req.PoweredSteering ?? details.PoweredSteering;
+        details.TyreSizeFront = req.TyreSizeFront ?? details.TyreSizeFront;
+        details.TyreSizeBack = req.TyreSizeBack ?? details.TyreSizeBack;
+        details.TyreType = req.TyreType ?? details.TyreType;
+        details.WheelMaterial = req.WheelMaterial ?? details.WheelMaterial;
+        details.Spare = req.Spare ?? details.Spare;
+
+        await _db.SaveChangesAsync();
     }
 }

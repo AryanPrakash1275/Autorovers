@@ -271,3 +271,32 @@ tbody tr:hover {
 .admin-content {
   width: 100%;
 }
+
+.form-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.form-tab {
+  border-radius: 999px;
+  padding: 0.25rem 0.9rem;
+  border: 1px solid #374151;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.form-tab.is-active {
+  background: #22c55e;
+  border-color: #22c55e;
+  color: #020617;
+}
+
+.form-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9ca3af;
+  margin: 0.75rem 0 0.35rem;
+}

@@ -14,6 +14,6 @@ public interface IVehicleService
     Task UpdateVehicleAsync(int id, UpdateVehicleRequest request);
     Task<bool> DeleteVehicleAsync(int id);
     Task<VehicleListItemDto?> GetBySlugAsync(string slug); //new-slug-gen
-
-
+    Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id);
+    Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req);
 }

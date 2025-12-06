@@ -16,6 +16,7 @@ namespace Autorovers.Application.Vehicles
         public int Price { get; set; }
         public string Category { get; set; }
         public string Transmission { get; set; }
+        public string? Slug { get; set; }
 
         // Details block
         public string EngineType { get; set; }
