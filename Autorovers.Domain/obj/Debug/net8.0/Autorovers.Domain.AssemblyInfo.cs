@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autorovers.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e4c0c898af026e9dd4b52b3c45006ab028acdc7f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d76a4ddbb83d81451811a5fa6718a02517d4bfe")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autorovers.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autorovers.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
