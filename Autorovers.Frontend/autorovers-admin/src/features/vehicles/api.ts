@@ -1,19 +1,15 @@
+// src/features/vehicles/api.ts
 import { apiGet, apiPost, apiPut, apiDelete } from "../../api/client";
 import type { Vehicle } from "./types";
 
+// ADMIN endpoints
 const ADMIN_VEHICLES_PATH = "/api/AdminVehicles";
+
+// PUBLIC endpoints
 const PUBLIC_VEHICLES_PATH = "/api/Vehicles";
 
-// 🔹 PUBLIC ENDPOINTS
-export async function getPublicVehicles(): Promise<Vehicle[]> {
-  return apiGet<Vehicle[]>(PUBLIC_VEHICLES_PATH);
-}
+// ===== ADMIN =====
 
-export async function getPublicVehicle(id: number): Promise<Vehicle> {
-  return apiGet<Vehicle>(`${PUBLIC_VEHICLES_PATH}/${id}`);
-}
-
-// 🔹 ADMIN ENDPOINTS
 export async function getVehicles(): Promise<Vehicle[]> {
   return apiGet<Vehicle[]>(ADMIN_VEHICLES_PATH);
 }
@@ -32,4 +28,14 @@ export async function updateVehicle(id: number, payload: Vehicle): Promise<void>
 
 export async function deleteVehicleById(id: number): Promise<void> {
   return apiDelete(`${ADMIN_VEHICLES_PATH}/${id}`);
+}
+
+// ===== PUBLIC =====
+
+export async function getPublicVehicles(): Promise<Vehicle[]> {
+  return apiGet<Vehicle[]>(PUBLIC_VEHICLES_PATH);
+}
+
+export async function getPublicVehicleBySlug(slug: string): Promise<Vehicle> {
+  return apiGet<Vehicle>(`${PUBLIC_VEHICLES_PATH}/slug/${slug}`);
 }

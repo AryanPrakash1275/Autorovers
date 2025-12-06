@@ -29,4 +29,13 @@ public class VehiclesController : ControllerBase
         if (vehicle == null) return NotFound();
         return Ok(vehicle);
     }
+    //for slug
+    [HttpGet("slug/{slug}")]
+    public async Task<IActionResult> GetBySlug(string slug)
+    {
+        var vehicle = await _vehicleService.GetBySlugAsync(slug);
+        if (vehicle is null) return NotFound();
+        return Ok(vehicle);
+    }
+
 }

@@ -1,5 +1,6 @@
 // src/public/VehiclesPage.tsx
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import type { Vehicle } from "../features/vehicles/types";
 import { getPublicVehicles } from "../features/vehicles/api";
 
@@ -57,9 +58,9 @@ export function VehiclesPage() {
               : "Price unavailable";
 
           return (
-            <a
+            <Link
               key={v.id}
-              href={`/vehicles/${v.id}`}
+              to={`/vehicles/${v.slug}`}   // 👈 IMPORTANT: use slug, not id
               className="vehicle-card"
             >
               <div className="vehicle-card-header">
@@ -83,7 +84,7 @@ export function VehiclesPage() {
                 <span className="vehicle-card-tag">{v.category}</span>
                 <span className="vehicle-card-tag">{v.transmission}</span>
               </div>
-            </a>
+            </Link>
           );
         })}
       </div>
