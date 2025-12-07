@@ -273,3 +273,94 @@ body.public-view {
   font-size: 0.75rem;
   border: 1px solid #1f2937;
 }
+
+/* Grid for catalog */
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card base */
+.vehicle-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  padding: 0.75rem 0.75rem 0.9rem;
+  background: #0b0b0f;
+  border: 1px solid #1c1c26;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+  border-color: #3b82f6;
+}
+
+/*IMAGES*/
+/* Image wrapper: fixes overflow + keeps aspect ratio */
+.vehicle-card-image-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;       /* key part */
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  background: #050509;
+}
+
+.vehicle-card-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;          /* no squish */
+}
+
+.vehicle-hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: stretch;
+  margin-bottom: 2rem;
+}
+
+.vehicle-hero-main {
+  flex: 1 1 280px;
+  min-width: 260px;
+}
+
+.vehicle-hero-image {
+  flex: 1 1 280px;
+  min-width: 260px;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The actual image element */
+.vehicle-hero-img {
+  width: 100%;
+  max-height: 320px;          /* hard cap so it doesn’t overflow */
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+}
+
+/* Fallback placeholder (when no imageUrl) */
+.vehicle-image-placeholder {
+  width: 100%;
+  max-height: 320px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1e293b, #020617);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e5e7eb;
+  font-weight: 500;
+  font-size: 1.1rem;
+}

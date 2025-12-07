@@ -225,10 +225,18 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                 name="imageUrl"
                 value={form.imageUrl ?? ""}   // ✅ force null/undefined → ""
                 onChange={handleChange}
-                placeholder="https://example.com/bike.jpg"
-              />
+                placeholder="https://example.com/bike.jpg"/>
             </div>
 
+            {form.imageUrl && (
+              <div className="field" style={{ gridColumn: "1 / -1" }}>
+                <label>Preview</label>
+                <div className="image-preview">
+                  <img src={form.imageUrl} alt="preview" />
+                </div>
+              </div>
+            )}
+            
             <div className="field">
               <label>Slug (optional)</label>
               <input
