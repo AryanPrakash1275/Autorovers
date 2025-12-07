@@ -3,6 +3,7 @@ import { VehiclesPage } from "./public/VehiclesPage";
 import { VehicleDetailsPage } from "./public/VehicleDetailsPage";
 import { VehicleListPage } from "./features/vehicles/components/VehicleListPage";
 
+
 import "./styles/admin.css";
 import "./styles/public.css";
 

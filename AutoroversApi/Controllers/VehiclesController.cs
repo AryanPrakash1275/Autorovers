@@ -20,22 +20,20 @@ public class VehiclesController : ControllerBase
         var vehicles = await _vehicleService.GetAllAsync();
         return Ok(vehicles);
     }
-
-    // GET: /api/Vehicles/{id}
-    [HttpGet("{id}")]
+    // GET: /api/Vehicles/{id}  → FULL DETAILS
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
-        var vehicle = await _vehicleService.GetByIdAsync(id);
+        var vehicle = await _vehicleService.GetWithDetailsByIdAsync(id);
         if (vehicle == null) return NotFound();
         return Ok(vehicle);
     }
-    //for slug
+
     [HttpGet("slug/{slug}")]
     public async Task<IActionResult> GetBySlug(string slug)
     {
-        var vehicle = await _vehicleService.GetBySlugAsync(slug);
+        var vehicle = await _vehicleService.GetWithDetailsBySlugAsync(slug);
         if (vehicle is null) return NotFound();
         return Ok(vehicle);
     }
-
 }

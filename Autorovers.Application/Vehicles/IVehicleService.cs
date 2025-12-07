@@ -1,19 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿// Autorovers.Application/Vehicles/IVehicleService.cs
 namespace Autorovers.Application.Vehicles;
 
 public interface IVehicleService
 {
     Task<int> CreateVehicleAsync(CreateVehicleRequest request);
+
     Task<IReadOnlyList<VehicleListItemDto>> GetAllAsync();
+
+    // Summary by id (used if you still want it for admin list/details)
     Task<VehicleListItemDto?> GetByIdAsync(int id);
+
     Task UpdateVehicleAsync(int id, UpdateVehicleRequest request);
+
     Task<bool> DeleteVehicleAsync(int id);
-    Task<VehicleListItemDto?> GetBySlugAsync(string slug); //new-slug-gen
+
+    // Summary by slug (if needed)
+    Task<VehicleListItemDto?> GetBySlugAsync(string slug);
+
+    // FULL details by id – used for details page
     Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id);
+
+    // FULL details by slug – for slug-based details if you use it
+    Task<VehicleWithDetailsDto?> GetWithDetailsBySlugAsync(string slug);
+
     Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req);
 }

@@ -207,7 +207,6 @@ export function VehicleListPage() {
           length: data.length,
           width: data.width,
           height: data.height,
-          weight: data.weight,
           groundClearance: data.groundClearance,
           wheelBase: data.wheelBase,
 

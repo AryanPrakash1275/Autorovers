@@ -1,3 +1,5 @@
+// src/features/vehicles/types.ts
+
 export interface Vehicle {
   id: number;
   brand: string;

@@ -1,38 +1,51 @@
 ﻿namespace Autorovers.Application.Vehicles;
 
-public class VehicleDetailsDto
+public sealed class VehicleDetailsDto
 {
-    public string? EngineType { get; set; }
-    public string? Specification { get; set; }
-    public string? InductionType { get; set; }
-    public double? Power { get; set; }
-    public double? Torque { get; set; }
-    public string? Emission { get; set; }
-    public double? Mileage { get; set; }
-    public string? AutoStartStop { get; set; }
-    public int? Range { get; set; }
+    public int Id { get; init; }
+    public string Brand { get; init; } = null!;
+    public string Model { get; init; } = null!;
+    public string? Variant { get; init; }
+    public string Slug { get; init; } = null!;
 
-    public int? Length { get; set; }
-    public int? Width { get; set; }
-    public int? Height { get; set; }
-    public int? Weight { get; set; }
-    public int? GroundClearance { get; set; }
-    public int? WheelBase { get; set; }
+    public int Year { get; init; }
+    public decimal Price { get; init; }
+    public string Category { get; init; } = null!;
+    public string Transmission { get; init; } = null!;
+    public string EngineType { get; init; } = null!;
+    public string Specification { get; init; } = null!;
+    public string InductionType { get; init; } = null!;
+    public double Power { get; init; }
+    public double Torque { get; init; }
+    public string Emission { get; init; } = null!;
+    public double Mileage { get; init; }
+    public string AutoStartStop { get; init; } = null!;
+    public int Range { get; init; }
 
-    public int? PersonCapacity { get; set; }
-    public int? Rows { get; set; }
-    public int? Doors { get; set; }
-    public int? BootSpace { get; set; }
-    public double? TankSize { get; set; }
+    public int Length { get; init; }
+    public int Width { get; init; }
+    public int Height { get; init; }
+    public int Weight { get; init; }
+    public int GroundClearance { get; init; }
+    public int WheelBase { get; init; }
 
-    public string? FrontTyre { get; set; }
-    public string? BackType { get; set; }
-    public string? FrontBrake { get; set; }
-    public string? BackBrake { get; set; }
-    public string? PoweredSteering { get; set; }
-    public string? TyreSizeFront { get; set; }
-    public string? TyreSizeBack { get; set; }
-    public string? TyreType { get; set; }
-    public string? WheelMaterial { get; set; }
-    public string? Spare { get; set; }
+    public int PersonCapacity { get; init; }
+    public int Rows { get; init; }
+    public int Doors { get; init; }
+    public int BootSpace { get; init; }
+    public double TankSize { get; init; }
+
+    public string? FrontTyre { get; init; }
+    public string? BackType { get; init; }        // yes, match the exact name used in VehicleService
+    public string? FrontBrake { get; init; }
+    public string? BackBrake { get; init; }
+    public string? PoweredSteering { get; init; } // or bool if your entity uses bool
+    public string? TyreSizeFront { get; init; }
+    public string? TyreSizeBack { get; init; }
+    public string? TyreType { get; init; }
+    public string? WheelMaterial { get; init; }
+    public string? Spare { get; init; }
+
+    // if you already added ImageUrl on entity, include it:
+    public string? ImageUrl { get; init; }
 }

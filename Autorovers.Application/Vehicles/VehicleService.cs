@@ -1,4 +1,5 @@
-﻿using Autorovers.Application.Abstractions.Data;
+﻿// Autorovers.Application/Vehicles/VehicleService.cs
+using Autorovers.Application.Abstractions.Data;
 using Autorovers.Domain.Entities;
 using Autorovers.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +16,11 @@ public class VehicleService : IVehicleService
     }
 
     // =====================================================
-    // CREATE VEHICLE — Option 2 slug (brand-model-var-id)
+    // CREATE VEHICLE
     // =====================================================
     public async Task<int> CreateVehicleAsync(CreateVehicleRequest r)
     {
-        // 1) Decide slug
+        // decide slug
         var slug = string.IsNullOrWhiteSpace(r.Slug)
             ? Vehicle.GenerateSlug(r.Brand, r.Model, r.Variant)
             : r.Slug.Trim();
@@ -89,9 +90,8 @@ public class VehicleService : IVehicleService
         return vehicle.Id;
     }
 
-
     // =====================================================
-    // GET ALL
+    // GET ALL (summary)
     // =====================================================
     public async Task<IReadOnlyList<VehicleListItemDto>> GetAllAsync()
     {
@@ -114,7 +114,7 @@ public class VehicleService : IVehicleService
     }
 
     // =====================================================
-    // GET BY ID
+    // GET BY ID (summary)
     // =====================================================
     public async Task<VehicleListItemDto?> GetByIdAsync(int id)
     {
@@ -135,6 +135,9 @@ public class VehicleService : IVehicleService
             .FirstOrDefaultAsync();
     }
 
+    // =====================================================
+    // GET BY SLUG (summary)
+    // =====================================================
     public async Task<VehicleListItemDto?> GetBySlugAsync(string slug)
     {
         return await _db.Vehicles
@@ -154,9 +157,8 @@ public class VehicleService : IVehicleService
             .FirstOrDefaultAsync();
     }
 
-
     // =====================================================
-    // UPDATE VEHICLE — regenerate slug with ID
+    // UPDATE VEHICLE (basic)
     // =====================================================
     public async Task UpdateVehicleAsync(int id, UpdateVehicleRequest request)
     {
@@ -174,7 +176,7 @@ public class VehicleService : IVehicleService
         entity.Category = request.Category;
         entity.Transmission = request.Transmission;
 
-        // regenerate slug: brand-model-variant-id
+        // regenerate slug from brand/model/variant + id if you want:
         entity.Slug = SlugHelper.ToSlug(request.Brand, request.Model, request.Variant) + "-" + id;
 
         await _db.SaveChangesAsync();
@@ -197,7 +199,9 @@ public class VehicleService : IVehicleService
         return true;
     }
 
-    // Update stuff
+    // =====================================================
+    // GET WITH DETAILS BY ID
+    // =====================================================
     public async Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id)
     {
         return await _db.Vehicles
@@ -253,6 +257,69 @@ public class VehicleService : IVehicleService
             })
             .FirstOrDefaultAsync();
     }
+
+    // =====================================================
+    // GET WITH DETAILS BY SLUG
+    // =====================================================
+    public async Task<VehicleWithDetailsDto?> GetWithDetailsBySlugAsync(string slug)
+    {
+        return await _db.Vehicles
+            .Include(v => v.Details)
+            .Where(v => v.Slug == slug)
+            .Select(v => new VehicleWithDetailsDto
+            {
+                Id = v.Id,
+                Brand = v.Brand,
+                Model = v.Model,
+                Variant = v.Variant,
+                Year = v.Year,
+                Price = v.Price,
+                Category = v.Category,
+                Transmission = v.Transmission,
+                Slug = v.Slug,
+                Details = new VehicleDetailsDto
+                {
+                    EngineType = v.Details.EngineType,
+                    Specification = v.Details.Specification,
+                    InductionType = v.Details.InductionType,
+                    Power = v.Details.Power,
+                    Torque = v.Details.Torque,
+                    Emission = v.Details.Emission,
+                    Mileage = v.Details.Mileage,
+                    AutoStartStop = v.Details.AutoStartStop,
+                    Range = v.Details.Range,
+
+                    Length = v.Details.Length,
+                    Width = v.Details.Width,
+                    Height = v.Details.Height,
+                    Weight = v.Details.Weight,
+                    GroundClearance = v.Details.GroundClearance,
+                    WheelBase = v.Details.WheelBase,
+
+                    PersonCapacity = v.Details.PersonCapacity,
+                    Rows = v.Details.Rows,
+                    Doors = v.Details.Doors,
+                    BootSpace = v.Details.BootSpace,
+                    TankSize = v.Details.TankSize,
+
+                    FrontTyre = v.Details.FrontTyre,
+                    BackType = v.Details.BackType,
+                    FrontBrake = v.Details.FrontBrake,
+                    BackBrake = v.Details.BackBrake,
+                    PoweredSteering = v.Details.PoweredSteering,
+                    TyreSizeFront = v.Details.TyreSizeFront,
+                    TyreSizeBack = v.Details.TyreSizeBack,
+                    TyreType = v.Details.TyreType,
+                    WheelMaterial = v.Details.WheelMaterial,
+                    Spare = v.Details.Spare
+                }
+            })
+            .FirstOrDefaultAsync();
+    }
+
+    // =====================================================
+    // UPDATE DETAILS
+    // =====================================================
     public async Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req)
     {
         var details = await _db.VehicleDetails
