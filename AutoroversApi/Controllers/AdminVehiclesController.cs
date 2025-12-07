@@ -1,10 +1,12 @@
 ﻿using Autorovers.Application.Vehicles;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoroversApi.Controllers;
 
 [ApiController]
 [Route("api/AdminVehicles")]
+[Authorize(Policy = "AdminOnly")]
 public class AdminVehiclesController : ControllerBase
 {
     private readonly IVehicleService _vehicleService;
@@ -23,7 +25,7 @@ public class AdminVehiclesController : ControllerBase
     }
 
     // GET: /api/AdminVehicles/{id}
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
         var v = await _vehicleService.GetByIdAsync(id);
@@ -32,7 +34,7 @@ public class AdminVehiclesController : ControllerBase
     }
 
     // GET: /api/AdminVehicles/{id}/details
-    [HttpGet("{id}/details")]
+    [HttpGet("{id:int}/details")]
     public async Task<IActionResult> GetWithDetails(int id)
     {
         var v = await _vehicleService.GetWithDetailsByIdAsync(id);
@@ -44,28 +46,37 @@ public class AdminVehiclesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateVehicleRequest req)
     {
+        if (!ModelState.IsValid)
+            return ValidationProblem(ModelState);
+
         var id = await _vehicleService.CreateVehicleAsync(req);
         return CreatedAtAction(nameof(Get), new { id }, new { id });
     }
 
     // PUT: /api/AdminVehicles/{id}
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateVehicleRequest req)
     {
+        if (!ModelState.IsValid)
+            return ValidationProblem(ModelState);
+
         await _vehicleService.UpdateVehicleAsync(id, req);
         return NoContent();
     }
 
     // PUT: /api/AdminVehicles/{id}/details
-    [HttpPut("{id}/details")]
+    [HttpPut("{id:int}/details")]
     public async Task<IActionResult> UpdateDetails(int id, [FromBody] UpdateVehicleDetailsRequest req)
     {
+        if (!ModelState.IsValid)
+            return ValidationProblem(ModelState);
+
         await _vehicleService.UpdateVehicleDetailsAsync(id, req);
         return NoContent();
     }
 
     // DELETE: /api/AdminVehicles/{id}
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
         var ok = await _vehicleService.DeleteVehicleAsync(id);

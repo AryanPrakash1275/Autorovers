@@ -364,3 +364,100 @@ body.public-view {
   font-weight: 500;
   font-size: 1.1rem;
 }
+
+/* ===== VEHICLE DETAILS HERO ===== */
+
+.public-topbar {
+  margin-bottom: 1.5rem;
+}
+
+.vehicle-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #e5e7eb;
+}
+
+.vehicle-subtitle {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  margin-bottom: 0.6rem;
+}
+
+.vehicle-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #22c55e;
+  margin-bottom: 1rem;
+}
+
+/* top stats row under price */
+.vehicle-highlight-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.vehicle-highlight {
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.6rem;
+  background: #020617;
+  border: 1px solid #111827;
+}
+
+.vehicle-highlight .label {
+  display: block;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.1rem;
+}
+
+.vehicle-highlight .value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+/* ===== SPECS GRID BELOW HERO ===== */
+
+.vehicle-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.spec-card {
+  background: #020617;
+  border-radius: 12px;
+  border: 1px solid #111827;
+  padding: 1.1rem 1.25rem;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.8);
+}
+
+.spec-card h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #e5e7eb;
+}
+
+/* each row in the dl */
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+  padding: 0.2rem 0;
+}
+
+.spec-row dt {
+  color: #9ca3af;
+}
+
+.spec-row dd {
+  margin: 0;
+  font-weight: 500;
+  color: #e5e7eb;
+  text-align: right;
+}

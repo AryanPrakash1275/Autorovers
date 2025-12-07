@@ -1,55 +1,71 @@
+// src/api/client.ts
+import { getToken } from "../features/auth/storage";
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5029";
 
-export async function apiGet<T>(path: string): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
-  console.log("apiGet →", url);  // LOG THE REAL URL
 
-  const res = await fetch(url);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string> | undefined),
+  };
 
-  if (!res.ok) {
-    throw new Error(`GET ${url} failed with ${res.status}`);
+  const token = getToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  return res.json() as Promise<T>;
+  const res = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(
+      text || `Request failed: ${res.status} ${res.statusText} (${url})`
+    );
+  }
+
+  // No content
+  if (res.status === 204) {
+    return undefined as T;
+  }
+
+  return (await res.json()) as T;
 }
 
-export async function apiPost<TBody, TResp = any>(path: string, body: TBody): Promise<TResp> {
-  const url = `${API_BASE_URL}${path}`;
-  const res = await fetch(url, {
+export function apiGet<T>(path: string): Promise<T> {
+  return request<T>(path, { method: "GET" });
+}
+
+export function apiPost<TBody, TResp = any>(
+  path: string,
+  body: TBody
+): Promise<TResp> {
+  return request<TResp>(path, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `POST ${url} failed with ${res.status}`);
-  }
-
-  return (await res.json()) as TResp;
 }
 
-export async function apiPut<TBody>(path: string, body: TBody): Promise<void> {
-  const url = `${API_BASE_URL}${path}`;
-  const res = await fetch(url, {
+export function apiPut<TBody, TResp = void>(
+  path: string,
+  body: TBody
+): Promise<TResp> {
+  return request<TResp>(path, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `PUT ${url} failed with ${res.status}`);
-  }
 }
 
-export async function apiDelete(path: string): Promise<void> {
-  const url = `${API_BASE_URL}${path}`;
-  const res = await fetch(url, { method: "DELETE" });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `DELETE ${url} failed with ${res.status}`);
-  }
+export function apiDelete<TResp = void>(path: string): Promise<TResp> {
+  return request<TResp>(path, {
+    method: "DELETE",
+  });
 }

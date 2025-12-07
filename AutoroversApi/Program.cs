@@ -1,35 +1,82 @@
 using AppDI = Autorovers.Application.DependencyInjection;
 using InfraDI = Autorovers.Infrastructure.DependencyInjection;
+
 using AutoroversApi.Endpoints;
+using AutoroversApi.Auth;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Serilog
+// ========== Serilog ==========
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .CreateLogger();
+
 builder.Host.UseSerilog();
 
-// Call static methods explicitly (no extension syntax, no ambiguity)- not sure tho
+// ========== Application & Infrastructure ==========
 AppDI.AddApplication(builder.Services);
 InfraDI.AddInfrastructure(builder.Services, builder.Configuration);
 
-// MVC & auth controllers. Still have to configure auth
+// ========== JWT AUTH CONFIG ==========
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key is missing");
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false; // dev only
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+
+            ValidateIssuer = true,
+            ValidIssuer = jwtSection["Issuer"],
+
+            ValidateAudience = true,
+            ValidAudience = jwtSection["Audience"],
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+    {
+        policy.RequireRole("Admin");
+    });
+});
+
+// ========== MVC / Swagger ==========
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddControllers();
-builder.Services.AddAuthorization();
 
-// CORS CONFIG
+// ========== CORS ==========
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173") // i have hosted here
+            .WithOrigins("http://localhost:5173") // Vite frontend
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -37,20 +84,70 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-//swagger
+// ========== AUTH LOGIN ENDPOINT ==========
+app.MapPost("/api/auth/login", (LoginRequest login, IConfiguration config) =>
+{
+    var adminSection = config.GetSection("Admin");
+    var adminEmail = adminSection["Email"] ?? "";
+    var adminPassword = adminSection["Password"] ?? "";
+
+    // Single admin user from config
+    if (!string.Equals(login.Email, adminEmail, StringComparison.OrdinalIgnoreCase) ||
+        login.Password != adminPassword)
+    {
+        return Results.Unauthorized();
+    }
+
+    var jwtSection = config.GetSection("Jwt");
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]!));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+    var claims = new[]
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, adminEmail),
+        new Claim(ClaimTypes.Name, adminEmail),
+        new Claim(ClaimTypes.Role, "Admin")
+    };
+
+    var expires = DateTime.UtcNow.AddMinutes(
+        int.TryParse(jwtSection["ExpiryMinutes"], out var mins) ? mins : 60);
+
+    var token = new JwtSecurityToken(
+        issuer: jwtSection["Issuer"],
+        audience: jwtSection["Audience"],
+        claims: claims,
+        expires: expires,
+        signingCredentials: creds
+    );
+
+    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+    return Results.Ok(new
+    {
+        token = tokenString,
+        expiresAt = expires
+    });
+});
+
+// ========== Swagger ==========
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Pipeline
+// ========== PIPELINE ==========
 app.UseSerilogRequestLogging();
+
 app.UseHttpsRedirection();
-app.UseAuthorization();
+
+// CORS BEFORE auth so browser can actually talk to API
 app.UseCors("AllowFrontend");
 
-// Endpoints
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Custom endpoints + controllers
 app.MapHealth();
 app.MapControllers();
 
