@@ -11,5 +11,6 @@ public class VehicleWithDetailsDto
     public string Category { get; set; } = "";
     public string Transmission { get; set; } = "";
     public string Slug { get; set; } = "";
+    public string? ImageUrl { get; init; }
     public VehicleDetailsDto Details { get; set; } = new();
 }

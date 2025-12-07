@@ -34,7 +34,10 @@ public class VehicleService : IVehicleService
             Category = r.Category,
             Price = r.Price,
             Transmission = r.Transmission,
-            Slug = slug
+            Slug = slug,
+
+            // 🔹 NEW: store image url on root Vehicle
+            ImageUrl = r.ImageUrl
         };
 
         _db.Vehicles.Add(vehicle);
@@ -108,7 +111,10 @@ public class VehicleService : IVehicleService
                 Price = v.Price,
                 Category = v.Category,
                 Transmission = v.Transmission,
-                Slug = v.Slug
+                Slug = v.Slug,
+
+                // 🔹 NEW: include image in list items
+                ImageUrl = v.ImageUrl
             })
             .ToListAsync();
     }
@@ -130,7 +136,10 @@ public class VehicleService : IVehicleService
                 Price = v.Price,
                 Category = v.Category,
                 Transmission = v.Transmission,
-                Slug = v.Slug
+                Slug = v.Slug,
+
+                // 🔹 NEW
+                ImageUrl = v.ImageUrl
             })
             .FirstOrDefaultAsync();
     }
@@ -152,7 +161,10 @@ public class VehicleService : IVehicleService
                 Price = v.Price,
                 Category = v.Category,
                 Transmission = v.Transmission,
-                Slug = v.Slug
+                Slug = v.Slug,
+
+                // 🔹 NEW
+                ImageUrl = v.ImageUrl
             })
             .FirstOrDefaultAsync();
     }
@@ -175,6 +187,9 @@ public class VehicleService : IVehicleService
         entity.Price = request.Price;
         entity.Category = request.Category;
         entity.Transmission = request.Transmission;
+
+        // 🔹 NEW: update image url as well
+        entity.ImageUrl = request.ImageUrl;
 
         // regenerate slug from brand/model/variant + id if you want:
         entity.Slug = SlugHelper.ToSlug(request.Brand, request.Model, request.Variant) + "-" + id;
@@ -218,6 +233,10 @@ public class VehicleService : IVehicleService
                 Category = v.Category,
                 Transmission = v.Transmission,
                 Slug = v.Slug,
+
+                // 🔹 NEW: image on full details object too
+                ImageUrl = v.ImageUrl,
+
                 Details = new VehicleDetailsDto
                 {
                     EngineType = v.Details.EngineType,
@@ -277,6 +296,10 @@ public class VehicleService : IVehicleService
                 Category = v.Category,
                 Transmission = v.Transmission,
                 Slug = v.Slug,
+
+                // 🔹 NEW
+                ImageUrl = v.ImageUrl,
+
                 Details = new VehicleDetailsDto
                 {
                     EngineType = v.Details.EngineType,

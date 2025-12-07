@@ -1,3 +1,4 @@
+// src/public/VehicleDetailsPage.tsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import type { Vehicle } from "../features/vehicles/types";
@@ -106,11 +107,19 @@ export function VehicleDetailsPage() {
         </div>
 
         <div className="vehicle-hero-image">
-          <div className="vehicle-image-placeholder">
-            <span>
-              {v.brand} {v.model}
-            </span>
-          </div>
+          {v.imageUrl ? (
+            <img
+              src={v.imageUrl}
+              alt={`${v.brand} ${v.model}`}
+              className="vehicle-hero-img"
+            />
+          ) : (
+            <div className="vehicle-image-placeholder">
+              <span>
+                {v.brand} {v.model}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

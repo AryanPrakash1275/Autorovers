@@ -9,4 +9,5 @@ public class UpdateVehicleRequest
     public int Price { get; set; }
     public string Category { get; set; } = null!;
     public string Transmission { get; set; } = null!;
+    public string? ImageUrl { get; init; }
 }

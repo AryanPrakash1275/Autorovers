@@ -126,6 +126,16 @@ export function VehiclesPage() {
 
           return (
             <Link key={v.id} to={`/vehicles/${v.slug}`} className="vehicle-card">
+              {v.imageUrl && (
+                <div className="vehicle-card-image-wrapper">
+                  <img
+                    src={v.imageUrl}
+                    alt={`${v.brand} ${v.model}`}
+                    className="vehicle-card-image"
+                  />
+                </div>
+              )}
+              
               <div className="vehicle-card-header">
                 <h2 className="vehicle-card-title">
                   {v.brand} {v.model}

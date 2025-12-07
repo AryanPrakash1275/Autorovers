@@ -17,6 +17,7 @@ namespace Autorovers.Application.Vehicles
         public string Category { get; set; }
         public string Transmission { get; set; }
         public string? Slug { get; set; }
+        public string? ImageUrl { get; init; }
 
         // Details block
         public string EngineType { get; set; }

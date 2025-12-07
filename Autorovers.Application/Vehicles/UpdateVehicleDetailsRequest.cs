@@ -2,6 +2,7 @@
 
 public class UpdateVehicleDetailsRequest
 {
+    public string? ImageUrl { get; init; }
     public string? EngineType { get; set; }
     public string? Specification { get; set; }
     public string? InductionType { get; set; }

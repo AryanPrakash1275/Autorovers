@@ -11,4 +11,5 @@ public class VehicleListItemDto
     public string Category { get; set; } = null!;
     public string Transmission { get; set; } = null!;
     public string Slug { get; set; }
+    public string? ImageUrl { get; init; }
 }

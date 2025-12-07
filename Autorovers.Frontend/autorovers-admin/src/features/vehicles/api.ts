@@ -54,7 +54,6 @@ export function updateVehicleDetails(id: number, payload: any) {
 export async function getPublicVehicleBySlug(
   slug: string
 ): Promise<Vehicle> {
-  // Use the same API client as everywhere else
   const full: any = await apiGet(
     `${PUBLIC_VEHICLES_PATH}/slug/${encodeURIComponent(slug)}`
   );
@@ -72,6 +71,9 @@ export async function getPublicVehicleBySlug(
     category: full.category,
     transmission: full.transmission,
     slug: full.slug,
+
+    // 🔹 THIS WAS MISSING
+    imageUrl: full.imageUrl ?? "",
 
     // flattened details
     engineType: d.engineType ?? "",
@@ -111,5 +113,6 @@ export async function getPublicVehicleBySlug(
 
   return vehicle;
 }
+
 
  

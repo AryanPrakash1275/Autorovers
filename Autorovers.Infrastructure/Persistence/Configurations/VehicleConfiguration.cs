@@ -15,6 +15,11 @@ namespace Autorovers.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("Vehicel");
             builder.HasKey(u => u.Id);
+
+            //image 
+            builder.Property(v => v.ImageUrl)
+           .HasMaxLength(512)
+           .IsRequired(false);
         }
     }
 }

@@ -21,6 +21,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
     category: initial?.category ?? "",
     transmission: initial?.transmission ?? "",
     slug: initial?.slug ?? "",
+    imageUrl: initial?.imageUrl?? "",
 
     // Engine & performance
     engineType: initial?.engineType ?? "",
@@ -215,6 +216,16 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                 name="transmission"
                 value={form.transmission}
                 onChange={handleChange}
+              />
+            </div>
+
+            <div className="field">
+              <label>Image URL</label>
+              <input
+                name="imageUrl"
+                value={form.imageUrl ?? ""}   // ✅ force null/undefined → ""
+                onChange={handleChange}
+                placeholder="https://example.com/bike.jpg"
               />
             </div>
 

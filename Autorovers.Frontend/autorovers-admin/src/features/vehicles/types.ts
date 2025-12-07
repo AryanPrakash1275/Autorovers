@@ -10,7 +10,8 @@ export interface Vehicle {
   category: string;
   transmission: string;
   slug: string;
-
+  imageUrl?: string | null;
+  
   // Engine & performance
   engineType: string;
   specification: string;
