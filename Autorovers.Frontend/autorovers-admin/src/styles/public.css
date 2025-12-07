@@ -1,104 +1,30 @@
+/* =============== Theme Tokens =============== */
+
+:root {
+  --bg: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-alt: #e5e7eb;
+  --border: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
 body.public-view {
   display: flex;
   justify-content: center;
 }
 
-.public-page {
-  padding: 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  color: #e5e7eb;
-}
-
-.public-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-}
-
-.public-subtitle {
-  font-size: 0.9rem;
-  color: #9ca3af;
-  margin-bottom: 1.5rem;
-}
-
-.vehicle-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
-}
-
-.vehicle-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  background: #020617;
-  border-radius: 12px;
-  padding: 0.9rem 1rem;
-  border: 1px solid #111827;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 0.15s ease, background 0.15s ease,
-    transform 0.1s ease;
-}
-
-.vehicle-card:hover {
-  border-color: #3b82f6;
-  background: #030712;
-  transform: translateY(-2px);
-}
-
-.vehicle-card-header {
-  display: flex;
-  flex-direction: column;
-}
-
-.vehicle-card-title {
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.vehicle-card-variant {
-  font-size: 0.8rem;
-  color: #9ca3af;
-}
-
-.vehicle-card-specs {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  margin-top: 0.3rem;
-}
-
-.vehicle-card-spec {
-  color: #e5e7eb;
-}
-
-.vehicle-card-price {
-  font-weight: 600;
-  color: #22c55e;
-}
-
-.vehicle-card-footer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-top: 0.4rem;
-}
-
-.vehicle-card-tag {
-  font-size: 0.7rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: 999px;
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  color: #9ca3af;
-}
+/* ========= Layout ========= */
 
 .public-root {
   min-height: 100vh;
-  background: #020617;
-  color: #e5e7eb;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .public-header {
@@ -109,15 +35,16 @@ body.public-view {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 2rem;
-  border-bottom: 1px solid #111827;
-  background: rgba(2, 6, 23, 0.9);
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
 }
 
 .public-logo a {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #e5e7eb;
+  color: var(--text);
   text-decoration: none;
 }
 
@@ -129,7 +56,7 @@ body.public-view {
 
 .public-nav-link {
   font-size: 0.9rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   text-decoration: none;
   padding: 0.25rem 0.7rem;
   border-radius: 999px;
@@ -138,9 +65,9 @@ body.public-view {
 }
 
 .public-nav-link:hover {
-  color: #e5e7eb;
-  border-color: #1f2937;
-  background: #020617;
+  color: var(--text);
+  border-color: var(--border);
+  background: #ffffff;
 }
 
 .public-main {
@@ -162,9 +89,26 @@ body.public-view {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
+  color: var(--text);
 }
 
-/* SEARCH & FILTER BAR */
+/* ========= Typography ========= */
+
+.public-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--text);
+}
+
+.public-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ========= Catalog Controls ========= */
+
 .catalog-controls {
   display: flex;
   gap: 1rem;
@@ -177,108 +121,41 @@ body.public-view {
   flex: 1;
   padding: 0.6rem 0.8rem;
   border-radius: 8px;
-  border: 1px solid #374151;
-  background: #020617;
-  color: #e5e7eb;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--text);
   font-size: 0.95rem;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .catalog-search::placeholder {
-  color: #6b7280;
+  color: var(--text-muted);
 }
 
 .catalog-select {
   padding: 0.6rem 0.8rem;
   border-radius: 8px;
-  border: 1px solid #374151;
-  background: #020617;
-  color: #e5e7eb;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--text);
   font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .no-results {
   font-size: 1rem;
   margin-top: 1rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   grid-column: 1 / -1;
 }
 
-/* GRID POLISH */
-.vehicle-grid {
-  display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  margin-top: 0.75rem;
-}
+/* ========= Catalog Grid & Cards ========= */
 
-/* DARK CARD STYLE */
-.vehicle-card {
-  display: block;
-  padding: 1rem;
-  border-radius: 12px;
-  background: #020617;          /* very dark */
-  border: 1px solid #111827;    /* subtle border */
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.6);
-  transition: transform 0.15s ease, box-shadow 0.15s ease,
-    border-color 0.15s ease, background 0.15s ease;
-}
-
-.vehicle-card:hover {
-  transform: translateY(-3px);
-  border-color: #2563eb;
-  background: #030712;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.9);
-}
-
-.vehicle-card-header {
-  margin-bottom: 0.35rem;
-}
-
-.vehicle-card-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #e5e7eb;
-}
-
-.vehicle-card-variant {
-  font-size: 0.85rem;
-  color: #9ca3af;
-}
-
-.vehicle-card-specs {
-  margin: 0.4rem 0 0.2rem;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: #9ca3af;
-}
-
-.vehicle-card-price {
-  font-weight: 600;
-  color: #22c55e;
-}
-
-.vehicle-card-footer {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.vehicle-card-tag {
-  background: #111827;
-  color: #9ca3af;
-  padding: 0.18rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  border: 1px solid #1f2937;
-}
-
-/* Grid for catalog */
 .vehicle-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
+  margin-top: 0.75rem;
 }
 
 /* Card base */
@@ -287,37 +164,95 @@ body.public-view {
   flex-direction: column;
   border-radius: 12px;
   padding: 0.75rem 0.75rem 0.9rem;
-  background: #0b0b0f;
-  border: 1px solid #1c1c26;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-soft);
   transition: transform 0.15s ease, box-shadow 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease, background 0.15s ease;
 }
 
 .vehicle-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
-  border-color: #3b82f6;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18);
+  border-color: var(--accent);
+  background: #ffffff;
 }
 
-/*IMAGES*/
-/* Image wrapper: fixes overflow + keeps aspect ratio */
+/* Image wrapper */
 .vehicle-card-image-wrapper {
   width: 100%;
-  aspect-ratio: 16 / 9;       /* key part */
+  aspect-ratio: 16 / 9;
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 0.75rem;
-  background: #050509;
+  background: #e5e7eb;
 }
 
 .vehicle-card-image {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;          /* no squish */
+  object-fit: cover;
+}
+
+/* Card content */
+
+.vehicle-card-header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.35rem;
+}
+
+.vehicle-card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vehicle-card-variant {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.vehicle-card-specs {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+}
+
+.vehicle-card-spec {
+  color: var(--text);
+}
+
+.vehicle-card-price {
+  font-weight: 600;
+  color: var(--success);
+}
+
+.vehicle-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.vehicle-card-tag {
+  font-size: 0.75rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* ===== VEHICLE DETAILS HERO ===== */
+
+.public-topbar {
+  margin-bottom: 1.5rem;
 }
 
 .vehicle-hero {
@@ -345,49 +280,46 @@ body.public-view {
 /* The actual image element */
 .vehicle-hero-img {
   width: 100%;
-  max-height: 320px;          /* hard cap so it doesn’t overflow */
+  max-height: 320px;
   object-fit: cover;
   border-radius: 14px;
   display: block;
+  box-shadow: var(--shadow-soft);
 }
 
-/* Fallback placeholder (when no imageUrl) */
+/* Fallback placeholder */
 .vehicle-image-placeholder {
   width: 100%;
   max-height: 320px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #1e293b, #020617);
+  background: linear-gradient(135deg, #e5e7eb, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #e5e7eb;
+  color: var(--text);
   font-weight: 500;
   font-size: 1.1rem;
 }
 
-/* ===== VEHICLE DETAILS HERO ===== */
-
-.public-topbar {
-  margin-bottom: 1.5rem;
-}
+/* Title & key info */
 
 .vehicle-title {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
-  color: #e5e7eb;
+  color: var(--text);
 }
 
 .vehicle-subtitle {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-bottom: 0.6rem;
 }
 
 .vehicle-price {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #22c55e;
+  color: var(--success);
   margin-bottom: 1rem;
 }
 
@@ -402,21 +334,22 @@ body.public-view {
 .vehicle-highlight {
   padding: 0.5rem 0.6rem;
   border-radius: 0.6rem;
-  background: #020617;
-  border: 1px solid #111827;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
 }
 
 .vehicle-highlight .label {
   display: block;
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-muted);
   margin-bottom: 0.1rem;
 }
 
 .vehicle-highlight .value {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #e5e7eb;
+  color: var(--text);
 }
 
 /* ===== SPECS GRID BELOW HERO ===== */
@@ -428,18 +361,18 @@ body.public-view {
 }
 
 .spec-card {
-  background: #020617;
+  background: var(--bg-card);
   border-radius: 12px;
-  border: 1px solid #111827;
+  border: 1px solid var(--border);
   padding: 1.1rem 1.25rem;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.8);
+  box-shadow: var(--shadow-soft);
 }
 
 .spec-card h2 {
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: #e5e7eb;
+  color: var(--text);
 }
 
 /* each row in the dl */
@@ -452,12 +385,12 @@ body.public-view {
 }
 
 .spec-row dt {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .spec-row dd {
   margin: 0;
   font-weight: 500;
-  color: #e5e7eb;
+  color: var(--text);
   text-align: right;
 }
