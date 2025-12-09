@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Autorovers.Infrastructure.Migrations
 {
     [DbContext(typeof(AutoroversDbContext))]
-    [Migration("20251112184428_InitialSqlServer")]
-    partial class InitialSqlServer
+    [Migration("20251209142419_InitialPostgres")]
+    partial class InitialPostgres
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -102,12 +102,20 @@ namespace Autorovers.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
                     b.Property<string>("Model")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Price")
                         .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Transmission")
                         .IsRequired()
@@ -177,14 +185,14 @@ namespace Autorovers.Infrastructure.Migrations
                     b.Property<int>("Length")
                         .HasColumnType("int");
 
-                    b.Property<int>("Mileage")
-                        .HasColumnType("int");
+                    b.Property<double>("Mileage")
+                        .HasColumnType("float");
 
                     b.Property<int>("PersonCapacity")
                         .HasColumnType("int");
 
-                    b.Property<int>("Power")
-                        .HasColumnType("int");
+                    b.Property<double>("Power")
+                        .HasColumnType("float");
 
                     b.Property<string>("PoweredSteering")
                         .IsRequired()
@@ -204,11 +212,11 @@ namespace Autorovers.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TankSize")
-                        .HasColumnType("int");
+                    b.Property<double>("TankSize")
+                        .HasColumnType("float");
 
-                    b.Property<int>("Torque")
-                        .HasColumnType("int");
+                    b.Property<double>("Torque")
+                        .HasColumnType("float");
 
                     b.Property<string>("Transmission")
                         .IsRequired()
@@ -312,11 +320,13 @@ namespace Autorovers.Infrastructure.Migrations
 
             modelBuilder.Entity("Autorovers.Domain.Entities.VehicleDetails", b =>
                 {
-                    b.HasOne("Autorovers.Domain.Entities.Vehicle", null)
+                    b.HasOne("Autorovers.Domain.Entities.Vehicle", "Vehicle")
                         .WithOne("Details")
                         .HasForeignKey("Autorovers.Domain.Entities.VehicleDetails", "VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Vehicle");
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Todos.TodoItem", b =>
@@ -330,8 +340,7 @@ namespace Autorovers.Infrastructure.Migrations
 
             modelBuilder.Entity("Autorovers.Domain.Entities.Vehicle", b =>
                 {
-                    b.Navigation("Details")
-                        .IsRequired();
+                    b.Navigation("Details");
                 });
 #pragma warning restore 612, 618
         }

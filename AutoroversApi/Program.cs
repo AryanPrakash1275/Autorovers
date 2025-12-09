@@ -3,9 +3,11 @@ using InfraDI = Autorovers.Infrastructure.DependencyInjection;
 
 using AutoroversApi.Endpoints;
 using AutoroversApi.Auth;
+using Autorovers.Infrastructure.Persistence.Context;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 using Serilog;
@@ -14,6 +16,9 @@ using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Optional, helps with some timestamp behavior in Npgsql
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // ========== Serilog ==========
 Log.Logger = new LoggerConfiguration()
@@ -40,8 +45,7 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
-        // Dev-only: allow HTTP. In real prod behind HTTPS, set this true.
-        options.RequireHttpsMetadata = false;
+        options.RequireHttpsMetadata = false; // dev; Render will be behind HTTPS anyway
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -56,8 +60,6 @@ builder.Services
 
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(1),
-
-            // Ensure role-based checks use the standard role claim
             RoleClaimType = ClaimTypes.Role
         };
     });
@@ -65,7 +67,6 @@ builder.Services
 // ========== AUTHORIZATION POLICIES ==========
 builder.Services.AddAuthorization(options =>
 {
-    // This matches [Authorize(Policy = "AdminOnly")]
     options.AddPolicy("AdminOnly", policy =>
     {
         policy.RequireAuthenticatedUser();
@@ -78,23 +79,26 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// ========== CORS ==========
-var frontendUrls = builder.Configuration
-    .GetSection("Frontend:Urls")
-    .Get<string[]>() ?? new[] { "http://localhost:5173", "http://localhost:4173" };
-
+// ========== CORS (relaxed for initial deploy) ==========
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendCors", cors =>
     {
         cors
-            .WithOrigins(frontendUrls)
+            .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
+
+// ========== APPLY DB MIGRATIONS ON STARTUP ==========
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AutoroversDbContext>();
+    db.Database.Migrate();
+}
 
 // ========== AUTH LOGIN ENDPOINT ==========
 app.MapPost("/api/auth/login", (LoginRequest login, IConfiguration config) =>
@@ -103,7 +107,6 @@ app.MapPost("/api/auth/login", (LoginRequest login, IConfiguration config) =>
     var adminEmail = adminSection["Email"] ?? string.Empty;
     var adminPassword = adminSection["Password"] ?? string.Empty;
 
-    // Single admin user from config
     if (!string.Equals(login.Email, adminEmail, StringComparison.OrdinalIgnoreCase) ||
         login.Password != adminPassword)
     {

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Autorovers.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSqlServer : Migration
+    public partial class InitialPostgres : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -74,11 +74,13 @@ namespace Autorovers.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Model = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Year = table.Column<int>(type: "int", nullable: false),
                     Variant = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<int>(type: "int", nullable: false),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Transmission = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Transmission = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -121,10 +123,10 @@ namespace Autorovers.Infrastructure.Migrations
                     EngineType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Specification = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     InductionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Power = table.Column<int>(type: "int", nullable: false),
-                    Torque = table.Column<int>(type: "int", nullable: false),
+                    Power = table.Column<double>(type: "float", nullable: false),
+                    Torque = table.Column<double>(type: "float", nullable: false),
                     Emission = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Mileage = table.Column<int>(type: "int", nullable: false),
+                    Mileage = table.Column<double>(type: "float", nullable: false),
                     AutoStartStop = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Range = table.Column<int>(type: "int", nullable: false),
                     Transmission = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -138,7 +140,7 @@ namespace Autorovers.Infrastructure.Migrations
                     Rows = table.Column<int>(type: "int", nullable: false),
                     Doors = table.Column<int>(type: "int", nullable: false),
                     BootSpace = table.Column<int>(type: "int", nullable: false),
-                    TankSize = table.Column<int>(type: "int", nullable: false),
+                    TankSize = table.Column<double>(type: "float", nullable: false),
                     FrontTyre = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     BackType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FrontBrake = table.Column<string>(type: "nvarchar(max)", nullable: false),

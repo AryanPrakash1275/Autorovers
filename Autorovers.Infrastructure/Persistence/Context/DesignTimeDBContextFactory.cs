@@ -20,7 +20,7 @@ namespace Autorovers.Infrastructure.Persistence.Context
                 throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing.");
 
             var options = new DbContextOptionsBuilder<AutoroversDbContext>()
-                .UseSqlServer(conn, sql =>
+                .UseNpgsql(conn, sql =>
                 {
                     sql.MigrationsAssembly(typeof(AutoroversDbContext).Assembly.FullName);
                     sql.EnableRetryOnFailure();

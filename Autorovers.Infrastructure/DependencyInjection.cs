@@ -26,15 +26,17 @@ namespace Autorovers.Infrastructure
             if (string.IsNullOrWhiteSpace(conn))
                 throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing.");
 
+            // ===== POSTGRES VERSION FOR deploy-postgres BRANCH =====
             services.AddDbContext<AutoroversDbContext>(opt =>
-                opt.UseSqlServer(
+                opt.UseNpgsql(
                     conn,
-                    sql =>
+                    npgsql =>
                     {
-                        sql.MigrationsAssembly(typeof(AutoroversDbContext).Assembly.FullName);
-                        sql.EnableRetryOnFailure(maxRetryCount: 5,
-                                                 maxRetryDelay: TimeSpan.FromSeconds(10),
-                                                 errorNumbersToAdd: null);
+                        npgsql.MigrationsAssembly(typeof(AutoroversDbContext).Assembly.FullName);
+                        npgsql.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(10),
+                            errorCodesToAdd: null);
                     }));
 
             services.AddScoped<Autorovers.Application.Abstractions.Data.IApplicationDbContext>(
@@ -47,7 +49,7 @@ namespace Autorovers.Infrastructure
 
             services.AddScoped<IDomainEventsDispatcher, DomainEventsDispatcher>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IVehicleService, VehicleService>(); // added VehicleService
+            services.AddScoped<IVehicleService, VehicleService>();
 
             return services;
         }
