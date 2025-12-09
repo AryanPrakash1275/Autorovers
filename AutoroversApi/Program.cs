@@ -20,6 +20,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Optional, helps with some timestamp behavior in Npgsql
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+// Detect Render platform
+var isRender = Environment.GetEnvironmentVariable("RENDER") == "true";
+
 // ========== Serilog ==========
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -145,7 +148,7 @@ app.MapPost("/api/auth/login", (LoginRequest login, IConfiguration config) =>
 });
 
 // ========== Swagger ==========
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || isRender)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
