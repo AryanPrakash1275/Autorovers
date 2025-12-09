@@ -72,7 +72,7 @@ export function VehiclesPage() {
 
   return (
     <div className="public-page">
-      <h1 className="public-title">Autorovers Catalog</h1>
+      <h1 className="public-title">Autorovers</h1>
       <p className="public-subtitle">Browse vehicles and discover details.</p>
 
       {/* FILTER BAR */}

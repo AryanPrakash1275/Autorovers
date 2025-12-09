@@ -445,7 +445,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
             <h3 className="form-section-title">Tyres, Brakes & Steering</h3>
             <div className="form-grid">
               <div className="field">
-                <label>Front tyre</label>
+                <label>Front type</label>
                 <input
                   name="frontType"
                   value={form.frontType}
