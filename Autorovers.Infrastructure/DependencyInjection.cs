@@ -22,11 +22,28 @@ namespace Autorovers.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration cfg)
         {
-            var conn = cfg.GetConnectionString("DefaultConnection");
-            if (string.IsNullOrWhiteSpace(conn))
-                throw new InvalidOperationException("ConnectionStrings:DefaultConnection is missing.");
+            // ============================================================
+            // 1) Determine the correct database connection string
+            // ============================================================
 
-            // ===== POSTGRES VERSION FOR deploy-postgres BRANCH =====
+            // First try Render / Postgres env var: Database:ConnectionString
+            var conn = cfg["Database:ConnectionString"];
+
+            // Fallback to development ConnectionStrings:DefaultConnection (SQL Server)
+            if (string.IsNullOrWhiteSpace(conn))
+            {
+                conn = cfg.GetConnectionString("DefaultConnection");
+            }
+
+            if (string.IsNullOrWhiteSpace(conn))
+            {
+                throw new InvalidOperationException(
+                    "No database connection string configured. Expected Database:ConnectionString or ConnectionStrings:DefaultConnection.");
+            }
+
+            // ============================================================
+            // 2) Register EF Core DbContext using Npgsql (Postgres)
+            // ============================================================
             services.AddDbContext<AutoroversDbContext>(opt =>
                 opt.UseNpgsql(
                     conn,
@@ -39,6 +56,9 @@ namespace Autorovers.Infrastructure
                             errorCodesToAdd: null);
                     }));
 
+            // ============================================================
+            // 3) Other infrastructure services
+            // ============================================================
             services.AddScoped<Autorovers.Application.Abstractions.Data.IApplicationDbContext>(
                 sp => sp.GetRequiredService<AutoroversDbContext>());
 
