@@ -1,13 +1,18 @@
 // src/api/client.ts
 import { getToken } from "../features/auth/storage";
 
-const API_BASE_URL =
+export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5029";
 
-async function request<T>(
-  path: string,
-  options: RequestInit = {}
-): Promise<T> {
+console.log("API_BASE_URL from env:", API_BASE_URL);
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  if (!API_BASE_URL) {
+    throw new Error(
+      "API_BASE_URL is not defined. Set VITE_API_BASE_URL in your env files."
+    );
+  }
+
   const url = `${API_BASE_URL}${path}`;
 
   const headers: Record<string, string> = {
@@ -32,7 +37,6 @@ async function request<T>(
     );
   }
 
-  // No content
   if (res.status === 204) {
     return undefined as T;
   }
@@ -44,7 +48,7 @@ export function apiGet<T>(path: string): Promise<T> {
   return request<T>(path, { method: "GET" });
 }
 
-export function apiPost<TBody, TResp = any>(
+export function apiPost<TBody, TResp = unknown>(
   path: string,
   body: TBody
 ): Promise<TResp> {

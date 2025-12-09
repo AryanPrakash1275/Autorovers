@@ -5,6 +5,7 @@ using AutoroversApi.Endpoints;
 using AutoroversApi.Auth;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 
 using Serilog;
@@ -39,7 +40,8 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false; // dev only
+        // Dev-only: allow HTTP. In real prod behind HTTPS, set this true.
+        options.RequireHttpsMetadata = false;
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -53,14 +55,20 @@ builder.Services
             ValidAudience = jwtSection["Audience"],
 
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.FromMinutes(1)
+            ClockSkew = TimeSpan.FromMinutes(1),
+
+            // Ensure role-based checks use the standard role claim
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
+// ========== AUTHORIZATION POLICIES ==========
 builder.Services.AddAuthorization(options =>
 {
+    // This matches [Authorize(Policy = "AdminOnly")]
     options.AddPolicy("AdminOnly", policy =>
     {
+        policy.RequireAuthenticatedUser();
         policy.RequireRole("Admin");
     });
 });
@@ -71,12 +79,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // ========== CORS ==========
+var frontendUrls = builder.Configuration
+    .GetSection("Frontend:Urls")
+    .Get<string[]>() ?? new[] { "http://localhost:5173", "http://localhost:4173" };
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddPolicy("FrontendCors", cors =>
     {
-        policy
-            .WithOrigins("http://localhost:5173") // Vite frontend
+        cors
+            .WithOrigins(frontendUrls)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -88,8 +100,8 @@ var app = builder.Build();
 app.MapPost("/api/auth/login", (LoginRequest login, IConfiguration config) =>
 {
     var adminSection = config.GetSection("Admin");
-    var adminEmail = adminSection["Email"] ?? "";
-    var adminPassword = adminSection["Password"] ?? "";
+    var adminEmail = adminSection["Email"] ?? string.Empty;
+    var adminPassword = adminSection["Password"] ?? string.Empty;
 
     // Single admin user from config
     if (!string.Equals(login.Email, adminEmail, StringComparison.OrdinalIgnoreCase) ||
@@ -139,15 +151,11 @@ if (app.Environment.IsDevelopment())
 // ========== PIPELINE ==========
 app.UseSerilogRequestLogging();
 
-app.UseHttpsRedirection();
-
-// CORS BEFORE auth so browser can actually talk to API
-app.UseCors("AllowFrontend");
+app.UseCors("FrontendCors");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Custom endpoints + controllers
 app.MapHealth();
 app.MapControllers();
 
