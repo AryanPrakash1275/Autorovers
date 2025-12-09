@@ -230,8 +230,8 @@ export function VehicleDetailsPage() {
           <h2>Tyres, Brakes & Steering</h2>
           <dl>
             <div className="spec-row">
-              <dt>Front tyre</dt>
-              <dd>{v.frontTyre || "—"}</dd>
+              <dt>Front type</dt>
+              <dd>{v.frontType || "—"}</dd>
             </div>
             <div className="spec-row">
               <dt>Rear / Back type</dt>

@@ -156,7 +156,7 @@ export function VehicleListPage() {
         bootSpace: d.bootSpace ?? 0,
         tankSize: d.tankSize ?? 0,
 
-        frontTyre: d.frontTyre ?? "",
+        frontType: d.frontType ?? "",
         backType: d.backType ?? "",
         frontBrake: d.frontBrake ?? "",
         backBrake: d.backBrake ?? "",
@@ -216,7 +216,7 @@ export function VehicleListPage() {
           bootSpace: data.bootSpace,
           tankSize: data.tankSize,
 
-          frontTyre: data.frontTyre,
+          frontType: data.frontType,
           backType: data.backType,
           frontBrake: data.frontBrake,
           backBrake: data.backBrake,

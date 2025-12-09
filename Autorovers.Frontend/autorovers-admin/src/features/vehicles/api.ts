@@ -99,7 +99,7 @@ export async function getPublicVehicleBySlug(
     bootSpace: d.bootSpace ?? 0,
     tankSize: d.tankSize ?? 0,
 
-    frontTyre: d.frontTyre ?? "",
+    frontType: d.frontType ?? "",
     backType: d.backType ?? "",
     frontBrake: d.frontBrake ?? "",
     backBrake: d.backBrake ?? "",

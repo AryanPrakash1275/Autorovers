@@ -39,7 +39,7 @@ public class VehicleDetails
     public double TankSize { get; set; }
 
     // Dynamics
-    public string FrontTyre { get; set; } = null!;
+    public string FrontType { get; set; } = null!;
     public string BackType { get; set; } = null!;
     public string FrontBrake { get; set; } = null!;
     public string BackBrake { get; set; } = null!;

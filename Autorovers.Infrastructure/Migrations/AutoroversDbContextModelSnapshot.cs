@@ -166,7 +166,7 @@ namespace Autorovers.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FrontTyre")
+                    b.Property<string>("FrontType")
                         .IsRequired()
                         .HasColumnType("text");
 

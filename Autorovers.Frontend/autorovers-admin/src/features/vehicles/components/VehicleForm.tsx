@@ -50,7 +50,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
     tankSize: initial?.tankSize ?? 0,
 
     // Tyres, brakes & steering
-    frontTyre: initial?.frontTyre ?? "",
+    frontType: initial?.frontType ?? "",
     backType: initial?.backType ?? "",
     frontBrake: initial?.frontBrake ?? "",
     backBrake: initial?.backBrake ?? "",
@@ -447,8 +447,8 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
               <div className="field">
                 <label>Front tyre</label>
                 <input
-                  name="frontTyre"
-                  value={form.frontTyre}
+                  name="frontType"
+                  value={form.frontType}
                   onChange={handleChange}
                 />
               </div>

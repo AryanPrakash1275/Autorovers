@@ -35,7 +35,7 @@ public sealed class VehicleDetailsDto
     public int BootSpace { get; init; }
     public double TankSize { get; init; }
 
-    public string? FrontTyre { get; init; }
+    public string? FrontType { get; init; }
     public string? BackType { get; init; }        // yes, match the exact name used in VehicleService
     public string? FrontBrake { get; init; }
     public string? BackBrake { get; init; }

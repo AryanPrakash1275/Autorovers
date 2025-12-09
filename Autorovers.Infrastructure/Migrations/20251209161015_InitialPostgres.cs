@@ -143,7 +143,7 @@ namespace Autorovers.Infrastructure.Migrations
                     Doors = table.Column<int>(type: "integer", nullable: false),
                     BootSpace = table.Column<int>(type: "integer", nullable: false),
                     TankSize = table.Column<double>(type: "double precision", nullable: false),
-                    FrontTyre = table.Column<string>(type: "text", nullable: false),
+                    FrontType = table.Column<string>(type: "text", nullable: false),
                     BackType = table.Column<string>(type: "text", nullable: false),
                     FrontBrake = table.Column<string>(type: "text", nullable: false),
                     BackBrake = table.Column<string>(type: "text", nullable: false),

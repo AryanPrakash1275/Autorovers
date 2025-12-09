@@ -45,7 +45,7 @@ namespace Autorovers.Application.Vehicles
         public int BootSpace { get; set; }
         public double TankSize { get; set; }
 
-        public string FrontTyre { get; set; }
+        public string FrontType { get; set; }
         public string BackType { get; set; }
         public string FrontBrake { get; set; }
         public string BackBrake { get; set; }

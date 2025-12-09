@@ -39,7 +39,7 @@ export interface Vehicle {
   tankSize: number;
 
   // Tyres, brakes & steering
-  frontTyre: string;
+  frontType: string;
   backType: string;
   frontBrake: string;
   backBrake: string;

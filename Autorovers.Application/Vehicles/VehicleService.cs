@@ -74,7 +74,7 @@ public class VehicleService : IVehicleService
             TankSize = r.TankSize,
 
             // Dynamics
-            FrontTyre = r.FrontTyre,
+            FrontType = r.FrontType,
             BackType = r.BackType,
             FrontBrake = r.FrontBrake,
             BackBrake = r.BackBrake,
@@ -262,7 +262,7 @@ public class VehicleService : IVehicleService
                     BootSpace = v.Details.BootSpace,
                     TankSize = v.Details.TankSize,
 
-                    FrontTyre = v.Details.FrontTyre,
+                    FrontType = v.Details.FrontType,
                     BackType = v.Details.BackType,
                     FrontBrake = v.Details.FrontBrake,
                     BackBrake = v.Details.BackBrake,
@@ -325,7 +325,7 @@ public class VehicleService : IVehicleService
                     BootSpace = v.Details.BootSpace,
                     TankSize = v.Details.TankSize,
 
-                    FrontTyre = v.Details.FrontTyre,
+                    FrontType = v.Details.FrontType,
                     BackType = v.Details.BackType,
                     FrontBrake = v.Details.FrontBrake,
                     BackBrake = v.Details.BackBrake,
@@ -374,7 +374,7 @@ public class VehicleService : IVehicleService
         details.BootSpace = req.BootSpace ?? details.BootSpace;
         details.TankSize = req.TankSize ?? details.TankSize;
 
-        details.FrontTyre = req.FrontTyre ?? details.FrontTyre;
+        details.FrontType = req.FrontType ?? details.FrontType;
         details.BackType = req.BackType ?? details.BackType;
         details.FrontBrake = req.FrontBrake ?? details.FrontBrake;
         details.BackBrake = req.BackBrake ?? details.BackBrake;
