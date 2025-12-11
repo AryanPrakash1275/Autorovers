@@ -90,6 +90,7 @@ body.public-view {
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
   color: var(--text);
+  padding-bottom: 80px;
 }
 
 /* ========= Typography ========= */
@@ -153,9 +154,9 @@ body.public-view {
 
 .vehicle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
-  margin-top: 0.75rem;
+  padding: 1rem 0;
 }
 
 /* Card base */
@@ -183,18 +184,17 @@ body.public-view {
 /* Image wrapper */
 .vehicle-card-image-wrapper {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 10px;
+  height: 220px;               /* FIX HEIGHT – prevents zoom-stretch */
   overflow: hidden;
-  margin-bottom: 0.75rem;
-  background: #e5e7eb;
+  border-radius: 10px;
+  background: #111;
 }
 
 .vehicle-card-image {
   width: 100%;
   height: 100%;
-  display: block;
-  object-fit: cover;
+  object-fit: contain;         /* KEY FIX: shows whole bike without zoom */
+  padding: 6px;                /* gives breathing room */
 }
 
 /* Card content */

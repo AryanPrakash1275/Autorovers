@@ -238,7 +238,8 @@ tbody tr:hover {
   color: var(--text-muted);
 }
 
-.field input {
+.field input,
+.field select {
   width: 100%;
   padding: 0.45rem 0.6rem;
   background: #ffffff;
@@ -247,11 +248,13 @@ tbody tr:hover {
   color: var(--text);
 }
 
-.field input:focus {
+.field input:focus,
+.field select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
 }
+
 
 .icon-btn {
   border: none;
@@ -402,4 +405,11 @@ tbody tr:hover {
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: var(--danger);
+}
+
+.form-tab.has-error-dot::after {
+  content: "•";
+  margin-left: 4px;
+  color: var(--danger);
+  font-size: 0.9em;
 }

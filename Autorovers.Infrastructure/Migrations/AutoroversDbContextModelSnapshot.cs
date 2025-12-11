@@ -120,6 +120,9 @@ namespace Autorovers.Infrastructure.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Variant")
+                        .HasColumnType("text");
+
+                    b.Property<string>("VehicleType")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -136,114 +139,194 @@ namespace Autorovers.Infrastructure.Migrations
                     b.Property<int>("VehicleId")
                         .HasColumnType("integer");
 
+                    b.Property<bool?>("Abs")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("Airbags")
+                        .HasColumnType("integer");
+
                     b.Property<string>("AutoStartStop")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("BackBrake")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("BackType")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("BootSpace")
+                    b.Property<double?>("BatteryCapacity")
+                        .HasColumnType("double precision");
+
+                    b.Property<bool?>("Bluetooth")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("BootSpace")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Doors")
+                    b.Property<double?>("ChargingTimeFast")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("ChargingTimeNormal")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("ColorsAvailableJson")
+                        .HasColumnType("text");
+
+                    b.Property<bool?>("CruiseControl")
+                        .HasColumnType("boolean");
+
+                    b.Property<double?>("DisplaySize")
+                        .HasColumnType("double precision");
+
+                    b.Property<int?>("Doors")
                         .HasColumnType("integer");
+
+                    b.Property<string>("DriveType")
+                        .HasColumnType("text");
 
                     b.Property<string>("Emission")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int?>("EngineDisplacement")
+                        .HasColumnType("integer");
 
                     b.Property<string>("EngineType")
-                        .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool?>("FastChargingPort")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("FrontBrake")
-                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FrontSuspension")
                         .HasColumnType("text");
 
                     b.Property<string>("FrontType")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("GroundClearance")
+                    b.Property<string>("FuelType")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("GroundClearance")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Height")
+                    b.Property<int?>("Height")
                         .HasColumnType("integer");
+
+                    b.Property<bool?>("HillAssist")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("InductionType")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Length")
+                    b.Property<int?>("Length")
                         .HasColumnType("integer");
 
-                    b.Property<double>("Mileage")
+                    b.Property<double?>("Mileage")
                         .HasColumnType("double precision");
 
-                    b.Property<int>("PersonCapacity")
+                    b.Property<int?>("MotorPower")
                         .HasColumnType("integer");
 
-                    b.Property<double>("Power")
+                    b.Property<int?>("MotorTorque")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("Navigation")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("NumberOfGears")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("ParkingSensors")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("PersonCapacity")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("Power")
                         .HasColumnType("double precision");
+
+                    b.Property<int?>("PowerRpm")
+                        .HasColumnType("integer");
 
                     b.Property<string>("PoweredSteering")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Range")
+                    b.Property<int?>("Range")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Rows")
+                    b.Property<string>("RearSuspension")
+                        .HasColumnType("text");
+
+                    b.Property<bool?>("RearViewCamera")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("Rows")
                         .HasColumnType("integer");
+
+                    b.Property<int?>("ServiceIntervalKm")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("SmartConnectivity")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Spare")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Specification")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("TankSize")
+                    b.Property<string>("SteeringType")
+                        .HasColumnType("text");
+
+                    b.Property<double?>("TankSize")
                         .HasColumnType("double precision");
 
-                    b.Property<double>("Torque")
+                    b.Property<int?>("TopSpeed")
+                        .HasColumnType("integer");
+
+                    b.Property<double?>("Torque")
                         .HasColumnType("double precision");
+
+                    b.Property<int?>("TorqueRpm")
+                        .HasColumnType("integer");
+
+                    b.Property<bool?>("TractionControl")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Transmission")
-                        .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<double?>("TurningRadius")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("TyreSizeBack")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TyreSizeFront")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TyreType")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Weight")
+                    b.Property<int?>("WarrantyYears")
                         .HasColumnType("integer");
 
-                    b.Property<int>("WheelBase")
+                    b.Property<int?>("Weight")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("WheelBase")
                         .HasColumnType("integer");
 
                     b.Property<string>("WheelMaterial")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Width")
+                    b.Property<int?>("Width")
                         .HasColumnType("integer");
+
+                    b.Property<double?>("ZeroToHundred")
+                        .HasColumnType("double precision");
 
                     b.HasKey("VehicleId");
 

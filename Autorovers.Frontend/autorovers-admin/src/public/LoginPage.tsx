@@ -29,7 +29,7 @@ export function LoginPage() {
 
   return (
     <div className="public-page">
-      <h1 className="public-title">Admin Login</h1>
+      <h1 className="public-title">Login</h1>
       <p className="public-subtitle">
         Sign in to manage the Autorovers catalog.
       </p>

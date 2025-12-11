@@ -1,17 +1,38 @@
 // src/public/VehiclesPage.tsx
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import type { Vehicle } from "../features/vehicles/types";
+import type { VehicleListItem } from "../features/vehicles/types";
 import { getPublicVehicles } from "../features/vehicles/api";
+import { Footer } from "./Footer";
+
+const BIKE_CATEGORIES = [
+  "Sport",
+  "Commuter",
+  "Cruiser",
+  "Tourer",
+  "Off-road",
+  "Scooter",
+  "EV Bike",
+];
+
+const CAR_CATEGORIES = [
+  "Hatchback",
+  "Sedan",
+  "SUV",
+  "MUV",
+  "Coupe",
+  "EV Car",
+];
+
+type CategoryFilter = "all" | "bike" | "car";
 
 export function VehiclesPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // UI filters
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+  const [category, setCategory] = useState<CategoryFilter>("all");
   const [sortBy, setSortBy] = useState("priceAsc");
 
   useEffect(() => {
@@ -28,11 +49,17 @@ export function VehiclesPage() {
     })();
   }, []);
 
-  // ---- FILTERING & SORTING ----
+  function isBikeCategory(cat: string | null | undefined) {
+    return cat ? BIKE_CATEGORIES.includes(cat) : false;
+  }
+
+  function isCarCategory(cat: string | null | undefined) {
+    return cat ? CAR_CATEGORIES.includes(cat) : false;
+  }
+
   const filteredVehicles = useMemo(() => {
     let list = [...vehicles];
 
-    // Search
     if (search.trim()) {
       const s = search.toLowerCase();
       list = list.filter(
@@ -43,24 +70,16 @@ export function VehiclesPage() {
       );
     }
 
-    // Category filter
-    if (category !== "all") {
-      list = list.filter((v) => v.category.toLowerCase() === category);
-    }
+    if (category === "bike") list = list.filter((v) => isBikeCategory(v.category));
+    else if (category === "car") list = list.filter((v) => isCarCategory(v.category));
 
-    // Sorting
     list.sort((a, b) => {
       switch (sortBy) {
-        case "priceAsc":
-          return a.price - b.price;
-        case "priceDesc":
-          return b.price - a.price;
-        case "yearAsc":
-          return a.year - b.year;
-        case "yearDesc":
-          return b.year - a.year;
-        default:
-          return 0;
+        case "priceAsc": return a.price - b.price;
+        case "priceDesc": return b.price - a.price;
+        case "yearAsc": return a.year - b.year;
+        case "yearDesc": return b.year - a.year;
+        default: return 0;
       }
     });
 
@@ -75,7 +94,6 @@ export function VehiclesPage() {
       <h1 className="public-title">Autorovers</h1>
       <p className="public-subtitle">Browse vehicles and discover details.</p>
 
-      {/* FILTER BAR */}
       <div className="catalog-controls">
         <input
           type="text"
@@ -88,14 +106,11 @@ export function VehiclesPage() {
         <select
           className="catalog-select"
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          onChange={(e) => setCategory(e.target.value as CategoryFilter)}
         >
-          <option value="all">All categories</option>
+          <option value="all">All vehicles</option>
           <option value="bike">Bikes</option>
           <option value="car">Cars</option>
-          <option value="scooter">Scooters</option>
-          <option value="adventure">Adventure</option>
-          <option value="sports">Sports</option>
         </select>
 
         <select
@@ -110,22 +125,22 @@ export function VehiclesPage() {
         </select>
       </div>
 
-      {/* VEHICLE GRID */}
       <div className="vehicle-grid">
         {filteredVehicles.length === 0 && (
           <div className="no-results">No vehicles match your filters.</div>
         )}
 
         {filteredVehicles.map((v) => {
-          const powerText = v.power ? `${v.power} hp` : "—";
+          const powerText = v.power ? `${v.power} bhp` : "—";
           const torqueText = v.torque ? `${v.torque} Nm` : "—";
-          const priceText =
-            v.price && v.price > 0
-              ? `₹ ${v.price.toLocaleString("en-IN")}`
-              : "Price unavailable";
+          const priceText = v.price ? `₹ ${v.price.toLocaleString("en-IN")}` : "—";
 
           return (
-            <Link key={v.id} to={`/vehicles/${v.slug}`} className="vehicle-card">
+            <Link
+              key={v.id}
+              to={`/vehicles/${encodeURIComponent(v.slug)}`}
+              className="vehicle-card"
+            >
               {v.imageUrl && (
                 <div className="vehicle-card-image-wrapper">
                   <img
@@ -135,7 +150,7 @@ export function VehiclesPage() {
                   />
                 </div>
               )}
-              
+
               <div className="vehicle-card-header">
                 <h2 className="vehicle-card-title">
                   {v.brand} {v.model}
@@ -145,7 +160,7 @@ export function VehiclesPage() {
 
               <div className="vehicle-card-specs">
                 <span className="vehicle-card-spec">
-                  {powerText} · {torqueText}
+                  {powerText} • {torqueText}
                 </span>
                 <span className="vehicle-card-price">{priceText}</span>
               </div>
@@ -159,6 +174,8 @@ export function VehiclesPage() {
           );
         })}
       </div>
+
+      <Footer />
     </div>
   );
 }
