@@ -16,19 +16,29 @@ type LayoutProps = {
 };
 
 function PublicLayout({ children }: LayoutProps) {
+  const loggedIn = isLoggedIn();
+
   return (
     <div className="public-root">
       <header className="public-header">
         <div className="public-logo">
           <Link to="/vehicles">Autorovers</Link>
         </div>
+
         <nav className="public-nav">
           <Link to="/vehicles" className="public-nav-link">
             Vehicles
           </Link>
-          <Link to="/admin/vehicles" className="public-nav-link">
-            Login
-          </Link>
+
+          {loggedIn ? (
+            <Link to="/admin/vehicles" className="public-nav-link">
+              Admin
+            </Link>
+          ) : (
+            <Link to="/login" className="public-nav-link">
+              Login
+            </Link>
+          )}
         </nav>
       </header>
 
@@ -37,7 +47,6 @@ function PublicLayout({ children }: LayoutProps) {
   );
 }
 
-// Small route guard component
 function RequireAuth({ children }: { children: JSX.Element }) {
   if (!isLoggedIn()) {
     return <Navigate to="/login" replace />;
@@ -45,7 +54,6 @@ function RequireAuth({ children }: { children: JSX.Element }) {
   return children;
 }
 
-// Admin layout with logout
 function AdminLayout() {
   const navigate = useNavigate();
 
@@ -88,7 +96,7 @@ function AdminLayout() {
 function App() {
   return (
     <Routes>
-      {/* Public catalog + details wrapped in PublicLayout with navbar */}
+      {/* Public catalog */}
       <Route
         path="/"
         element={
@@ -97,6 +105,7 @@ function App() {
           </PublicLayout>
         }
       />
+
       <Route
         path="/vehicles"
         element={
@@ -105,6 +114,7 @@ function App() {
           </PublicLayout>
         }
       />
+
       <Route
         path="/vehicles/:slug"
         element={
@@ -114,7 +124,7 @@ function App() {
         }
       />
 
-      {/* Login route */}
+      {/* Login */}
       <Route
         path="/login"
         element={
@@ -124,7 +134,7 @@ function App() {
         }
       />
 
-      {/* Protected admin route */}
+      {/* Protected admin */}
       <Route
         path="/admin/vehicles"
         element={
@@ -134,7 +144,6 @@ function App() {
         }
       />
 
-      {/* Default: send everything else to catalog */}
       <Route path="*" element={<Navigate to="/vehicles" replace />} />
     </Routes>
   );

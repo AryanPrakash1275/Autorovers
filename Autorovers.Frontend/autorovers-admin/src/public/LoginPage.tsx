@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../features/auth/api";
+import { Footer } from "./Footer";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -85,6 +86,7 @@ export function LoginPage() {
           {loading ? "Signing in..." : "Login"}
         </button>
       </form>
+      <Footer />
     </div>
   );
 }

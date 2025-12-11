@@ -1,3 +1,4 @@
+import { Footer } from "../../../public/Footer";
 import type { Vehicle } from "../types";
 
 interface VehicleTableProps {
@@ -58,8 +59,8 @@ export function VehicleTable({
   }
 
   return (
-    <div className="table-wrapper">
-      <table className="table">
+    <div className="admin-table-wrapper">
+      <table className="admin-table">
         <thead>
           <tr>
             <Th activeSortKey={sortBy} sortDir={sortDir}>
@@ -165,6 +166,7 @@ export function VehicleTable({
           ))}
         </tbody>
       </table>
+    <Footer />  
     </div>
   );
 }

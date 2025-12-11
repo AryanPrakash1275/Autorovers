@@ -10,6 +10,7 @@ import {
   getVehicleWithDetails,
   updateVehicleDetails,
 } from "../api";
+import { Footer } from "../../../public/Footer";
 
 type SortKey =
   | "brand"
@@ -269,7 +270,7 @@ export function VehicleListPage() {
     <div className="admin-main">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Admin – Vehicles</h1>
+          <h1 className="page-title">Vehicles</h1>
           <p className="page-subtitle">
             Search, sort and manage Autorovers vehicle catalog.
           </p>
@@ -320,6 +321,7 @@ export function VehicleListPage() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

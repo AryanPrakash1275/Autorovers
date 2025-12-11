@@ -357,15 +357,15 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
             {/* YEAR */}
             <div className={`field ${errors.year ? "has-error" : ""}`}>
               <label>Year *</label>
-              <input
-                type="number"
-                name="year"
-                value={form.year}
-                onChange={handleChange}
-              />
-              {errors.year && (
-                <div className="field-error">{errors.year}</div>
-              )}
+              <select name="year" value={form.year} onChange={handleChange}>
+                <option value="">Select year</option>
+                {Array.from({ length: 2050 - 1980 + 1 }, (_, i) => 1980 + i).map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+              {errors.year && <div className="field-error">{errors.year}</div>}
             </div>
 
             {/* PRICE */}

@@ -413,3 +413,40 @@ tbody tr:hover {
   color: var(--danger);
   font-size: 0.9em;
 }
+
+/* --- ADMIN TABLE HARDENING --- */
+
+.admin-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 1200px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #1e293b;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.admin-table th {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  background: #0f172a;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.admin-table tr:hover {
+  background: rgba(148, 163, 184, 0.08);
+}
