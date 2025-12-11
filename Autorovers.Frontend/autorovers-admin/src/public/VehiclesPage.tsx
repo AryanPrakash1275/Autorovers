@@ -158,10 +158,10 @@ export function VehiclesPage() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
-                <option value="priceAsc">Price: Low → High</option>
-                <option value="priceDesc">Price: High → Low</option>
-                <option value="yearAsc">Year: Old → New</option>
-                <option value="yearDesc">Year: New → Old</option>
+                <option value="priceAsc">Price: Low to High</option>
+                <option value="priceDesc">Price: High to Low</option>
+                <option value="yearAsc">Year: Old to New</option>
+                <option value="yearDesc">Year: New to Old</option>
               </select>
             </div>
           </div>
@@ -170,8 +170,6 @@ export function VehiclesPage() {
 
       {/* ================= CATALOG ================= */}
       <section className="catalog-section">
-        <h2 className="catalog-title">All vehicles</h2>
-
         <div className="vehicle-grid">
           {filteredVehicles.length === 0 && (
             <div className="no-results">No vehicles match your filters.</div>

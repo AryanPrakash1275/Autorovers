@@ -1,3 +1,4 @@
+// src/features/vehicles/components/VehicleListPage.tsx
 import { useState, useMemo } from "react";
 import { useVehicles } from "../hooks/useVehicles";
 import { VehicleTable } from "./VehicleTable";
@@ -10,7 +11,6 @@ import {
   getVehicleWithDetails,
   updateVehicleDetails,
 } from "../api";
-import { Footer } from "../../../public/Footer";
 
 type SortKey =
   | "brand"
@@ -111,76 +111,79 @@ export function VehicleListPage() {
   }
 
   async function openEdit(row: Vehicle) {
-    try {
-      setMode("edit");
-      setIsPanelOpen(true);
-      setActionError(null);
-      setEditLoading(true);
+  try {
+    setMode("edit");
+    setIsPanelOpen(true);
+    setActionError(null);
+    setEditLoading(true);
 
-      const full: any = await getVehicleWithDetails(row.id);
+    const full: any = await getVehicleWithDetails(row.id);
+    const d = full.details ?? {};
 
-      const d = full.details ?? {};
+    const merged: Vehicle = {
+      // basics from core table + fallback to row
+      id: full.id ?? row.id,
+      vehicleType: full.vehicleType ?? row.vehicleType ?? "",
+      brand: full.brand ?? row.brand ?? "",
+      model: full.model ?? row.model ?? "",
+      variant: full.variant ?? row.variant ?? "",
+      year: full.year ?? row.year ?? new Date().getFullYear(),
+      price: full.price ?? row.price ?? 0,
+      category: full.category ?? row.category ?? "",
+      transmission: full.transmission ?? row.transmission ?? "",
+      slug: full.slug ?? row.slug ?? "",
+      imageUrl: full.imageUrl ?? row.imageUrl ?? "",
 
-      const merged: Vehicle = {
-        id: full.id,
-        vehicleType: full.vehicleType ?? "",
+      // engine & performance
+      engineType: d.engineType ?? "",
+      specification: d.specification ?? "",
+      inductionType: d.inductionType ?? "",
+      power: d.power ?? 0,
+      powerRpm: d.powerRpm ?? 0,
+      torque: d.torque ?? 0,
+      torqueRpm: d.torqueRpm ?? 0,
+      emission: d.emission ?? "",
+      mileage: d.mileage ?? 0,
+      autoStartStop: d.autoStartStop ?? "",
+      range: d.range ?? 0,
 
-        brand: full.brand,
-        model: full.model,
-        variant: full.variant,
-        year: full.year,
-        price: full.price,
-        category: full.category,
-        transmission: full.transmission,
-        slug: full.slug,
-        imageUrl: full.imageUrl ?? "",
+      // dimensions
+      length: d.length ?? 0,
+      width: d.width ?? 0,
+      height: d.height ?? 0,
+      weight: d.weight ?? 0,
+      groundClearance: d.groundClearance ?? 0,
+      wheelBase: d.wheelBase ?? 0,
 
-        // specs
-        engineType: d.engineType ?? "",
-        specification: d.specification ?? "",
-        inductionType: d.inductionType ?? "",
-        power: d.power ?? 0,
-        powerRpm: d.powerRpm ?? 0,
-        torque: d.torque ?? 0,
-        torqueRpm: d.torqueRpm ?? 0,
-        emission: d.emission ?? "",
-        mileage: d.mileage ?? 0,
-        autoStartStop: d.autoStartStop ?? "",
-        range: d.range ?? 0,
+      // capacity
+      personCapacity: d.personCapacity ?? 0,
+      rows: d.rows ?? 0,
+      doors: d.doors ?? 0,
+      bootSpace: d.bootSpace ?? 0,
+      tankSize: d.tankSize ?? 0,
 
-        length: d.length ?? 0,
-        width: d.width ?? 0,
-        height: d.height ?? 0,
-        weight: d.weight ?? 0,
-        groundClearance: d.groundClearance ?? 0,
-        wheelBase: d.wheelBase ?? 0,
+      // tyres & brakes
+      frontType: d.frontType ?? "",
+      backType: d.backType ?? "",
+      frontBrake: d.frontBrake ?? "",
+      backBrake: d.backBrake ?? "",
+      poweredSteering: d.poweredSteering ?? "",
+      tyreSizeFront: d.tyreSizeFront ?? "",
+      tyreSizeBack: d.tyreSizeBack ?? "",
+      tyreType: d.tyreType ?? "",
+      wheelMaterial: d.wheelMaterial ?? "",
+      spare: d.spare ?? "",
+    };
 
-        personCapacity: d.personCapacity ?? 0,
-        rows: d.rows ?? 0,
-        doors: d.doors ?? 0,
-        bootSpace: d.bootSpace ?? 0,
-        tankSize: d.tankSize ?? 0,
-
-        frontType: d.frontType ?? "",
-        backType: d.backType ?? "",
-        frontBrake: d.frontBrake ?? "",
-        backBrake: d.backBrake ?? "",
-        poweredSteering: d.poweredSteering ?? "",
-        tyreSizeFront: d.tyreSizeFront ?? "",
-        tyreSizeBack: d.tyreSizeBack ?? "",
-        tyreType: d.tyreType ?? "",
-        wheelMaterial: d.wheelMaterial ?? "",
-        spare: d.spare ?? "",
-      };
-
-      setEditing(merged);
-    } catch (err: any) {
-      console.error(err);
-      setActionError(err.message ?? "Failed to load vehicle details");
-    } finally {
-      setEditLoading(false);
-    }
+    setEditing(merged);
+  } catch (err: any) {
+    console.error(err);
+    setActionError(err.message ?? "Failed to load vehicle details");
+  } finally {
+    setEditLoading(false);
   }
+}
+
 
   function closePanel() {
     setIsPanelOpen(false);
@@ -203,7 +206,9 @@ export function VehicleListPage() {
           specification: data.specification,
           inductionType: data.inductionType,
           power: data.power,
+          powerRpm: data.powerRpm,
           torque: data.torque,
+          torqueRpm: data.torqueRpm,
           emission: data.emission,
           mileage: data.mileage,
           autoStartStop: data.autoStartStop,
@@ -270,7 +275,7 @@ export function VehicleListPage() {
     <div className="admin-main">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Vehicles</h1>
+          <h1 className="page-title">Admin – Vehicles</h1>
           <p className="page-subtitle">
             Search, sort and manage Autorovers vehicle catalog.
           </p>
@@ -321,7 +326,6 @@ export function VehicleListPage() {
           )}
         </div>
       </div>
-      <Footer />
     </div>
   );
 }

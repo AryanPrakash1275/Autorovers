@@ -130,11 +130,42 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
     POPULAR_BRANDS.includes(initial?.brand ?? "") ? "" : initial?.brand ?? ""
   );
 
-  useEffect(() => {
-    if (initial) {
-      setForm((prev) => ({ ...prev, ...initial }));
+ useEffect(() => {
+  if (!initial) return;
+
+  // infer vehicleType if missing, based on category
+  let inferredType = initial.vehicleType;
+
+  if (!inferredType && initial.category) {
+    if (BIKE_CATEGORIES.includes(initial.category)) {
+      inferredType = "Bike";
+    } else if (CAR_CATEGORIES.includes(initial.category)) {
+      inferredType = "Car";
     }
-  }, [initial]);
+  }
+
+  setForm((prev) => ({
+    ...prev,
+    ...initial,
+    vehicleType: inferredType ?? prev.vehicleType ?? "",
+  }));
+
+  // sync brand dropdown + customBrand
+  if (initial.brand) {
+    if (POPULAR_BRANDS.includes(initial.brand)) {
+      setSelectedBrand(initial.brand);
+      setCustomBrand("");
+    } else {
+      setSelectedBrand("Other");
+      setCustomBrand(initial.brand);
+    }
+  } else {
+    setSelectedBrand("");
+    setCustomBrand("");
+  }
+}, [initial]);
+
+
 
   const isBike = form.vehicleType === "Bike";
   const isCar = form.vehicleType === "Car";
