@@ -1,52 +1,98 @@
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Autorovers.Domain.Entities;
 
 public class VehicleDetails
 {
-    // Primary key AND foreign key to Vehicle, this will setup my EF to 1:1 relation with vehicle
     [ForeignKey("Vehicle")]
     public int VehicleId { get; set; }
+    public Vehicle Vehicle { get; set; } = null!;
 
-    public Vehicle Vehicle { get; set; }
+    // ========== ENGINE & POWERTRAIN ==========
+    public string? EngineType { get; set; }
+    public int? EngineDisplacement { get; set; }
+    public string? Specification { get; set; }
+    public string? InductionType { get; set; }
 
-    // Engine Specs
-    public string EngineType { get; set; } = null!;
-    public string Specification { get; set; } = null!;
-    public string InductionType { get; set; } = null!;
-    public double Power { get; set; }
-    public double Torque { get; set; }
-    public string Emission { get; set; } = null!;
-    public double Mileage { get; set; }
-    public string AutoStartStop { get; set; } = "";
+    public double? Power { get; set; }      // bhp/ps
+    public int? PowerRpm { get; set; }      // NEW FIELD
 
-    public int Range { get; set; }
-    public string Transmission { get; set; } = null!;
+    public double? Torque { get; set; }
+    public int? TorqueRpm { get; set; }
+    public string? Emission { get; set; }
+    public double? Mileage { get; set; }
+    public string? AutoStartStop { get; set; }
+    public int? Range { get; set; }
 
-    // Size
-    public int Length { get; set; }
-    public int Width { get; set; }
-    public int Height { get; set; }
-    public int Weight { get; set; }
-    public int GroundClearance { get; set; }
-    public int WheelBase { get; set; }
+    public string? FuelType { get; set; }
+    public string? Transmission { get; set; }
 
-    // Capacity
-    public int PersonCapacity { get; set; }
-    public int Rows { get; set; }
-    public int Doors { get; set; }
-    public int BootSpace { get; set; }
-    public double TankSize { get; set; }
+    // EV
+    public double? BatteryCapacity { get; set; }
+    public double? ChargingTimeFast { get; set; }
+    public double? ChargingTimeNormal { get; set; }
+    public int? MotorPower { get; set; }
+    public int? MotorTorque { get; set; }
 
-    // Dynamics
-    public string FrontType { get; set; } = null!;
-    public string BackType { get; set; } = null!;
-    public string FrontBrake { get; set; } = null!;
-    public string BackBrake { get; set; } = null!;
-    public string PoweredSteering { get; set; } = null!;
-    public string TyreSizeFront { get; set; } = null!;
-    public string TyreSizeBack { get; set; } = null!;
-    public string TyreType { get; set; } = null!;
-    public string WheelMaterial { get; set; } = null!;
-    public string Spare { get; set; } = null!;
+    // Bike
+    public int? NumberOfGears { get; set; }
+
+    // Car performance
+    public string? DriveType { get; set; }
+    public double? ZeroToHundred { get; set; }
+    public int? TopSpeed { get; set; }
+
+    // DIMENSIONS
+    public int? Length { get; set; }
+    public int? Width { get; set; }
+    public int? Height { get; set; }
+    public int? WheelBase { get; set; }
+    public int? GroundClearance { get; set; }
+    public int? Weight { get; set; }
+    public double? TurningRadius { get; set; }
+
+    // CAPACITY
+    public int? PersonCapacity { get; set; }
+    public int? Rows { get; set; }
+    public int? Doors { get; set; }
+    public int? BootSpace { get; set; }
+    public double? TankSize { get; set; }
+
+    // TYRES / BRAKES / SUSPENSION
+    public string? FrontType { get; set; }
+    public string? BackType { get; set; }
+    public string? FrontBrake { get; set; }
+    public string? BackBrake { get; set; }
+    public string? FrontSuspension { get; set; }
+    public string? RearSuspension { get; set; }
+    public string? TyreSizeFront { get; set; }
+    public string? TyreSizeBack { get; set; }
+    public string? TyreType { get; set; }
+    public string? WheelMaterial { get; set; }
+    public string? Spare { get; set; }
+
+    // STEERING
+    public string? PoweredSteering { get; set; }
+    public string? SteeringType { get; set; }
+
+    // SAFETY
+    public bool? Abs { get; set; }
+    public bool? TractionControl { get; set; }
+    public int? Airbags { get; set; }
+    public bool? HillAssist { get; set; }
+    public bool? RearViewCamera { get; set; }
+    public bool? ParkingSensors { get; set; }
+    public bool? CruiseControl { get; set; }
+
+    // FEATURES
+    public double? DisplaySize { get; set; }
+    public bool? Bluetooth { get; set; }
+    public bool? Navigation { get; set; }
+    public bool? SmartConnectivity { get; set; }
+    public bool? FastChargingPort { get; set; }
+
+    // META
+    public string? ColorsAvailableJson { get; set; }
+    public int? WarrantyYears { get; set; }
+    public int? ServiceIntervalKm { get; set; }
 }

@@ -20,7 +20,7 @@ public interface IVehicleService
     // FULL details by id – used for details page
     Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id);
 
-    // FULL details by slug – for slug-based details if you use it
+    // FULL details by slug – used for slug-based details
     Task<VehicleWithDetailsDto?> GetWithDetailsBySlugAsync(string slug);
 
     Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req);
