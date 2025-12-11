@@ -1,4 +1,6 @@
-/* =============== Theme Tokens =============== */
+/* =========================================================
+   THEME TOKENS
+========================================================= */
 
 :root {
   --bg: #f3f4f6;              /* page background */
@@ -14,7 +16,9 @@
   --shadow-soft: 0 6px 18px rgba(15, 23, 42, 0.08);
 }
 
-/* =============== Shared UI elements =============== */
+/* =========================================================
+   SHARED UI ELEMENTS
+========================================================= */
 
 .page-header {
   display: flex;
@@ -35,6 +39,8 @@
   font-size: 0.9rem;
   color: var(--text-muted);
 }
+
+/* ---------- Buttons ---------- */
 
 .btn {
   border: none;
@@ -77,11 +83,11 @@
   background: var(--bg-alt);
 }
 
+/* ---------- Tables ---------- */
+
 .table-wrapper {
   margin-top: 0.75rem;
 }
-
-/* Table */
 
 .table {
   width: 100%;
@@ -127,6 +133,8 @@ tbody tr:hover {
   color: var(--text-muted);
 }
 
+/* ---------- Misc text / alerts / inputs ---------- */
+
 .muted {
   font-size: 0.85rem;
   color: var(--text-muted);
@@ -155,7 +163,9 @@ tbody tr:hover {
   color: var(--text);
 }
 
-/* Slide-over */
+/* =========================================================
+   SLIDE-OVER LAYOUT (ADMIN FORM PANEL)
+========================================================= */
 
 .slide-over {
   position: fixed;
@@ -199,27 +209,56 @@ tbody tr:hover {
   transform: translateX(0%);
 }
 
+/* ---------- Slide form structure ---------- */
+
 .slide-form {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
+/* HEADER: title + close + tabs, sticky at top */
 .slide-form-header {
   flex: 0 0 auto;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg-card);
 }
 
+.slide-form-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.slide-form-title {
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.slide-form-subtitle {
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+  color: var(--text-muted);
+}
+
+/* BODY: scrollable area under header */
 .slide-form-body {
   flex: 1 1 auto;
   overflow-y: auto;
   padding: 1rem;
 }
 
+/* FOOTER: button bar at bottom */
 .slide-form-footer {
   flex: 0 0 auto;
   padding: 0.75rem 1rem;
@@ -227,9 +266,9 @@ tbody tr:hover {
   background: #f9fafb;
   display: flex;
   gap: 1rem;
-  position: sticky;
-  bottom: 0;
 }
+
+/* ---------- Fields, grid, icons ---------- */
 
 .field label {
   display: block;
@@ -238,7 +277,8 @@ tbody tr:hover {
   color: var(--text-muted);
 }
 
-.field input {
+.field input,
+.field select {
   width: 100%;
   padding: 0.45rem 0.6rem;
   background: #ffffff;
@@ -247,7 +287,8 @@ tbody tr:hover {
   color: var(--text);
 }
 
-.field input:focus {
+.field input:focus,
+.field select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.3);
@@ -259,7 +300,7 @@ tbody tr:hover {
   cursor: pointer;
 }
 
-/* form grid */
+/* ---------- Form grid ---------- */
 
 .form-grid {
   display: grid;
@@ -268,7 +309,6 @@ tbody tr:hover {
 }
 
 /* Very small screens */
-
 @media (max-width: 640px) {
   .slide-over-panel {
     width: 100%;
@@ -279,7 +319,9 @@ tbody tr:hover {
   }
 }
 
-/* =============== ADMIN LAYOUT =============== */
+/* =========================================================
+   ADMIN LAYOUT
+========================================================= */
 
 .admin-root {
   min-height: 100vh;
@@ -316,12 +358,13 @@ tbody tr:hover {
   width: 100%;
 }
 
-/* Tabs */
+/* =========================================================
+   FORM TABS & SECTION TITLES
+========================================================= */
 
 .form-tabs {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
 }
 
 .form-tab {
@@ -332,12 +375,20 @@ tbody tr:hover {
   color: var(--text-muted);
   font-size: 0.75rem;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .form-tab.is-active {
   background: var(--accent);
   border-color: var(--accent);
   color: #ffffff;
+}
+
+.form-tab.has-error-dot::after {
+  content: "•";
+  margin-left: 4px;
+  color: var(--danger);
+  font-size: 0.9em;
 }
 
 .form-section-title {
@@ -349,7 +400,10 @@ tbody tr:hover {
   border-bottom: 1px solid var(--border);
 }
 
-/* image-preview */
+/* =========================================================
+   IMAGE PREVIEW
+========================================================= */
+
 .image-preview {
   margin-top: 0.25rem;
   border: 1px solid var(--border);
@@ -363,3 +417,108 @@ tbody tr:hover {
   border-radius: 6px;
   display: block;
 }
+
+/* =========================================================
+   VALIDATION & FORM STATUS
+========================================================= */
+
+.required {
+  color: var(--danger);
+  margin-left: 2px;
+  font-weight: 600;
+}
+
+.field.has-error input {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.16);
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: var(--danger);
+  margin-top: 0.2rem;
+}
+
+/* Form status banner inside slide-over */
+.form-status {
+  margin: 0.5rem 1rem 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.form-status--success {
+  background: #ecfdf3;
+  border: 1px solid #bbf7d0;
+  color: var(--success);
+}
+
+.form-status--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--danger);
+}
+
+/* =========================================================
+   ADMIN TABLE HARDENING
+========================================================= */
+
+.admin-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 1200px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #1e293b;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.admin-table th {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  background: #0f172a;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.admin-table tr:hover {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.admin-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-header-tag {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+

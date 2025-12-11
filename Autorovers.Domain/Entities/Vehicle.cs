@@ -3,16 +3,18 @@ namespace Autorovers.Domain.Entities;
 public class Vehicle
 {
     public int Id { get; set; }
-
+    //Adding type for later scope of seperating entities
+    public string VehicleType { get; set; } = string.Empty;
     // Core values: Could add more. Basic info here. Skeleton.
     public string Brand { get; set; } = null!;
     public string Model { get; set; } = null!;
-    public string Variant { get; set; } = null!;
+    public string? Variant { get; set; } = null!;
     public int Year { get; set; }
     public int Price { get; set; }
     public string Category { get; set; } = null!;      // of the type of vehicle (Car / Bike / SUV / etc.)
     public string Transmission { get; set; } = null!;
     public string? ImageUrl { get; set; } //for images
+
 
     // Slug for SEO URLs: not sure about this but will see.
     public string Slug { get; set; } = null!;

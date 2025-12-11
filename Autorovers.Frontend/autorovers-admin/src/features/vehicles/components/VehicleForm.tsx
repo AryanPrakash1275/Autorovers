@@ -1,6 +1,48 @@
 import { useState, useEffect } from "react";
 import type { Vehicle } from "../types";
 
+/* ---------------------------------------------
+   CONSTANTS FOR CATEGORY, TRANSMISSION, BRAND
+------------------------------------------------*/
+
+const POPULAR_BRANDS = [
+  "Honda",
+  "Yamaha",
+  "Suzuki",
+  "Royal Enfield",
+  "KTM",
+  "TVS",
+  "Bajaj",
+  "Hero",
+  "BMW",
+  "Harley-Davidson",
+  "Ducati",
+  "Kawasaki",
+  "Other",
+];
+
+const BIKE_CATEGORIES = [
+  "Sport",
+  "Commuter",
+  "Cruiser",
+  "Tourer",
+  "Off-road",
+  "Scooter",
+  "EV Bike",
+];
+
+const CAR_CATEGORIES = [
+  "Hatchback",
+  "Sedan",
+  "SUV",
+  "MUV",
+  "Coupe",
+  "EV Car",
+];
+
+const CAR_TRANSMISSIONS = ["Manual", "Automatic", "AMT", "CVT", "DCT"];
+const BIKE_TRANSMISSIONS = ["Manual", "Automatic", "CVT"];
+
 type Props = {
   initial?: Vehicle | null;
   mode: "create" | "edit";
@@ -10,9 +52,23 @@ type Props = {
 
 type Tab = "basics" | "specs";
 
+type RequiredField =
+  | "brand"
+  | "model"
+  | "year"
+  | "price"
+  | "category"
+  | "transmission";
+
+type FormErrors = Partial<
+  Record<RequiredField | "vehicleType" | "imageUrl", string>
+>;
+
 export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
   const [form, setForm] = useState<Vehicle>({
     id: initial?.id ?? 0,
+    vehicleType: initial?.vehicleType ?? "",
+
     brand: initial?.brand ?? "",
     model: initial?.model ?? "",
     variant: initial?.variant ?? "",
@@ -21,20 +77,20 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
     category: initial?.category ?? "",
     transmission: initial?.transmission ?? "",
     slug: initial?.slug ?? "",
-    imageUrl: initial?.imageUrl?? "",
+    imageUrl: initial?.imageUrl ?? "",
 
-    // Engine & performance
     engineType: initial?.engineType ?? "",
     specification: initial?.specification ?? "",
     inductionType: initial?.inductionType ?? "",
     power: initial?.power ?? 0,
+    powerRpm: initial?.powerRpm ?? 0,
     torque: initial?.torque ?? 0,
+    torqueRpm: initial?.torqueRpm ?? 0,
     emission: initial?.emission ?? "",
     mileage: initial?.mileage ?? 0,
     autoStartStop: initial?.autoStartStop ?? "",
     range: initial?.range ?? 0,
 
-    // Dimensions & weight
     length: initial?.length ?? 0,
     width: initial?.width ?? 0,
     height: initial?.height ?? 0,
@@ -42,14 +98,12 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
     groundClearance: initial?.groundClearance ?? 0,
     wheelBase: initial?.wheelBase ?? 0,
 
-    // Capacity
     personCapacity: initial?.personCapacity ?? 0,
     rows: initial?.rows ?? 0,
     doors: initial?.doors ?? 0,
     bootSpace: initial?.bootSpace ?? 0,
     tankSize: initial?.tankSize ?? 0,
 
-    // Tyres, brakes & steering
     frontType: initial?.frontType ?? "",
     backType: initial?.backType ?? "",
     frontBrake: initial?.frontBrake ?? "",
@@ -64,28 +118,50 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
 
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("basics");
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  // When initial changes (edit vs create), sync form
+  // NEW BRAND STATE
+  const [selectedBrand, setSelectedBrand] = useState(
+    POPULAR_BRANDS.includes(initial?.brand ?? "")
+      ? (initial?.brand ?? "")
+      : "Other"
+  );
+  const [customBrand, setCustomBrand] = useState(
+    POPULAR_BRANDS.includes(initial?.brand ?? "") ? "" : initial?.brand ?? ""
+  );
+
   useEffect(() => {
     if (initial) {
-      setForm((prev) => ({
-        ...prev,
-        ...initial,
-      }));
+      setForm((prev) => ({ ...prev, ...initial }));
     }
   }, [initial]);
+
+  const isBike = form.vehicleType === "Bike";
+  const isCar = form.vehicleType === "Car";
+
+  const categoryOptions = isBike
+    ? BIKE_CATEGORIES
+    : isCar
+    ? CAR_CATEGORIES
+    : [];
+
+  const transmissionOptions = isCar ? CAR_TRANSMISSIONS : BIKE_TRANSMISSIONS;
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
     const { name, value } = e.target;
+
     setForm((prev) => {
-      // numeric fields
+      const next: any = { ...prev };
+
       const numberFields = new Set([
         "year",
         "price",
         "power",
+        "powerRpm",
         "torque",
+        "torqueRpm",
         "mileage",
         "range",
         "length",
@@ -101,77 +177,184 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
         "tankSize",
       ]);
 
-      if (numberFields.has(name)) {
-        return {
-          ...prev,
-          [name]: value === "" ? 0 : Number(value),
-        };
+      next[name] = numberFields.has(name)
+        ? value === ""
+          ? 0
+          : Number(value)
+        : value;
+
+      if (errors[name as keyof FormErrors]) {
+        const newErrors = { ...errors };
+        delete newErrors[name as keyof FormErrors];
+        setErrors(newErrors);
       }
 
-      return { ...prev, [name]: value };
+      return next;
     });
+  }
+
+  function validate() {
+    const nextErrors: FormErrors = {};
+    const year = new Date().getFullYear();
+
+    if (!form.vehicleType) nextErrors.vehicleType = "Required.";
+    if (!form.brand.trim()) nextErrors.brand = "Required.";
+    if (!form.model.trim()) nextErrors.model = "Required.";
+    if (!form.category.trim()) nextErrors.category = "Required.";
+
+    if (isCar && !form.transmission.trim())
+      nextErrors.transmission = "Required for cars.";
+
+    if (!form.year || form.year < 1950 || form.year > year + 1)
+      nextErrors.year = `Must be between 1950 and ${year + 1}.`;
+
+    if (!form.price || form.price <= 0)
+      nextErrors.price = "Must be greater than 0.";
+
+    if (form.imageUrl && !/^https?:\/\//i.test(form.imageUrl))
+      nextErrors.imageUrl = "Invalid URL.";
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting) return;
-    setSubmitting(true);
 
+    const ok = validate();
+    if (!ok) {
+      setActiveTab("basics");
+      return;
+    }
+
+    // finalize brand
+    const finalBrand =
+      selectedBrand === "Other" ? customBrand.trim() : selectedBrand;
+
+    setSubmitting(true);
     try {
-      await onSubmit(form);
+      await onSubmit({ ...form, brand: finalBrand });
     } finally {
       setSubmitting(false);
     }
   }
-
-  return (
+      return (
     <form className="form slide-form" onSubmit={handleSubmit}>
+      {/* ===== HEADER: title + close + tabs (sticky) ===== */}
       <div className="slide-form-header">
-        <h2>{mode === "create" ? "Add Vehicle" : "Edit Vehicle"}</h2>
-        <button type="button" className="icon-btn" onClick={onCancel}>
-          ✕
-        </button>
+        <div className="slide-form-header-top">
+          <h2 className="slide-form-title">
+            {mode === "create" ? "Add Vehicle" : "Edit Vehicle"}
+          </h2>
+
+          <button type="button" className="icon-btn" onClick={onCancel}>
+            ✕
+          </button>
+        </div>
+
+        <div className="form-tabs">
+          <button
+            type="button"
+            className={`form-tab ${
+              activeTab === "basics" ? "is-active" : ""
+            }`}
+            onClick={() => setActiveTab("basics")}
+          >
+            Basics
+          </button>
+
+          <button
+            type="button"
+            className={`form-tab ${
+              activeTab === "specs" ? "is-active" : ""
+            }`}
+            onClick={() => setActiveTab("specs")}
+          >
+            Specifications
+          </button>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="form-tabs">
-        <button
-          type="button"
-          className={`form-tab ${activeTab === "basics" ? "is-active" : ""}`}
-          onClick={() => setActiveTab("basics")}
-        >
-          Basics
-        </button>
-        <button
-          type="button"
-          className={`form-tab ${activeTab === "specs" ? "is-active" : ""}`}
-          onClick={() => setActiveTab("specs")}
-        >
-          Specifications
-        </button>
-      </div>
-
+      {/* ===== BODY: SCROLLS UNDER HEADER ===== */}
       <div className="slide-form-body">
+        {/* ---------------- BASICS TAB ---------------- */}
         {activeTab === "basics" && (
           <div className="form-grid">
-            <div className="field">
-              <label>Brand</label>
-              <input
-                name="brand"
-                value={form.brand}
+            {/* VEHICLE TYPE */}
+            <div className={`field ${errors.vehicleType ? "has-error" : ""}`}>
+              <label>Vehicle Type *</label>
+              <select
+                name="vehicleType"
+                value={form.vehicleType}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select type</option>
+                <option value="Bike">Bike</option>
+                <option value="Car">Car</option>
+              </select>
+              {errors.vehicleType && (
+                <div className="field-error">{errors.vehicleType}</div>
+              )}
             </div>
 
-            <div className="field">
-              <label>Model</label>
-              <input
-                name="model"
-                value={form.model}
-                onChange={handleChange}
-              />
+            {/* BRAND (Dropdown + Other Input) */}
+            <div className={`field ${errors.brand ? "has-error" : ""}`}>
+              <label>Brand *</label>
+
+              {/* Brand dropdown */}
+              <select
+                value={selectedBrand}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSelectedBrand(value);
+
+                  if (value !== "Other") {
+                    setCustomBrand("");
+                    setForm((prev) => ({ ...prev, brand: value }));
+                  } else {
+                    setForm((prev) => ({ ...prev, brand: "" }));
+                  }
+                }}
+              >
+                <option value="">Select brand</option>
+                {POPULAR_BRANDS.map((b) => (
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
+                ))}
+              </select>
+
+              {/* If "Other", show custom input */}
+              {selectedBrand === "Other" && (
+                <input
+                  type="text"
+                  placeholder="Enter custom brand"
+                  className="form-input"
+                  value={customBrand}
+                  onChange={(e) => {
+                    setCustomBrand(e.target.value);
+                    setForm((prev) => ({ ...prev, brand: e.target.value }));
+                  }}
+                  style={{ marginTop: "0.5rem" }}
+                />
+              )}
+
+              {errors.brand && (
+                <div className="field-error">{errors.brand}</div>
+              )}
             </div>
 
+            {/* MODEL */}
+            <div className={`field ${errors.model ? "has-error" : ""}`}>
+              <label>Model *</label>
+              <input name="model" value={form.model} onChange={handleChange} />
+              {errors.model && (
+                <div className="field-error">{errors.model}</div>
+              )}
+            </div>
+
+            {/* VARIANT */}
             <div className="field">
               <label>Variant</label>
               <input
@@ -181,62 +364,114 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
               />
             </div>
 
-            <div className="field">
-              <label>Year</label>
-              <input
-                type="number"
-                name="year"
-                value={form.year}
-                onChange={handleChange}
-              />
+            {/* YEAR */}
+            <div className={`field ${errors.year ? "has-error" : ""}`}>
+              <label>Year *</label>
+              <select name="year" value={form.year} onChange={handleChange}>
+                <option value="">Select year</option>
+                {Array.from(
+                  { length: 2050 - 1980 + 1 },
+                  (_, i) => 1980 + i
+                ).map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+              {errors.year && <div className="field-error">{errors.year}</div>}
             </div>
 
-            <div className="field">
-              <label>Price (₹)</label>
+            {/* PRICE */}
+            <div className={`field ${errors.price ? "has-error" : ""}`}>
+              <label>Price (₹) *</label>
               <input
                 type="number"
                 name="price"
                 value={form.price}
                 onChange={handleChange}
               />
+              {errors.price && (
+                <div className="field-error">{errors.price}</div>
+              )}
             </div>
 
-            <div className="field">
-              <label>Category</label>
-              <input
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-              />
-            </div>
+            {/* CATEGORY DROPDOWN */}
+            {form.vehicleType && (
+              <div className={`field ${errors.category ? "has-error" : ""}`}>
+                <label>Category *</label>
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                >
+                  <option value="">Select category</option>
+                  {categoryOptions.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                {errors.category && (
+                  <div className="field-error">{errors.category}</div>
+                )}
+              </div>
+            )}
 
-            <div className="field">
-              <label>Transmission</label>
-              <input
+            {/* TRANSMISSION */}
+            <div
+              className={`field ${
+                errors.transmission && isCar ? "has-error" : ""
+              }`}
+            >
+              <label>Transmission {isCar && "*"}</label>
+              <select
                 name="transmission"
                 value={form.transmission}
                 onChange={handleChange}
-              />
+              >
+                <option value="">Select</option>
+                {transmissionOptions.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+
+              {errors.transmission && isCar && (
+                <div className="field-error">{errors.transmission}</div>
+              )}
             </div>
 
-            <div className="field">
+            {/* IMAGE URL */}
+            <div className={`field ${errors.imageUrl ? "has-error" : ""}`}>
               <label>Image URL</label>
               <input
                 name="imageUrl"
-                value={form.imageUrl ?? ""}   // ✅ force null/undefined → ""
+                value={form.imageUrl ?? ""}
                 onChange={handleChange}
-                placeholder="https://example.com/bike.jpg"/>
+              />
+              {errors.imageUrl && (
+                <div className="field-error">{errors.imageUrl}</div>
+              )}
             </div>
 
+            {/* IMAGE PREVIEW */}
             {form.imageUrl && (
               <div className="field" style={{ gridColumn: "1 / -1" }}>
                 <label>Preview</label>
                 <div className="image-preview">
-                  <img src={form.imageUrl} alt="preview" />
+                  <img
+                    src={form.imageUrl}
+                    onError={(e) =>
+                      ((e.target as HTMLImageElement).src =
+                        "https://dummyimage.com/600x400/cccccc/000000&text=No+Image")
+                    }
+                  />
                 </div>
               </div>
             )}
-            
+
+            {/* SLUG */}
             <div className="field">
               <label>Slug (optional)</label>
               <input
@@ -249,9 +484,10 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
           </div>
         )}
 
+        {/* ---------------- SPECS TAB ---------------- */}
         {activeTab === "specs" && (
           <>
-            {/* ENGINE & PERFORMANCE */}
+            {/* ENGINE */}
             <h3 className="form-section-title">Engine & Performance</h3>
             <div className="form-grid">
               <div className="field">
@@ -262,6 +498,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Specification</label>
                 <input
@@ -270,6 +507,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Induction</label>
                 <input
@@ -278,8 +516,9 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
-                <label>Power (hp)</label>
+                <label>Power (bhp)</label>
                 <input
                   type="number"
                   name="power"
@@ -287,6 +526,17 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
+              <div className="field">
+                <label>Power RPM</label>
+                <input
+                  type="number"
+                  name="powerRpm"
+                  value={form.powerRpm}
+                  onChange={handleChange}
+                />
+              </div>
+
               <div className="field">
                 <label>Torque (Nm)</label>
                 <input
@@ -296,6 +546,17 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
+              <div className="field">
+                <label>Torque RPM</label>
+                <input
+                  type="number"
+                  name="torqueRpm"
+                  value={form.torqueRpm}
+                  onChange={handleChange}
+                />
+              </div>
+
               <div className="field">
                 <label>Emission</label>
                 <input
@@ -304,6 +565,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Mileage (kmpl)</label>
                 <input
@@ -313,26 +575,32 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
-              <div className="field">
-                <label>Auto Start/Stop</label>
-                <input
-                  name="autoStartStop"
-                  value={form.autoStartStop}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>Range (km)</label>
-                <input
-                  type="number"
-                  name="range"
-                  value={form.range}
-                  onChange={handleChange}
-                />
-              </div>
+
+              {isBike && (
+                <>
+                  <div className="field">
+                    <label>Auto Start/Stop</label>
+                    <input
+                      name="autoStartStop"
+                      value={form.autoStartStop}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>Range (km)</label>
+                    <input
+                      type="number"
+                      name="range"
+                      value={form.range}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </>
+              )}
             </div>
 
-            {/* DIMENSIONS & WEIGHT */}
+            {/* DIMENSIONS */}
             <h3 className="form-section-title">Dimensions & Weight</h3>
             <div className="form-grid">
               <div className="field">
@@ -344,6 +612,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Width (mm)</label>
                 <input
@@ -353,6 +622,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Height (mm)</label>
                 <input
@@ -362,6 +632,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Wheelbase (mm)</label>
                 <input
@@ -371,6 +642,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Ground clearance (mm)</label>
                 <input
@@ -380,6 +652,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Kerb weight (kg)</label>
                 <input
@@ -391,58 +664,77 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
               </div>
             </div>
 
-            {/* CAPACITY & LAYOUT */}
-            <h3 className="form-section-title">Capacity & Layout</h3>
-            <div className="form-grid">
-              <div className="field">
-                <label>Seating (persons)</label>
-                <input
-                  type="number"
-                  name="personCapacity"
-                  value={form.personCapacity}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>Rows</label>
-                <input
-                  type="number"
-                  name="rows"
-                  value={form.rows}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>Doors</label>
-                <input
-                  type="number"
-                  name="doors"
-                  value={form.doors}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>Boot space (L)</label>
-                <input
-                  type="number"
-                  name="bootSpace"
-                  value={form.bootSpace}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>Fuel tank (L)</label>
-                <input
-                  type="number"
-                  name="tankSize"
-                  value={form.tankSize}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
+            {isCar && (
+              <>
+                <h3 className="form-section-title">Capacity & Layout</h3>
+                <div className="form-grid">
+                  <div className="field">
+                    <label>Seating (persons)</label>
+                    <input
+                      type="number"
+                      name="personCapacity"
+                      value={form.personCapacity}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-            {/* TYRES, BRAKES & STEERING */}
-            <h3 className="form-section-title">Tyres, Brakes & Steering</h3>
+                  <div className="field">
+                    <label>Rows</label>
+                    <input
+                      type="number"
+                      name="rows"
+                      value={form.rows}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>Doors</label>
+                    <input
+                      type="number"
+                      name="doors"
+                      value={form.doors}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>Boot space (L)</label>
+                    <input
+                      type="number"
+                      name="bootSpace"
+                      value={form.bootSpace}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+
+                <h3 className="form-section-title">Fuel & Steering</h3>
+                <div className="form-grid">
+                  <div className="field">
+                    <label>Fuel tank (L)</label>
+                    <input
+                      type="number"
+                      name="tankSize"
+                      value={form.tankSize}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="field">
+                    <label>Power steering</label>
+                    <input
+                      name="poweredSteering"
+                      value={form.poweredSteering}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* TYRES & BRAKES */}
+            <h3 className="form-section-title">Tyres & Brakes</h3>
             <div className="form-grid">
               <div className="field">
                 <label>Front type</label>
@@ -452,46 +744,34 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
-                <label>Rear / back type</label>
+                <label>Rear / Back type</label>
                 <input
                   name="backType"
                   value={form.backType}
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
-                <label>Front brake</label>
-                <input
-                  name="frontBrake"
-                  value={form.frontBrake}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>Rear brake</label>
-                <input
-                  name="backBrake"
-                  value={form.backBrake}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="field">
-                <label>Tyre size (front)</label>
+                <label>Front tyre</label>
                 <input
                   name="tyreSizeFront"
                   value={form.tyreSizeFront}
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
-                <label>Tyre size (rear)</label>
+                <label>Rear tyre</label>
                 <input
                   name="tyreSizeBack"
                   value={form.tyreSizeBack}
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Tyre type</label>
                 <input
@@ -500,6 +780,25 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
+              <div className="field">
+                <label>Front brake</label>
+                <input
+                  name="frontBrake"
+                  value={form.frontBrake}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="field">
+                <label>Rear brake</label>
+                <input
+                  name="backBrake"
+                  value={form.backBrake}
+                  onChange={handleChange}
+                />
+              </div>
+
               <div className="field">
                 <label>Wheel material</label>
                 <input
@@ -508,6 +807,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
+
               <div className="field">
                 <label>Spare</label>
                 <input
@@ -516,19 +816,12 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                   onChange={handleChange}
                 />
               </div>
-              <div className="field">
-                <label>Power steering</label>
-                <input
-                  name="poweredSteering"
-                  value={form.poweredSteering}
-                  onChange={handleChange}
-                />
-              </div>
             </div>
           </>
         )}
       </div>
 
+      {/* FOOTER */}
       <div className="slide-form-footer">
         <button className="btn" type="submit" disabled={submitting}>
           {submitting

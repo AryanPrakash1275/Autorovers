@@ -1,6 +1,7 @@
 // src/features/vehicles/types.ts
 
-export interface Vehicle {
+// LIST ITEM for public & admin tables
+export interface VehicleListItem {
   id: number;
   brand: string;
   model: string;
@@ -11,13 +12,34 @@ export interface Vehicle {
   transmission: string;
   slug: string;
   imageUrl?: string | null;
-  
+
+  // Optional fields for cards only
+  power?: number | null;
+  torque?: number | null;
+}
+
+// FULL VEHICLE (details page, admin edit form)
+export interface Vehicle {
+  id: number;
+  vehicleType: string; // "Bike" | "Car"
+  brand: string;
+  model: string;
+  variant: string;
+  year: number;
+  price: number;
+  category: string;
+  transmission: string;
+  slug: string;
+  imageUrl?: string | null;
+
   // Engine & performance
   engineType: string;
   specification: string;
   inductionType: string;
   power: number;
+  powerRpm: number;
   torque: number;
+  torqueRpm: number;
   emission: string;
   mileage: number;
   autoStartStop: string;

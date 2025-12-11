@@ -10,6 +10,7 @@ import {
   getVehicleWithDetails,
   updateVehicleDetails,
 } from "../api";
+import { Footer } from "../../../public/Footer";
 
 type SortKey =
   | "brand"
@@ -121,8 +122,9 @@ export function VehicleListPage() {
       const d = full.details ?? {};
 
       const merged: Vehicle = {
-        // basics from API row + fallback to full
         id: full.id,
+        vehicleType: full.vehicleType ?? "",
+
         brand: full.brand,
         model: full.model,
         variant: full.variant,
@@ -131,13 +133,16 @@ export function VehicleListPage() {
         category: full.category,
         transmission: full.transmission,
         slug: full.slug,
+        imageUrl: full.imageUrl ?? "",
 
         // specs
         engineType: d.engineType ?? "",
         specification: d.specification ?? "",
         inductionType: d.inductionType ?? "",
         power: d.power ?? 0,
+        powerRpm: d.powerRpm ?? 0,
         torque: d.torque ?? 0,
+        torqueRpm: d.torqueRpm ?? 0,
         emission: d.emission ?? "",
         mileage: d.mileage ?? 0,
         autoStartStop: d.autoStartStop ?? "",
@@ -265,7 +270,7 @@ export function VehicleListPage() {
     <div className="admin-main">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Admin – Vehicles</h1>
+          <h1 className="page-title">Vehicles</h1>
           <p className="page-subtitle">
             Search, sort and manage Autorovers vehicle catalog.
           </p>
@@ -316,6 +321,7 @@ export function VehicleListPage() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

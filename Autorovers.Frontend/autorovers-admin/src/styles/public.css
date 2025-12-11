@@ -90,6 +90,7 @@ body.public-view {
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
   color: var(--text);
+  padding-bottom: 80px;
 }
 
 /* ========= Typography ========= */
@@ -153,9 +154,9 @@ body.public-view {
 
 .vehicle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
-  margin-top: 0.75rem;
+  padding: 1rem 0;
 }
 
 /* Card base */
@@ -183,18 +184,17 @@ body.public-view {
 /* Image wrapper */
 .vehicle-card-image-wrapper {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 10px;
+  height: 220px;               /* FIX HEIGHT – prevents zoom-stretch */
   overflow: hidden;
-  margin-bottom: 0.75rem;
-  background: #e5e7eb;
+  border-radius: 10px;
+  background: #111;
 }
 
 .vehicle-card-image {
   width: 100%;
   height: 100%;
-  display: block;
-  object-fit: cover;
+  object-fit: contain;         /* KEY FIX: shows whole bike without zoom */
+  padding: 6px;                /* gives breathing room */
 }
 
 /* Card content */
@@ -393,4 +393,256 @@ body.public-view {
   font-weight: 500;
   color: var(--text);
   text-align: right;
+}
+
+/* ================= HERO ================= */
+
+.hero {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 2.5rem auto;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #020617;
+  border: 1px solid #111827;
+}
+
+.hero-with-image {
+  min-height: 260px;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.hero-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.2);
+  transform: scale(1.03);
+}
+
+.hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(15, 23, 42, 0.4),
+      transparent 55%
+    ),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.2), #020617 85%);
+}
+
+.hero-layer {
+  position: relative;
+  z-index: 1;
+  padding: 2.2rem 2.4rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.hero-copy {
+  max-width: 520px;
+}
+
+.hero-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #f9fafb;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.hero-tagline {
+  font-size: 1rem;
+  color: #e5e7eb;
+  margin-bottom: 0.2rem;
+}
+
+.hero-subtext {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  max-width: 480px;
+}
+
+/* search card stuck near bottom */
+.hero-search-card {
+  margin-top: auto;
+}
+
+.catalog-controls-hero {
+  background: rgba(2, 6, 23, 0.94);
+  border-radius: 999px;
+  padding: 0.4rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.85);
+}
+
+/* reuse existing .catalog-search / .catalog-select but tweak for pill layout */
+.catalog-controls-hero .catalog-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-radius: 999px;
+}
+
+.catalog-controls-hero .catalog-select {
+  flex: 0 0 auto;
+  width: 170px;
+  border-radius: 999px;
+}
+
+/* catalog heading under hero */
+.catalog-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.catalog-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  margin-bottom: 0.75rem;
+}
+
+/* responsive tweaks */
+@media (max-width: 768px) {
+  .hero-layer {
+    padding: 1.6rem 1.2rem 1.4rem;
+  }
+
+  .hero-title {
+    font-size: 1.6rem;
+  }
+
+  .catalog-controls-hero {
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 14px;
+  }
+
+  .catalog-controls-hero .catalog-select {
+    width: 100%;
+  }
+}
+
+/* Full page wrapper with header + main + footer */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* Main area where card is centered */
+.login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/* Centered card */
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border);
+}
+
+.login-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.login-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.login-form {
+  margin-top: 0.25rem;
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+/* Optional: highlight active nav link */
+.public-nav-link--active {
+  font-weight: 600;
+}
+
+/* ==================== LOGO ==================== */
+
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.logo--sm {
+  font-size: 0.9rem;
+}
+
+.logo--md {
+  font-size: 1.1rem;
+}
+
+.logo--lg {
+  font-size: 1.3rem;
+}
+
+.logo-main {
+  color: var(--text);
+}
+
+.logo-accent {
+  position: relative;
+  color: var(--accent);
+}
+
+/* subtle underline under "rovers" */
+.logo-accent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.18em;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    var(--accent-hover)
+  );
+}
+
+.public-logo {
+  display: flex;
+  align-items: center;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
