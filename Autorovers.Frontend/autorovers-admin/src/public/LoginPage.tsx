@@ -1,8 +1,10 @@
 // src/public/LoginPage.tsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { login } from "../features/auth/api";
 import { Footer } from "./Footer";
+import { Logo } from "./Logo";
+
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -30,62 +32,75 @@ export function LoginPage() {
   }
 
   return (
-    <div className="public-page">
-      <h1 className="public-title">Login</h1>
-      <p className="public-subtitle">
-        Sign in to manage the Autorovers catalog.
-      </p>
-
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          maxWidth: "380px",
-          padding: "1.25rem 1.5rem",
-          borderRadius: "12px",
-          background: "#020617",
-          border: "1px solid #111827",
-          boxShadow: "0 10px 24px rgba(15,23,42,0.8)",
-        }}
-      >
-        {error && (
-          <div
-            style={{
-              marginBottom: "0.75rem",
-              fontSize: "0.8rem",
-              color: "#fecaca",
-              background: "#450a0a",
-              borderRadius: "6px",
-              padding: "0.4rem 0.6rem",
-            }}
-          >
-            {error}
-          </div>
-        )}
-
-        <div className="field" style={{ marginBottom: "0.7rem" }}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="login-page">
+      {/* Header (same look as public header) */}
+      <header className="public-header">
+        <div className="public-logo">
+          <Link to="/vehicles" aria-label="Autorovers home">
+          <Logo size="md" />
+          </Link>
         </div>
+        <nav className="public-nav">
+          <Link to="/vehicles" className="public-nav-link">
+            Vehicles
+          </Link>
+          <Link to="/login" className="public-nav-link public-nav-link--active">
+            Login
+          </Link>
+        </nav>
+      </header>
 
-        <div className="field" style={{ marginBottom: "0.9rem" }}>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+      {/* Centered content area */}
+      <main className="login-main">
+        <div className="login-card" role="form" aria-labelledby="login-title">
+          <h1 id="login-title" className="login-title">
+            Login
+          </h1>
+          <p className="login-subtitle">
+            Sign in to manage the Autorovers catalog.
+          </p>
+
+          {error && (
+            <div
+              className="alert alert-error"
+              style={{ marginBottom: "0.75rem" }}
+            >
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="field" style={{ marginBottom: "0.7rem" }}>
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                autoComplete="username"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="field" style={{ marginBottom: "0.9rem" }}>
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button className="btn login-btn" type="submit" disabled={loading}>
+              {loading ? "Signing in..." : "Login"}
+            </button>
+          </form>
         </div>
+      </main>
 
-        <button className="btn" type="submit" disabled={loading}>
-          {loading ? "Signing in..." : "Login"}
-        </button>
-      </form>
       <Footer />
     </div>
   );

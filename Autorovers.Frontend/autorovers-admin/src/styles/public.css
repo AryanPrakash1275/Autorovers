@@ -533,3 +533,116 @@ body.public-view {
     width: 100%;
   }
 }
+
+/* Full page wrapper with header + main + footer */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* Main area where card is centered */
+.login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/* Centered card */
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border);
+}
+
+.login-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+
+.login-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.login-form {
+  margin-top: 0.25rem;
+}
+
+.login-btn {
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+/* Optional: highlight active nav link */
+.public-nav-link--active {
+  font-weight: 600;
+}
+
+/* ==================== LOGO ==================== */
+
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.logo--sm {
+  font-size: 0.9rem;
+}
+
+.logo--md {
+  font-size: 1.1rem;
+}
+
+.logo--lg {
+  font-size: 1.3rem;
+}
+
+.logo-main {
+  color: var(--text);
+}
+
+.logo-accent {
+  position: relative;
+  color: var(--accent);
+}
+
+/* subtle underline under "rovers" */
+.logo-accent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.18em;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    var(--accent-hover)
+  );
+}
+
+.public-logo {
+  display: flex;
+  align-items: center;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

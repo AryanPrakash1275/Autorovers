@@ -7,6 +7,7 @@ import { VehicleDetailsPage } from "./public/VehicleDetailsPage";
 import { VehicleListPage } from "./features/vehicles/components/VehicleListPage";
 import { LoginPage } from "./public/LoginPage";
 import { isLoggedIn, clearToken } from "./features/auth/storage";
+import {Logo} from "./public/Logo"
 
 import "./styles/admin.css";
 import "./styles/public.css";
@@ -22,7 +23,9 @@ function PublicLayout({ children }: LayoutProps) {
     <div className="public-root">
       <header className="public-header">
         <div className="public-logo">
-          <Link to="/vehicles">Autorovers</Link>
+          <Link to="/vehicles" aria-label="Autorovers home">
+          <Logo size="md" />
+          </Link>
         </div>
 
         <nav className="public-nav">
@@ -125,14 +128,7 @@ function App() {
       />
 
       {/* Login */}
-      <Route
-        path="/login"
-        element={
-          <PublicLayout>
-            <LoginPage />
-          </PublicLayout>
-        }
-      />
+      <Route path="/login" element={<LoginPage />} />
 
       {/* Protected admin */}
       <Route

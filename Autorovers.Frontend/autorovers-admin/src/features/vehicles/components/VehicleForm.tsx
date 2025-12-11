@@ -239,34 +239,44 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
       setSubmitting(false);
     }
   }
-    return (
+      return (
     <form className="form slide-form" onSubmit={handleSubmit}>
+      {/* ===== HEADER: title + close + tabs (sticky) ===== */}
       <div className="slide-form-header">
-        <h2>{mode === "create" ? "Add Vehicle" : "Edit Vehicle"}</h2>
-        <button type="button" className="icon-btn" onClick={onCancel}>
-          ✕
-        </button>
+        <div className="slide-form-header-top">
+          <h2 className="slide-form-title">
+            {mode === "create" ? "Add Vehicle" : "Edit Vehicle"}
+          </h2>
+
+          <button type="button" className="icon-btn" onClick={onCancel}>
+            ✕
+          </button>
+        </div>
+
+        <div className="form-tabs">
+          <button
+            type="button"
+            className={`form-tab ${
+              activeTab === "basics" ? "is-active" : ""
+            }`}
+            onClick={() => setActiveTab("basics")}
+          >
+            Basics
+          </button>
+
+          <button
+            type="button"
+            className={`form-tab ${
+              activeTab === "specs" ? "is-active" : ""
+            }`}
+            onClick={() => setActiveTab("specs")}
+          >
+            Specifications
+          </button>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="form-tabs">
-        <button
-          type="button"
-          className={`form-tab ${activeTab === "basics" ? "is-active" : ""}`}
-          onClick={() => setActiveTab("basics")}
-        >
-          Basics
-        </button>
-
-        <button
-          type="button"
-          className={`form-tab ${activeTab === "specs" ? "is-active" : ""}`}
-          onClick={() => setActiveTab("specs")}
-        >
-          Specifications
-        </button>
-      </div>
-
+      {/* ===== BODY: SCROLLS UNDER HEADER ===== */}
       <div className="slide-form-body">
         {/* ---------------- BASICS TAB ---------------- */}
         {activeTab === "basics" && (
@@ -359,7 +369,10 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
               <label>Year *</label>
               <select name="year" value={form.year} onChange={handleChange}>
                 <option value="">Select year</option>
-                {Array.from({ length: 2050 - 1980 + 1 }, (_, i) => 1980 + i).map((y) => (
+                {Array.from(
+                  { length: 2050 - 1980 + 1 },
+                  (_, i) => 1980 + i
+                ).map((y) => (
                   <option key={y} value={y}>
                     {y}
                   </option>
@@ -470,6 +483,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
             </div>
           </div>
         )}
+
         {/* ---------------- SPECS TAB ---------------- */}
         {activeTab === "specs" && (
           <>
@@ -562,7 +576,6 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
                 />
               </div>
 
-              {/* BIKE-ONLY FIELDS */}
               {isBike && (
                 <>
                   <div className="field">
@@ -651,7 +664,6 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
               </div>
             </div>
 
-            {/* CAR-ONLY CAPACITY */}
             {isCar && (
               <>
                 <h3 className="form-section-title">Capacity & Layout</h3>
@@ -830,4 +842,3 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
     </form>
   );
 }
-

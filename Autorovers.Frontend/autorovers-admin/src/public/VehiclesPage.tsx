@@ -229,7 +229,6 @@ export function VehiclesPage() {
           })}
         </div>
       </section>
-
       <Footer />
     </div>
   );

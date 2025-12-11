@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, Link } from "react-router-dom";
 import { clearToken } from "../../features/auth/storage";
+import { Logo } from "../../public/Logo";
 
 export function AdminLayout() {
   const navigate = useNavigate();
@@ -12,15 +13,15 @@ export function AdminLayout() {
   return (
     <div className="admin-root">
       <header className="admin-header">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <h1>Autorovers Admin</h1>
-          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+        <div className="admin-header-inner">
+          <div className="admin-header-left">
+            <Link to="/vehicles" aria-label="Autorovers home">
+              <Logo size="sm" />
+            </Link>
+            <span className="admin-header-tag">Admin</span>
+          </div>
+
+          <div className="admin-header-actions">
             <Link to="/vehicles" className="btn btn-ghost">
               View site
             </Link>
