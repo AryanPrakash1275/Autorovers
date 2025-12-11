@@ -53,6 +53,33 @@ public class AdminVehiclesController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id }, new { id });
     }
 
+    // POST: /api/AdminVehicles/bulk
+    [HttpPost("bulk")]
+    public async Task<IActionResult> BulkCreate([FromBody] List<CreateVehicleRequest> reqs)
+    {
+        if (!ModelState.IsValid)
+            return ValidationProblem(ModelState);
+
+        if (reqs == null || reqs.Count == 0)
+        {
+            return BadRequest("Request body must be a non-empty array of vehicles.");
+        }
+
+        var ids = new List<int>(reqs.Count);
+
+        foreach (var r in reqs)
+        {
+            var id = await _vehicleService.CreateVehicleAsync(r);
+            ids.Add(id);
+        }
+
+        return Ok(new
+        {
+            count = ids.Count,
+            ids
+        });
+    }
+
     // PUT: /api/AdminVehicles/{id}
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateVehicleRequest req)
