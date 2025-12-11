@@ -7,9 +7,7 @@ console.log("API_BASE_URL from env:", API_BASE_URL);
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (!API_BASE_URL) {
-    throw new Error(
-      "API_BASE_URL is not defined. Set VITE_API_BASE_URL in your env files."
-    );
+    throw new Error("API_BASE_URL is not defined.");
   }
 
   const url = `${API_BASE_URL}${path}`;

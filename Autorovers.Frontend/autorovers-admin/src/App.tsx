@@ -27,7 +27,7 @@ function PublicLayout({ children }: LayoutProps) {
             Vehicles
           </Link>
           <Link to="/admin/vehicles" className="public-nav-link">
-            Admin
+            Login
           </Link>
         </nav>
       </header>
