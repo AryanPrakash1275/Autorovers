@@ -363,3 +363,43 @@ tbody tr:hover {
   border-radius: 6px;
   display: block;
 }
+
+/* Validation + status */
+
+.required {
+  color: var(--danger);
+  margin-left: 2px;
+  font-weight: 600;
+}
+
+.field.has-error input {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.16);
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: var(--danger);
+  margin-top: 0.2rem;
+}
+
+/* Form status banner inside slide-over */
+
+.form-status {
+  margin: 0.5rem 1rem 0;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.form-status--success {
+  background: #ecfdf3;
+  border: 1px solid #bbf7d0;
+  color: var(--success);
+}
+
+.form-status--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: var(--danger);
+}

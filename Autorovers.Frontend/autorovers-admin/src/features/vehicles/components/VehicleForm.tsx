@@ -10,6 +10,18 @@ type Props = {
 
 type Tab = "basics" | "specs";
 
+type FormErrors = {
+  brand?: string;
+  model?: string;
+  year?: string;
+  price?: string;
+  category?: string;
+  transmission?: string;
+};
+
+const PLACEHOLDER_IMAGE =
+  "https://via.placeholder.com/400x250?text=No+Image";
+
 export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
   const [form, setForm] = useState<Vehicle>({
     id: initial?.id ?? 0,
@@ -21,7 +33,7 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
     category: initial?.category ?? "",
     transmission: initial?.transmission ?? "",
     slug: initial?.slug ?? "",
-    imageUrl: initial?.imageUrl?? "",
+    imageUrl: initial?.imageUrl ?? "",
 
     // Engine & performance
     engineType: initial?.engineType ?? "",
@@ -65,6 +77,12 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("basics");
 
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [status, setStatus] = useState<{
+    type: "success" | "error" | null;
+    message: string;
+  }>({ type: null, message: "" });
+
   // When initial changes (edit vs create), sync form
   useEffect(() => {
     if (initial) {
@@ -79,28 +97,28 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
     const { name, value } = e.target;
-    setForm((prev) => {
-      // numeric fields
-      const numberFields = new Set([
-        "year",
-        "price",
-        "power",
-        "torque",
-        "mileage",
-        "range",
-        "length",
-        "width",
-        "height",
-        "weight",
-        "groundClearance",
-        "wheelBase",
-        "personCapacity",
-        "rows",
-        "doors",
-        "bootSpace",
-        "tankSize",
-      ]);
 
+    const numberFields = new Set([
+      "year",
+      "price",
+      "power",
+      "torque",
+      "mileage",
+      "range",
+      "length",
+      "width",
+      "height",
+      "weight",
+      "groundClearance",
+      "wheelBase",
+      "personCapacity",
+      "rows",
+      "doors",
+      "bootSpace",
+      "tankSize",
+    ]);
+
+    setForm((prev) => {
       if (numberFields.has(name)) {
         return {
           ...prev,
@@ -110,19 +128,97 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
 
       return { ...prev, [name]: value };
     });
+
+    // clear error while typing
+    setErrors((prev) => ({
+      ...prev,
+      [name]: undefined,
+    }));
+
+    // clear status if user starts editing again
+    if (status.type) {
+      setStatus({ type: null, message: "" });
+    }
+  }
+
+  function validate(): boolean {
+    const newErrors: FormErrors = {};
+    const currentYear = new Date().getFullYear();
+
+    if (!form.brand.trim()) newErrors.brand = "Brand is required";
+    if (!form.model.trim()) newErrors.model = "Model is required";
+    if (!form.category.trim()) newErrors.category = "Category is required";
+    if (!form.transmission.trim())
+      newErrors.transmission = "Transmission is required";
+
+    if (!form.year || isNaN(form.year)) {
+      newErrors.year = "Year is required";
+    } else if (form.year < 1980 || form.year > currentYear + 1) {
+      newErrors.year = "Enter a valid year";
+    }
+
+    if (
+      form.price === undefined ||
+      form.price === null ||
+      isNaN(form.price)
+    ) {
+      newErrors.price = "Price is required";
+    } else if (form.price <= 0) {
+      newErrors.price = "Price must be greater than 0";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (submitting) return;
+
+    setStatus({ type: null, message: "" });
+
+    if (!validate()) {
+      // stay on basics tab where required stuff lives
+      setActiveTab("basics");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      await onSubmit(form);
+      const payload: Vehicle = {
+        ...form,
+        // clean up strings
+        brand: form.brand.trim(),
+        model: form.model.trim(),
+        category: form.category.trim(),
+        transmission: form.transmission.trim(),
+        slug: form.slug?.trim() ?? "",
+        // enforce placeholder image if empty
+        imageUrl: form.imageUrl?.trim() || PLACEHOLDER_IMAGE,
+      };
+
+      await onSubmit(payload);
+
+      setStatus({
+        type: "success",
+        message:
+          mode === "create"
+            ? "Vehicle created successfully"
+            : "Vehicle updated successfully",
+      });
+    } catch (err: any) {
+      console.error(err);
+      setStatus({
+        type: "error",
+        message: err?.message || "Failed to save vehicle",
+      });
     } finally {
       setSubmitting(false);
     }
   }
+
+  const previewImage = form.imageUrl?.trim() || PLACEHOLDER_IMAGE;
 
   return (
     <form className="form slide-form" onSubmit={handleSubmit}>
@@ -132,6 +228,19 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
           ✕
         </button>
       </div>
+
+      {/* Status banner inside panel */}
+      {status.type && (
+        <div
+          className={`form-status ${
+            status.type === "success"
+              ? "form-status--success"
+              : "form-status--error"
+          }`}
+        >
+          {status.message}
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="form-tabs">
@@ -154,22 +263,32 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
       <div className="slide-form-body">
         {activeTab === "basics" && (
           <div className="form-grid">
-            <div className="field">
-              <label>Brand</label>
+            <div className={`field ${errors.brand ? "has-error" : ""}`}>
+              <label>
+                Brand <span className="required">*</span>
+              </label>
               <input
                 name="brand"
                 value={form.brand}
                 onChange={handleChange}
               />
+              {errors.brand && (
+                <div className="field-error">{errors.brand}</div>
+              )}
             </div>
 
-            <div className="field">
-              <label>Model</label>
+            <div className={`field ${errors.model ? "has-error" : ""}`}>
+              <label>
+                Model <span className="required">*</span>
+              </label>
               <input
                 name="model"
                 value={form.model}
                 onChange={handleChange}
               />
+              {errors.model && (
+                <div className="field-error">{errors.model}</div>
+              )}
             </div>
 
             <div className="field">
@@ -181,62 +300,90 @@ export function VehicleForm({ initial, mode, onSubmit, onCancel }: Props) {
               />
             </div>
 
-            <div className="field">
-              <label>Year</label>
+            <div className={`field ${errors.year ? "has-error" : ""}`}>
+              <label>
+                Year <span className="required">*</span>
+              </label>
               <input
                 type="number"
                 name="year"
                 value={form.year}
                 onChange={handleChange}
               />
+              {errors.year && (
+                <div className="field-error">{errors.year}</div>
+              )}
             </div>
 
-            <div className="field">
-              <label>Price (₹)</label>
+            <div className={`field ${errors.price ? "has-error" : ""}`}>
+              <label>
+                Price (₹) <span className="required">*</span>
+              </label>
               <input
                 type="number"
                 name="price"
                 value={form.price}
                 onChange={handleChange}
               />
+              {errors.price && (
+                <div className="field-error">{errors.price}</div>
+              )}
             </div>
 
-            <div className="field">
-              <label>Category</label>
+            <div className={`field ${errors.category ? "has-error" : ""}`}>
+              <label>
+                Category <span className="required">*</span>
+              </label>
               <input
                 name="category"
                 value={form.category}
                 onChange={handleChange}
               />
+              {errors.category && (
+                <div className="field-error">{errors.category}</div>
+              )}
             </div>
 
-            <div className="field">
-              <label>Transmission</label>
+            <div
+              className={`field ${errors.transmission ? "has-error" : ""}`}
+            >
+              <label>
+                Transmission <span className="required">*</span>
+              </label>
               <input
                 name="transmission"
                 value={form.transmission}
                 onChange={handleChange}
               />
+              {errors.transmission && (
+                <div className="field-error">{errors.transmission}</div>
+              )}
             </div>
 
             <div className="field">
               <label>Image URL</label>
               <input
                 name="imageUrl"
-                value={form.imageUrl ?? ""}   // ✅ force null/undefined → ""
+                value={form.imageUrl ?? ""}
                 onChange={handleChange}
-                placeholder="https://example.com/bike.jpg"/>
+                placeholder="https://example.com/bike.jpg (optional)"
+              />
             </div>
 
-            {form.imageUrl && (
-              <div className="field" style={{ gridColumn: "1 / -1" }}>
-                <label>Preview</label>
-                <div className="image-preview">
-                  <img src={form.imageUrl} alt="preview" />
-                </div>
+            <div className="field" style={{ gridColumn: "1 / -1" }}>
+              <label>Preview</label>
+              <div className="image-preview">
+                <img
+                  src={previewImage}
+                  alt="preview"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src =
+                      PLACEHOLDER_IMAGE;
+                  }}
+                />
               </div>
-            )}
-            
+            </div>
+
             <div className="field">
               <label>Slug (optional)</label>
               <input
