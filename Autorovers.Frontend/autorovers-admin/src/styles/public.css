@@ -394,3 +394,142 @@ body.public-view {
   color: var(--text);
   text-align: right;
 }
+
+/* ================= HERO ================= */
+
+.hero {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 2.5rem auto;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #020617;
+  border: 1px solid #111827;
+}
+
+.hero-with-image {
+  min-height: 260px;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.hero-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.2);
+  transform: scale(1.03);
+}
+
+.hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(15, 23, 42, 0.4),
+      transparent 55%
+    ),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.2), #020617 85%);
+}
+
+.hero-layer {
+  position: relative;
+  z-index: 1;
+  padding: 2.2rem 2.4rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.hero-copy {
+  max-width: 520px;
+}
+
+.hero-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #f9fafb;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.4rem;
+}
+
+.hero-tagline {
+  font-size: 1rem;
+  color: #e5e7eb;
+  margin-bottom: 0.2rem;
+}
+
+.hero-subtext {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  max-width: 480px;
+}
+
+/* search card stuck near bottom */
+.hero-search-card {
+  margin-top: auto;
+}
+
+.catalog-controls-hero {
+  background: rgba(2, 6, 23, 0.94);
+  border-radius: 999px;
+  padding: 0.4rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.85);
+}
+
+/* reuse existing .catalog-search / .catalog-select but tweak for pill layout */
+.catalog-controls-hero .catalog-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-radius: 999px;
+}
+
+.catalog-controls-hero .catalog-select {
+  flex: 0 0 auto;
+  width: 170px;
+  border-radius: 999px;
+}
+
+/* catalog heading under hero */
+.catalog-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.catalog-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  margin-bottom: 0.75rem;
+}
+
+/* responsive tweaks */
+@media (max-width: 768px) {
+  .hero-layer {
+    padding: 1.6rem 1.2rem 1.4rem;
+  }
+
+  .hero-title {
+    font-size: 1.6rem;
+  }
+
+  .catalog-controls-hero {
+    flex-direction: column;
+    align-items: stretch;
+    border-radius: 14px;
+  }
+
+  .catalog-controls-hero .catalog-select {
+    width: 100%;
+  }
+}
