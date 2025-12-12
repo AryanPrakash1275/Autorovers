@@ -92,9 +92,7 @@ export function VehicleListPage() {
 
     // Type filter (uses vehicleType; if missing, allow it through when filter=all)
     if (typeFilter !== "all") {
-      filtered = filtered.filter(
-        (v) => (v.vehicleType ?? "") === typeFilter
-      );
+      filtered = filtered.filter((v) => (v.vehicleType ?? "") === typeFilter);
     }
 
     // Brand filter
@@ -104,9 +102,7 @@ export function VehicleListPage() {
 
     // Transmission filter
     if (transFilter !== "all") {
-      filtered = filtered.filter(
-        (v) => (v.transmission ?? "") === transFilter
-      );
+      filtered = filtered.filter((v) => (v.transmission ?? "") === transFilter);
     }
 
     // Year filter
@@ -168,7 +164,16 @@ export function VehicleListPage() {
     });
 
     return sorted;
-  }, [vehicles, query, sortBy, sortDir, typeFilter, brandFilter, transFilter, yearFilter]);
+  }, [
+    vehicles,
+    query,
+    sortBy,
+    sortDir,
+    typeFilter,
+    brandFilter,
+    transFilter,
+    yearFilter,
+  ]);
 
   const hasFilters =
     query.trim() ||
@@ -344,18 +349,14 @@ export function VehicleListPage() {
   }
 
   if (error) {
-    return (
-      <p style={{ padding: "2rem", color: "red" }}>
-        Error: {error}
-      </p>
-    );
+    return <p style={{ padding: "2rem", color: "red" }}>Error: {error}</p>;
   }
 
   return (
     <div className="admin-main">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Admin – Vehicles</h1>
+          <h1 className="page-title">Vehicles</h1>
           <p className="page-subtitle">
             Search, sort and manage Autorovers vehicle catalog.
           </p>
@@ -365,85 +366,77 @@ export function VehicleListPage() {
         </button>
       </div>
 
-      {/* Search */}
-      <div style={{ marginBottom: "0.75rem" }}>
-        <input
-          type="text"
-          placeholder="Search by brand, model, variant, slug..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="search-input"
-        />
-      </div>
+      {/* SINGLE ROW: Search + filters */}
+      <div className="admin-filters">
+        <div className="admin-filters-row">
+          <input
+            type="text"
+            placeholder="Search by brand, model, variant, slug..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="search-input"
+            style={{ flex: "1 1 280px" }}
+          />
 
-      {/* Filters row */}
-      <div
-        style={{
-          display: "flex",
-          gap: "0.6rem",
-          flexWrap: "wrap",
-          alignItems: "center",
-          marginBottom: "0.75rem",
-        }}
-      >
-        <select
-          className="search-input"
-          style={{ width: 160 }}
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value as VehicleTypeFilter)}
-        >
-          <option value="all">All types</option>
-          <option value="Bike">Bike</option>
-          <option value="Car">Car</option>
-        </select>
+          <select
+            className="search-input"
+            style={{ width: 160 }}
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value as VehicleTypeFilter)}
+          >
+            <option value="all">All types</option>
+            <option value="Bike">Bike</option>
+            <option value="Car">Car</option>
+          </select>
 
-        <select
-          className="search-input"
-          style={{ width: 180 }}
-          value={brandFilter}
-          onChange={(e) => setBrandFilter(e.target.value)}
-        >
-          <option value="all">All brands</option>
-          {brandOptions.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
+          <select
+            className="search-input"
+            style={{ width: 180 }}
+            value={brandFilter}
+            onChange={(e) => setBrandFilter(e.target.value)}
+          >
+            <option value="all">All brands</option>
+            {brandOptions.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
 
-        <select
-          className="search-input"
-          style={{ width: 180 }}
-          value={transFilter}
-          onChange={(e) => setTransFilter(e.target.value)}
-        >
-          <option value="all">All transmissions</option>
-          {transmissionOptions.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+          <select
+            className="search-input"
+            style={{ width: 180 }}
+            value={transFilter}
+            onChange={(e) => setTransFilter(e.target.value)}
+          >
+            <option value="all">All transmissions</option>
+            {transmissionOptions.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
 
-        <select
-          className="search-input"
-          style={{ width: 140 }}
-          value={yearFilter}
-          onChange={(e) => setYearFilter(e.target.value)}
-        >
-          <option value="all">All years</option>
-          {yearOptions.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
+          <select
+            className="search-input"
+            style={{ width: 140 }}
+            value={yearFilter}
+            onChange={(e) => setYearFilter(e.target.value)}
+          >
+            <option value="all">All years</option>
+            {yearOptions.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
 
-        {hasFilters && (
-          <button className="btn btn-ghost" onClick={clearFilters}>
-            Clear filters
-          </button>
-        )}
+          {hasFilters && (
+            <button className="btn btn-ghost" onClick={clearFilters}>
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {actionError && <div className="alert alert-error">{actionError}</div>}
