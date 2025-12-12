@@ -17,6 +17,35 @@
 }
 
 /* =========================================================
+   GLOBAL HARDENING (ADMIN-SAFE)
+========================================================= */
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* =========================================================
    SHARED UI ELEMENTS
 ========================================================= */
 
@@ -26,6 +55,7 @@
   justify-content: space-between;
   margin-bottom: 1rem;
   gap: 1rem;
+  flex-wrap: wrap; /* prevent overflow */
 }
 
 .page-title {
@@ -81,56 +111,6 @@
 
 .btn-ghost:hover {
   background: var(--bg-alt);
-}
-
-/* ---------- Tables ---------- */
-
-.table-wrapper {
-  margin-top: 0.75rem;
-}
-
-.table {
-  width: 100%;
-  background: var(--bg-card);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  border-collapse: collapse;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-soft);
-}
-
-.table th,
-.table td {
-  padding: 0.45rem 0.75rem;
-  font-size: 0.85rem;
-}
-
-.table-th {
-  background: #f9fafb;
-  color: var(--text);
-  border-right: 1px solid var(--border);
-  font-weight: 600;
-}
-
-.table-td {
-  color: var(--text);
-  border-right: 1px solid var(--border);
-  border-top: 1px solid #e5e7eb;
-}
-
-.table th:last-child,
-.table td:last-child {
-  border-right: none;
-}
-
-tbody tr:hover {
-  background: #f3f4f6 !important;
-}
-
-.sort-indicator {
-  margin-left: 0.25rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
 }
 
 /* ---------- Misc text / alerts / inputs ---------- */
@@ -347,11 +327,43 @@ tbody tr:hover {
   color: var(--text);
 }
 
+.admin-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; /* prevent overflow */
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-header-tag {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
 .admin-main {
   flex: 1;
   min-height: 0;
   padding: 2rem;
   display: block;
+}
+
+@media (max-width: 768px) {
+  .admin-main {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-main {
+    padding: 0.75rem;
+  }
 }
 
 .admin-content {
@@ -460,12 +472,74 @@ tbody tr:hover {
 }
 
 /* =========================================================
-   ADMIN TABLE HARDENING
+   GENERIC TABLE (if you use .table anywhere)
+========================================================= */
+
+.table-wrapper {
+  margin-top: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  max-width: 100%;
+}
+
+.table th,
+.table td {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.table-th {
+  background: #f9fafb;
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.table-td {
+  color: var(--text);
+  border-right: 1px solid var(--border);
+  border-top: 1px solid #e5e7eb;
+}
+
+.table th:last-child,
+.table td:last-child {
+  border-right: none;
+}
+
+tbody tr:hover {
+  background: #f3f4f6 !important;
+}
+
+.sort-indicator {
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   ADMIN TABLE HARDENING (your wide table)
 ========================================================= */
 
 .admin-table-wrapper {
   overflow-x: auto;
   width: 100%;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
 }
 
 .admin-table {
@@ -473,6 +547,7 @@ tbody tr:hover {
   border-collapse: collapse;
   table-layout: fixed;
   min-width: 1200px;
+  max-width: 100%;
 }
 
 .admin-table th,
@@ -498,92 +573,13 @@ tbody tr:hover {
   background: rgba(148, 163, 184, 0.08);
 }
 
-.admin-header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.admin-header-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.admin-header-tag {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-muted);
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+.admin-table-wrapper::-webkit-scrollbar {
+  height: 10px;
 }
 
 /* =========================================================
-   PATCH: Mobile overflow hardening (NON-BREAKING)
-   Add ONLY at the bottom of admin.css
+   FILTERS + EMPTY STATE (your extra bits)
 ========================================================= */
-
-/* Stop the page itself from horizontal scrolling */
-html, body {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-/* Predictable sizing */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-/* Media never causes overflow */
-img, svg, video, canvas {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* Let header controls wrap on small screens (prevents overflow) */
-.page-header,
-.admin-header-inner {
-  flex-wrap: wrap;
-}
-
-/* Make long strings safe when you choose to apply this class */
-.break-anywhere {
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-/* Ensure table wrappers scroll horizontally on small screens */
-.table-wrapper,
-.admin-table-wrapper {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Prevent tables from forcing page width */
-.table,
-.admin-table {
-  max-width: 100%;
-}
-
-/* Reduce padding on smaller screens so content doesn’t push out */
-@media (max-width: 768px) {
-  .admin-main {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-main {
-    padding: 0.75rem;
-  }
-}
 
 .admin-filters {
   margin-bottom: 0.75rem;
@@ -596,17 +592,17 @@ img, svg, video, canvas {
   align-items: center;
 }
 
+@media (max-width: 640px) {
+  .admin-filters-row .search-input {
+    width: 100%;
+    max-width: 100% !important;
+  }
+}
+
 .empty-state {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1rem;
   box-shadow: var(--shadow-soft);
-}
-
-@media (max-width: 640px) {
-  .admin-filters-row .search-input {
-    width: 100%;
-    max-width: 100% !important;
-  }
 }
