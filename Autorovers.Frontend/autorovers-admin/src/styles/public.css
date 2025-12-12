@@ -646,3 +646,154 @@ body.public-view {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* =========================================================
+   OVERRIDES: Mobile-first hero + density fixes (DO NOT DELETE OLD)
+   Paste at bottom so it wins.
+========================================================= */
+
+/* 1) Hero overlay stronger for readability */
+.hero-bg-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(2, 6, 23, 0.78) 0%,
+    rgba(2, 6, 23, 0.62) 45%,
+    rgba(2, 6, 23, 0.55) 100%
+  ) !important;
+}
+
+/* Optional but recommended: slight blur for legibility */
+.hero-bg-image {
+  filter: grayscale(0.2) blur(1.5px) saturate(0.9) contrast(0.9) !important;
+}
+
+/* 2) New hero controls (you changed JSX to hero-primary/secondary) */
+.hero-primary {
+  margin-top: auto;
+}
+
+.hero-search {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(2, 6, 23, 0.85);
+  color: #fff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.85);
+}
+
+.hero-search::placeholder {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.hero-secondary {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.hero-select {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: rgba(2, 6, 23, 0.7);
+  color: #fff;
+}
+
+/* 3) Mobile hero simplification: remove clutter text */
+@media (max-width: 640px) {
+  .hero-layer {
+    padding: 1.4rem 1rem 1.1rem !important;
+    gap: 0.9rem !important;
+  }
+
+  .hero-title {
+    font-size: 1.45rem !important;
+    margin-bottom: 0.2rem !important;
+  }
+
+  .hero-tagline,
+  .hero-subtext {
+    display: none !important;
+  }
+
+  .hero-secondary {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem !important;
+    opacity: 0.95;
+  }
+}
+
+/* 4) Card density: 16:9 image + less vertical waste */
+.vehicle-card-image-wrapper {
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+}
+
+.vehicle-card-image {
+  object-fit: cover !important;
+  padding: 0 !important;
+}
+
+/* 5) Branding: price uses accent (not success green) */
+.vehicle-card-price {
+  color: var(--accent) !important;
+  font-weight: 700 !important;
+}
+
+/* 6) Safety: old hero pill styles should not interfere anymore */
+.hero-search-card,
+.catalog-controls-hero {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  .hero-with-image {
+    min-height: 200px !important;
+  }
+}
+
+.hero-select {
+  opacity: 0.85;
+  font-size: 0.85rem;
+}
+
+.vehicle-card {
+  padding: 0.65rem 0.65rem 0.8rem !important;
+}
+
+@media (max-width: 640px) {
+  footer {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    border-radius: 14px;
+  }
+}
+
+/* Stop page-level horizontal scroll */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Public cards: make image background white */
+.vehicle-card-image-wrapper {
+  background: #fff !important;
+  border: 1px solid var(--border);
+}
+
+/* If you still want contain, use contain + padding, not cover */
+.vehicle-card-image {
+  object-fit: contain !important;
+  padding: 6px !important;
+}

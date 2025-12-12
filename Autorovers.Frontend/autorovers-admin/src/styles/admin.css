@@ -522,3 +522,91 @@ tbody tr:hover {
   outline-offset: 2px;
 }
 
+/* =========================================================
+   PATCH: Mobile overflow hardening (NON-BREAKING)
+   Add ONLY at the bottom of admin.css
+========================================================= */
+
+/* Stop the page itself from horizontal scrolling */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Predictable sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Media never causes overflow */
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Let header controls wrap on small screens (prevents overflow) */
+.page-header,
+.admin-header-inner {
+  flex-wrap: wrap;
+}
+
+/* Make long strings safe when you choose to apply this class */
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Ensure table wrappers scroll horizontally on small screens */
+.table-wrapper,
+.admin-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent tables from forcing page width */
+.table,
+.admin-table {
+  max-width: 100%;
+}
+
+/* Reduce padding on smaller screens so content doesn’t push out */
+@media (max-width: 768px) {
+  .admin-main {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-main {
+    padding: 0.75rem;
+  }
+}
+
+.admin-filters {
+  margin-bottom: 0.75rem;
+}
+
+.admin-filters-row {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.empty-state {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--shadow-soft);
+}
+
+@media (max-width: 640px) {
+  .admin-filters-row .search-input {
+    width: 100%;
+    max-width: 100% !important;
+  }
+}

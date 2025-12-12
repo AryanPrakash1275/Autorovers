@@ -1,4 +1,3 @@
-import { Footer } from "../../../public/Footer";
 import type { Vehicle } from "../types";
 
 interface VehicleTableProps {
@@ -21,9 +20,7 @@ const Th: React.FC<
   const isActive = sortKey && sortKey === activeSortKey;
 
   const handleClick = () => {
-    if (sortKey && onSortChange) {
-      onSortChange(sortKey);
-    }
+    if (sortKey && onSortChange) onSortChange(sortKey);
   };
 
   return (
@@ -42,9 +39,10 @@ const Th: React.FC<
   );
 };
 
-const Td: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <td className="table-td">{children}</td>
-);
+const Td: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+  children,
+  className,
+}) => <td className={`table-td ${className ?? ""}`}>{children}</td>;
 
 export function VehicleTable({
   vehicles,
@@ -54,10 +52,6 @@ export function VehicleTable({
   onEdit,
   onDelete,
 }: VehicleTableProps) {
-  if (vehicles.length === 0) {
-    return <p className="muted">No vehicles found.</p>;
-  }
-
   return (
     <div className="admin-table-wrapper">
       <table className="admin-table">
@@ -66,68 +60,28 @@ export function VehicleTable({
             <Th activeSortKey={sortBy} sortDir={sortDir}>
               Id
             </Th>
-            <Th
-              sortKey="brand"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="brand" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Brand
             </Th>
-            <Th
-              sortKey="model"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="model" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Model
             </Th>
-            <Th
-              sortKey="variant"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="variant" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Variant
             </Th>
-            <Th
-              sortKey="year"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="year" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Year
             </Th>
-            <Th
-              sortKey="price"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="price" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Price
             </Th>
-            <Th
-              sortKey="category"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="category" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Category
             </Th>
-            <Th
-              sortKey="transmission"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="transmission" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Transmission
             </Th>
-            <Th
-              sortKey="slug"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="slug" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Slug
             </Th>
             <Th activeSortKey={sortBy} sortDir={sortDir}>
@@ -135,6 +89,7 @@ export function VehicleTable({
             </Th>
           </tr>
         </thead>
+
         <tbody>
           {vehicles.map((v) => (
             <tr key={v.id}>
@@ -143,15 +98,12 @@ export function VehicleTable({
               <Td>{v.model}</Td>
               <Td>{v.variant}</Td>
               <Td>{v.year}</Td>
-              <Td>₹{v.price.toLocaleString()}</Td>
+              <Td>₹{(v.price ?? 0).toLocaleString()}</Td>
               <Td>{v.category}</Td>
               <Td>{v.transmission}</Td>
-              <Td>{v.slug}</Td>
+              <Td className="break-anywhere">{v.slug}</Td>
               <Td>
-                <button
-                  className="btn btn-sm"
-                  onClick={() => onEdit(v)}
-                >
+                <button className="btn btn-sm" onClick={() => onEdit(v)}>
                   Edit
                 </button>
                 <button
@@ -166,7 +118,6 @@ export function VehicleTable({
           ))}
         </tbody>
       </table>
-    <Footer />  
     </div>
   );
 }

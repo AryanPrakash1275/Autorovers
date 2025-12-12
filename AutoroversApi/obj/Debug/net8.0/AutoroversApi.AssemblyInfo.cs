@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4c90434cc13e93fef134ef7cabea3c3ccc2eb67e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c76ab1eb9ea7d21cd4022930a75d2bf510492cd6")]
 [assembly: System.Reflection.AssemblyProductAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AutoroversApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
