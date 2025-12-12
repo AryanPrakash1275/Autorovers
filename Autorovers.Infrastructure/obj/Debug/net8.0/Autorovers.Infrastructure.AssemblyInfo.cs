@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Autorovers.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c76ab1eb9ea7d21cd4022930a75d2bf510492cd6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+69d359a9a6e817dc2337401918accba09fb28171")]
 [assembly: System.Reflection.AssemblyProductAttribute("Autorovers.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Autorovers.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

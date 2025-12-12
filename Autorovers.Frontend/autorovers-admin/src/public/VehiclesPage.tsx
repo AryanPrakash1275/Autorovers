@@ -115,49 +115,50 @@ export function VehiclesPage() {
         {/* Foreground content */}
         <div className="hero-layer">
           <div className="hero-copy">
-            <h1 className="hero-title">Find the exact bike or car variant in seconds.</h1>
+            <h1 className="hero-title">
+              A clean, specs-first catalog for bikes and cars.
+            </h1>
             <p className="hero-tagline">
-              Clean specs, real variants, fast comparisons — no listings, no spam.
+              Structured data. Real variants. Fast comparisons.
             </p>
             <p className="hero-subtext">
-               Stop guessing. Choose with confidence using structured specs and filters.
+              Designed for clarity, consistency, and usability across devices.
             </p>
           </div>
+        </div>
+      </section>
 
-          {/* PRIMARY: search */}
-          <div className="hero-primary">
-            <input
-              type="text"
-              placeholder="Search by brand, model, variant..."
-              className="hero-search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+      {/* ================= CONTROLS (BELOW HERO) ================= */}
+      <section className="catalog-section" style={{ marginTop: "1rem" }}>
+        <div className="catalog-controls">
+          <input
+            type="text"
+            placeholder="Search by brand, model, variant..."
+            className="catalog-search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-          {/* SECONDARY: filters */}
-          <div className="hero-secondary">
-            <select
-              className="hero-select"
-              value={category}
-              onChange={(e) => setCategory(e.target.value as CategoryFilter)}
-            >
-              <option value="all">All vehicles</option>
-              <option value="bike">Bikes</option>
-              <option value="car">Cars</option>
-            </select>
+          <select
+            className="catalog-select"
+            value={category}
+            onChange={(e) => setCategory(e.target.value as CategoryFilter)}
+          >
+            <option value="all">All vehicles</option>
+            <option value="bike">Bikes</option>
+            <option value="car">Cars</option>
+          </select>
 
-            <select
-              className="hero-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="priceAsc">Price: Low to High</option>
-              <option value="priceDesc">Price: High to Low</option>
-              <option value="yearAsc">Year: Old to New</option>
-              <option value="yearDesc">Year: New to Old</option>
-            </select>
-          </div>
+          <select
+            className="catalog-select"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="priceAsc">Price: Low to High</option>
+            <option value="priceDesc">Price: High to Low</option>
+            <option value="yearAsc">Year: Old to New</option>
+            <option value="yearDesc">Year: New to Old</option>
+          </select>
         </div>
       </section>
 
