@@ -22,25 +22,31 @@ type SortKey =
   | "transmission"
   | "slug";
 
-type TypeFilter = "all" | "bike" | "car";
+type VehicleTypeFilter = "all" | "Bike" | "Car";
+
+function uniqSorted(list: string[]) {
+  return Array.from(new Set(list.map((x) => x.trim()).filter(Boolean))).sort(
+    (a, b) => a.localeCompare(b)
+  );
+}
 
 export function VehicleListPage() {
   const { vehicles, loading, error, reload } = useVehicles();
 
-  // search
+  // Search (brand/model/variant/slug)
   const [query, setQuery] = useState("");
 
-  // filters
-  const [fType, setFType] = useState<TypeFilter>("all");
-  const [fBrand, setFBrand] = useState("all");
-  const [fTransmission, setFTransmission] = useState("all");
-  const [fYear, setFYear] = useState("all");
-
-  // sort
+  // Sort
   const [sortBy, setSortBy] = useState<SortKey>("brand");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
-  // panel
+  // Filters
+  const [typeFilter, setTypeFilter] = useState<VehicleTypeFilter>("all");
+  const [brandFilter, setBrandFilter] = useState<string>("all");
+  const [transFilter, setTransFilter] = useState<string>("all");
+  const [yearFilter, setYearFilter] = useState<string>("all");
+
+  // Panel
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Vehicle | null>(null);
@@ -57,66 +63,70 @@ export function VehicleListPage() {
         }
         return "asc";
       });
+
       return typedKey;
     });
   };
 
+  // Build filter option lists from data (client-side)
   const brandOptions = useMemo(() => {
-    const set = new Set<string>();
-    vehicles.forEach((v) => v.brand && set.add(v.brand));
-    return ["all", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+    return uniqSorted(vehicles.map((v) => v.brand ?? ""));
   }, [vehicles]);
 
   const transmissionOptions = useMemo(() => {
-    const set = new Set<string>();
-    vehicles.forEach((v) => v.transmission && set.add(v.transmission));
-    return ["all", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+    return uniqSorted(vehicles.map((v) => v.transmission ?? ""));
   }, [vehicles]);
 
   const yearOptions = useMemo(() => {
-    const set = new Set<number>();
-    vehicles.forEach((v) => v.year && set.add(v.year));
-    return ["all", ...Array.from(set).sort((a, b) => a - b).map(String)];
+    const years = Array.from(new Set(vehicles.map((v) => v.year))).filter(
+      (y) => typeof y === "number" && !Number.isNaN(y)
+    );
+    years.sort((a, b) => b - a); // newest first
+    return years.map(String);
   }, [vehicles]);
 
   const visibleVehicles = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    let filtered = [...vehicles];
+    let filtered = vehicles;
 
-    // Type filter (uses vehicleType if present, else fallback to category guess)
-    if (fType !== "all") {
-      filtered = filtered.filter((v) => {
-        const t = (v.vehicleType ?? "").toLowerCase();
-        if (t) return t === fType;
-
-        // fallback guess if vehicleType not set
-        const c = (v.category ?? "").toLowerCase();
-        const looksBike =
-          ["sport", "commuter", "cruiser", "tourer", "off-road", "scooter", "ev bike"].includes(c);
-        const looksCar =
-          ["hatchback", "sedan", "suv", "muv", "coupe", "ev car"].includes(c);
-
-        return fType === "bike" ? looksBike : looksCar;
-      });
+    // Type filter (uses vehicleType; if missing, allow it through when filter=all)
+    if (typeFilter !== "all") {
+      filtered = filtered.filter(
+        (v) => (v.vehicleType ?? "") === typeFilter
+      );
     }
 
-    // Brand
-    if (fBrand !== "all") filtered = filtered.filter((v) => v.brand === fBrand);
+    // Brand filter
+    if (brandFilter !== "all") {
+      filtered = filtered.filter((v) => (v.brand ?? "") === brandFilter);
+    }
 
-    // Transmission
-    if (fTransmission !== "all")
-      filtered = filtered.filter((v) => v.transmission === fTransmission);
+    // Transmission filter
+    if (transFilter !== "all") {
+      filtered = filtered.filter(
+        (v) => (v.transmission ?? "") === transFilter
+      );
+    }
 
-    // Year
-    if (fYear !== "all")
-      filtered = filtered.filter((v) => String(v.year ?? "") === fYear);
+    // Year filter
+    if (yearFilter !== "all") {
+      filtered = filtered.filter((v) => String(v.year) === yearFilter);
+    }
 
-    // Search (brand/model/variant/slug)
+    // Search filter (brand/model/variant/slug)
     if (q) {
       filtered = filtered.filter((v: Vehicle) => {
-        const hay = `${v.brand ?? ""} ${v.model ?? ""} ${v.variant ?? ""} ${v.slug ?? ""}`.toLowerCase();
-        return hay.includes(q);
+        const brand = (v.brand ?? "").toLowerCase();
+        const model = (v.model ?? "").toLowerCase();
+        const variant = (v.variant ?? "").toLowerCase();
+        const slug = (v.slug ?? "").toLowerCase();
+        return (
+          brand.includes(q) ||
+          model.includes(q) ||
+          variant.includes(q) ||
+          slug.includes(q)
+        );
       });
     }
 
@@ -127,21 +137,21 @@ export function VehicleListPage() {
       const getVal = (v: Vehicle): string | number => {
         switch (sortBy) {
           case "brand":
-            return v.brand ?? "";
+            return v.brand;
           case "model":
-            return v.model ?? "";
+            return v.model;
           case "variant":
-            return v.variant ?? "";
+            return v.variant;
           case "year":
-            return v.year ?? 0;
+            return v.year;
           case "price":
-            return v.price ?? 0;
+            return v.price;
           case "category":
-            return v.category ?? "";
+            return v.category;
           case "transmission":
-            return v.transmission ?? "";
+            return v.transmission;
           case "slug":
-            return v.slug ?? "";
+            return v.slug;
           default:
             return "";
         }
@@ -153,11 +163,27 @@ export function VehicleListPage() {
       if (typeof av === "number" && typeof bv === "number") {
         return (av - bv) * dir;
       }
-      return String(av).localeCompare(String(bv)) * dir;
+
+      return String(av ?? "").localeCompare(String(bv ?? "")) * dir;
     });
 
     return sorted;
-  }, [vehicles, query, fType, fBrand, fTransmission, fYear, sortBy, sortDir]);
+  }, [vehicles, query, sortBy, sortDir, typeFilter, brandFilter, transFilter, yearFilter]);
+
+  const hasFilters =
+    query.trim() ||
+    typeFilter !== "all" ||
+    brandFilter !== "all" ||
+    transFilter !== "all" ||
+    yearFilter !== "all";
+
+  function clearFilters() {
+    setQuery("");
+    setTypeFilter("all");
+    setBrandFilter("all");
+    setTransFilter("all");
+    setYearFilter("all");
+  }
 
   function openCreate() {
     setMode("create");
@@ -177,6 +203,7 @@ export function VehicleListPage() {
       const d = full.details ?? {};
 
       const merged: Vehicle = {
+        // basics from core table + fallback to row
         id: full.id ?? row.id,
         vehicleType: full.vehicleType ?? row.vehicleType ?? "",
         brand: full.brand ?? row.brand ?? "",
@@ -189,6 +216,7 @@ export function VehicleListPage() {
         slug: full.slug ?? row.slug ?? "",
         imageUrl: full.imageUrl ?? row.imageUrl ?? "",
 
+        // engine & performance
         engineType: d.engineType ?? "",
         specification: d.specification ?? "",
         inductionType: d.inductionType ?? "",
@@ -201,6 +229,7 @@ export function VehicleListPage() {
         autoStartStop: d.autoStartStop ?? "",
         range: d.range ?? 0,
 
+        // dimensions
         length: d.length ?? 0,
         width: d.width ?? 0,
         height: d.height ?? 0,
@@ -208,12 +237,14 @@ export function VehicleListPage() {
         groundClearance: d.groundClearance ?? 0,
         wheelBase: d.wheelBase ?? 0,
 
+        // capacity
         personCapacity: d.personCapacity ?? 0,
         rows: d.rows ?? 0,
         doors: d.doors ?? 0,
         bootSpace: d.bootSpace ?? 0,
         tankSize: d.tankSize ?? 0,
 
+        // tyres & brakes
         frontType: d.frontType ?? "",
         backType: d.backType ?? "",
         frontBrake: d.frontBrake ?? "",
@@ -237,7 +268,8 @@ export function VehicleListPage() {
 
   function closePanel() {
     setIsPanelOpen(false);
-    setEditing(null); // keep this; do NOT reset filters/sort/search
+    setEditing(null);
+    // IMPORTANT: we do NOT reset query/filters/sort here -> preserves state
   }
 
   async function handleSubmit(data: Vehicle) {
@@ -307,123 +339,136 @@ export function VehicleListPage() {
     }
   }
 
-  const hasActiveFilters =
-    query.trim() ||
-    fType !== "all" ||
-    fBrand !== "all" ||
-    fTransmission !== "all" ||
-    fYear !== "all";
-
-  function resetFilters() {
-    setQuery("");
-    setFType("all");
-    setFBrand("all");
-    setFTransmission("all");
-    setFYear("all");
+  if (loading) {
+    return <p style={{ padding: "2rem" }}>Loading...</p>;
   }
 
-  if (loading) return <p style={{ padding: "2rem" }}>Loading...</p>;
-  if (error) return <p style={{ padding: "2rem", color: "red" }}>Error: {error}</p>;
+  if (error) {
+    return (
+      <p style={{ padding: "2rem", color: "red" }}>
+        Error: {error}
+      </p>
+    );
+  }
 
   return (
     <div className="admin-main">
       <div className="page-header">
         <div>
           <h1 className="page-title">Admin – Vehicles</h1>
-          <p className="page-subtitle">Search, filter, sort and manage catalog.</p>
+          <p className="page-subtitle">
+            Search, sort and manage Autorovers vehicle catalog.
+          </p>
         </div>
         <button className="btn" onClick={openCreate}>
           + Add Vehicle
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="admin-filters">
-        <div className="admin-filters-row">
-          <input
-            type="text"
-            placeholder="Search brand / model / variant / slug..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="search-input"
-            aria-label="Search vehicles"
-          />
+      {/* Search */}
+      <div style={{ marginBottom: "0.75rem" }}>
+        <input
+          type="text"
+          placeholder="Search by brand, model, variant, slug..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="search-input"
+        />
+      </div>
 
-          <select
-            className="search-input"
-            value={fType}
-            onChange={(e) => setFType(e.target.value as TypeFilter)}
-            aria-label="Filter by type"
-            style={{ maxWidth: 180 }}
-          >
-            <option value="all">All types</option>
-            <option value="bike">Bike</option>
-            <option value="car">Car</option>
-          </select>
+      {/* Filters row */}
+      <div
+        style={{
+          display: "flex",
+          gap: "0.6rem",
+          flexWrap: "wrap",
+          alignItems: "center",
+          marginBottom: "0.75rem",
+        }}
+      >
+        <select
+          className="search-input"
+          style={{ width: 160 }}
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as VehicleTypeFilter)}
+        >
+          <option value="all">All types</option>
+          <option value="Bike">Bike</option>
+          <option value="Car">Car</option>
+        </select>
 
-          <select
-            className="search-input"
-            value={fBrand}
-            onChange={(e) => setFBrand(e.target.value)}
-            aria-label="Filter by brand"
-            style={{ maxWidth: 220 }}
-          >
-            {brandOptions.map((b) => (
-              <option key={b} value={b}>
-                {b === "all" ? "All brands" : b}
-              </option>
-            ))}
-          </select>
+        <select
+          className="search-input"
+          style={{ width: 180 }}
+          value={brandFilter}
+          onChange={(e) => setBrandFilter(e.target.value)}
+        >
+          <option value="all">All brands</option>
+          {brandOptions.map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
 
-          <select
-            className="search-input"
-            value={fTransmission}
-            onChange={(e) => setFTransmission(e.target.value)}
-            aria-label="Filter by transmission"
-            style={{ maxWidth: 220 }}
-          >
-            {transmissionOptions.map((t) => (
-              <option key={t} value={t}>
-                {t === "all" ? "All transmissions" : t}
-              </option>
-            ))}
-          </select>
+        <select
+          className="search-input"
+          style={{ width: 180 }}
+          value={transFilter}
+          onChange={(e) => setTransFilter(e.target.value)}
+        >
+          <option value="all">All transmissions</option>
+          {transmissionOptions.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
 
-          <select
-            className="search-input"
-            value={fYear}
-            onChange={(e) => setFYear(e.target.value)}
-            aria-label="Filter by year"
-            style={{ maxWidth: 160 }}
-          >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>
-                {y === "all" ? "All years" : y}
-              </option>
-            ))}
-          </select>
+        <select
+          className="search-input"
+          style={{ width: 140 }}
+          value={yearFilter}
+          onChange={(e) => setYearFilter(e.target.value)}
+        >
+          <option value="all">All years</option>
+          {yearOptions.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </select>
 
-          <button
-            className="btn btn-ghost"
-            onClick={resetFilters}
-            disabled={!hasActiveFilters}
-            type="button"
-          >
-            Reset
+        {hasFilters && (
+          <button className="btn btn-ghost" onClick={clearFilters}>
+            Clear filters
           </button>
-        </div>
+        )}
       </div>
 
       {actionError && <div className="alert alert-error">{actionError}</div>}
 
       {/* Empty state for filters */}
       {visibleVehicles.length === 0 ? (
-        <div className="empty-state">
-          <h3>No vehicles match your filters</h3>
-          <p className="muted">Try clearing filters or changing your search.</p>
-          <button className="btn" onClick={resetFilters}>
-            Clear filters
-          </button>
+        <div
+          className="alert"
+          style={{
+            background: "#ffffff",
+            border: "1px solid var(--border)",
+            boxShadow: "var(--shadow-soft)",
+          }}
+        >
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>
+            No vehicles match your filters.
+          </div>
+          <div className="muted" style={{ marginBottom: 10 }}>
+            Try clearing filters or changing your search.
+          </div>
+          {hasFilters && (
+            <button className="btn btn-ghost" onClick={clearFilters}>
+              Reset filters
+            </button>
+          )}
         </div>
       ) : (
         <VehicleTable

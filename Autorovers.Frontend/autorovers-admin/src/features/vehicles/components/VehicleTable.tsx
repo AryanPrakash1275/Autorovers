@@ -1,3 +1,4 @@
+import { Footer } from "../../../public/Footer";
 import type { Vehicle } from "../types";
 
 interface VehicleTableProps {
@@ -39,10 +40,9 @@ const Th: React.FC<
   );
 };
 
-const Td: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
-  children,
-  className,
-}) => <td className={`table-td ${className ?? ""}`}>{children}</td>;
+const Td: React.FC<React.PropsWithChildren> = ({ children }) => (
+  <td className="table-td">{children}</td>
+);
 
 export function VehicleTable({
   vehicles,
@@ -52,6 +52,10 @@ export function VehicleTable({
   onEdit,
   onDelete,
 }: VehicleTableProps) {
+  if (vehicles.length === 0) {
+    return <p className="muted">No vehicles found.</p>;
+  }
+
   return (
     <div className="admin-table-wrapper">
       <table className="admin-table">
@@ -78,7 +82,12 @@ export function VehicleTable({
             <Th sortKey="category" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Category
             </Th>
-            <Th sortKey="transmission" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
+            <Th
+              sortKey="transmission"
+              activeSortKey={sortBy}
+              sortDir={sortDir}
+              onSortChange={onSortChange}
+            >
               Transmission
             </Th>
             <Th sortKey="slug" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
@@ -98,10 +107,15 @@ export function VehicleTable({
               <Td>{v.model}</Td>
               <Td>{v.variant}</Td>
               <Td>{v.year}</Td>
-              <Td>₹{(v.price ?? 0).toLocaleString()}</Td>
+              <Td>₹{v.price.toLocaleString()}</Td>
               <Td>{v.category}</Td>
               <Td>{v.transmission}</Td>
-              <Td className="break-anywhere">{v.slug}</Td>
+
+              {/* long slug safe */}
+              <td className="table-td break-anywhere" title={v.slug}>
+                {v.slug}
+              </td>
+
               <Td>
                 <button className="btn btn-sm" onClick={() => onEdit(v)}>
                   Edit
@@ -118,6 +132,8 @@ export function VehicleTable({
           ))}
         </tbody>
       </table>
+
+      <Footer />
     </div>
   );
 }
