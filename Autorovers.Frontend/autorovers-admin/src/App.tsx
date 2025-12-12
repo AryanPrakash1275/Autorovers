@@ -35,7 +35,7 @@ function PublicLayout({ children }: LayoutProps) {
 
           {loggedIn ? (
             <Link to="/admin/vehicles" className="public-nav-link">
-              Admin
+              Login
             </Link>
           ) : (
             <Link to="/login" className="public-nav-link">

@@ -153,7 +153,7 @@ export function VehicleDetailsPage() {
               <dt>Engine type</dt><dd>{v.engineType || "—"}</dd>
             </div>
             <div className="spec-row">
-              <dt>Specification</dt><dd>{v.specification || "—"}</dd>
+              <dt>Specification</dt><dd className="break-anywhere">{v.specification || "—"}</dd>
             </div>
             <div className="spec-row">
               <dt>Induction</dt><dd>{v.inductionType || "—"}</dd>

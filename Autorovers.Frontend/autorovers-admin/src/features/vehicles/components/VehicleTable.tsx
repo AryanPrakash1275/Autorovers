@@ -21,9 +21,7 @@ const Th: React.FC<
   const isActive = sortKey && sortKey === activeSortKey;
 
   const handleClick = () => {
-    if (sortKey && onSortChange) {
-      onSortChange(sortKey);
-    }
+    if (sortKey && onSortChange) onSortChange(sortKey);
   };
 
   return (
@@ -66,52 +64,22 @@ export function VehicleTable({
             <Th activeSortKey={sortBy} sortDir={sortDir}>
               Id
             </Th>
-            <Th
-              sortKey="brand"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="brand" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Brand
             </Th>
-            <Th
-              sortKey="model"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="model" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Model
             </Th>
-            <Th
-              sortKey="variant"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="variant" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Variant
             </Th>
-            <Th
-              sortKey="year"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="year" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Year
             </Th>
-            <Th
-              sortKey="price"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="price" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Price
             </Th>
-            <Th
-              sortKey="category"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="category" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Category
             </Th>
             <Th
@@ -122,12 +90,7 @@ export function VehicleTable({
             >
               Transmission
             </Th>
-            <Th
-              sortKey="slug"
-              activeSortKey={sortBy}
-              sortDir={sortDir}
-              onSortChange={onSortChange}
-            >
+            <Th sortKey="slug" activeSortKey={sortBy} sortDir={sortDir} onSortChange={onSortChange}>
               Slug
             </Th>
             <Th activeSortKey={sortBy} sortDir={sortDir}>
@@ -135,6 +98,7 @@ export function VehicleTable({
             </Th>
           </tr>
         </thead>
+
         <tbody>
           {vehicles.map((v) => (
             <tr key={v.id}>
@@ -146,12 +110,14 @@ export function VehicleTable({
               <Td>₹{v.price.toLocaleString()}</Td>
               <Td>{v.category}</Td>
               <Td>{v.transmission}</Td>
-              <Td>{v.slug}</Td>
+
+              {/* long slug safe */}
+              <td className="table-td break-anywhere" title={v.slug}>
+                {v.slug}
+              </td>
+
               <Td>
-                <button
-                  className="btn btn-sm"
-                  onClick={() => onEdit(v)}
-                >
+                <button className="btn btn-sm" onClick={() => onEdit(v)}>
                   Edit
                 </button>
                 <button
@@ -166,7 +132,8 @@ export function VehicleTable({
           ))}
         </tbody>
       </table>
-    <Footer />  
+
+      <Footer />
     </div>
   );
 }

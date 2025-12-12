@@ -22,12 +22,31 @@ type SortKey =
   | "transmission"
   | "slug";
 
+type VehicleTypeFilter = "all" | "Bike" | "Car";
+
+function uniqSorted(list: string[]) {
+  return Array.from(new Set(list.map((x) => x.trim()).filter(Boolean))).sort(
+    (a, b) => a.localeCompare(b)
+  );
+}
+
 export function VehicleListPage() {
   const { vehicles, loading, error, reload } = useVehicles();
+
+  // Search (brand/model/variant/slug)
   const [query, setQuery] = useState("");
+
+  // Sort
   const [sortBy, setSortBy] = useState<SortKey>("brand");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
+  // Filters
+  const [typeFilter, setTypeFilter] = useState<VehicleTypeFilter>("all");
+  const [brandFilter, setBrandFilter] = useState<string>("all");
+  const [transFilter, setTransFilter] = useState<string>("all");
+  const [yearFilter, setYearFilter] = useState<string>("all");
+
+  // Panel
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [editing, setEditing] = useState<Vehicle | null>(null);
@@ -49,21 +68,69 @@ export function VehicleListPage() {
     });
   };
 
+  // Build filter option lists from data (client-side)
+  const brandOptions = useMemo(() => {
+    return uniqSorted(vehicles.map((v) => v.brand ?? ""));
+  }, [vehicles]);
+
+  const transmissionOptions = useMemo(() => {
+    return uniqSorted(vehicles.map((v) => v.transmission ?? ""));
+  }, [vehicles]);
+
+  const yearOptions = useMemo(() => {
+    const years = Array.from(new Set(vehicles.map((v) => v.year))).filter(
+      (y) => typeof y === "number" && !Number.isNaN(y)
+    );
+    years.sort((a, b) => b - a); // newest first
+    return years.map(String);
+  }, [vehicles]);
+
   const visibleVehicles = useMemo(() => {
     const q = query.trim().toLowerCase();
 
     let filtered = vehicles;
+
+    // Type filter (uses vehicleType; if missing, allow it through when filter=all)
+    if (typeFilter !== "all") {
+      filtered = filtered.filter(
+        (v) => (v.vehicleType ?? "") === typeFilter
+      );
+    }
+
+    // Brand filter
+    if (brandFilter !== "all") {
+      filtered = filtered.filter((v) => (v.brand ?? "") === brandFilter);
+    }
+
+    // Transmission filter
+    if (transFilter !== "all") {
+      filtered = filtered.filter(
+        (v) => (v.transmission ?? "") === transFilter
+      );
+    }
+
+    // Year filter
+    if (yearFilter !== "all") {
+      filtered = filtered.filter((v) => String(v.year) === yearFilter);
+    }
+
+    // Search filter (brand/model/variant/slug)
     if (q) {
-      filtered = vehicles.filter((v: Vehicle) => {
+      filtered = filtered.filter((v: Vehicle) => {
+        const brand = (v.brand ?? "").toLowerCase();
+        const model = (v.model ?? "").toLowerCase();
+        const variant = (v.variant ?? "").toLowerCase();
+        const slug = (v.slug ?? "").toLowerCase();
         return (
-          v.brand.toLowerCase().includes(q) ||
-          v.model.toLowerCase().includes(q) ||
-          v.variant.toLowerCase().includes(q) ||
-          v.slug.toLowerCase().includes(q)
+          brand.includes(q) ||
+          model.includes(q) ||
+          variant.includes(q) ||
+          slug.includes(q)
         );
       });
     }
 
+    // Sort
     const sorted = [...filtered].sort((a, b) => {
       const dir = sortDir === "asc" ? 1 : -1;
 
@@ -97,11 +164,26 @@ export function VehicleListPage() {
         return (av - bv) * dir;
       }
 
-      return String(av).localeCompare(String(bv)) * dir;
+      return String(av ?? "").localeCompare(String(bv ?? "")) * dir;
     });
 
     return sorted;
-  }, [vehicles, query, sortBy, sortDir]);
+  }, [vehicles, query, sortBy, sortDir, typeFilter, brandFilter, transFilter, yearFilter]);
+
+  const hasFilters =
+    query.trim() ||
+    typeFilter !== "all" ||
+    brandFilter !== "all" ||
+    transFilter !== "all" ||
+    yearFilter !== "all";
+
+  function clearFilters() {
+    setQuery("");
+    setTypeFilter("all");
+    setBrandFilter("all");
+    setTransFilter("all");
+    setYearFilter("all");
+  }
 
   function openCreate() {
     setMode("create");
@@ -111,83 +193,83 @@ export function VehicleListPage() {
   }
 
   async function openEdit(row: Vehicle) {
-  try {
-    setMode("edit");
-    setIsPanelOpen(true);
-    setActionError(null);
-    setEditLoading(true);
+    try {
+      setMode("edit");
+      setIsPanelOpen(true);
+      setActionError(null);
+      setEditLoading(true);
 
-    const full: any = await getVehicleWithDetails(row.id);
-    const d = full.details ?? {};
+      const full: any = await getVehicleWithDetails(row.id);
+      const d = full.details ?? {};
 
-    const merged: Vehicle = {
-      // basics from core table + fallback to row
-      id: full.id ?? row.id,
-      vehicleType: full.vehicleType ?? row.vehicleType ?? "",
-      brand: full.brand ?? row.brand ?? "",
-      model: full.model ?? row.model ?? "",
-      variant: full.variant ?? row.variant ?? "",
-      year: full.year ?? row.year ?? new Date().getFullYear(),
-      price: full.price ?? row.price ?? 0,
-      category: full.category ?? row.category ?? "",
-      transmission: full.transmission ?? row.transmission ?? "",
-      slug: full.slug ?? row.slug ?? "",
-      imageUrl: full.imageUrl ?? row.imageUrl ?? "",
+      const merged: Vehicle = {
+        // basics from core table + fallback to row
+        id: full.id ?? row.id,
+        vehicleType: full.vehicleType ?? row.vehicleType ?? "",
+        brand: full.brand ?? row.brand ?? "",
+        model: full.model ?? row.model ?? "",
+        variant: full.variant ?? row.variant ?? "",
+        year: full.year ?? row.year ?? new Date().getFullYear(),
+        price: full.price ?? row.price ?? 0,
+        category: full.category ?? row.category ?? "",
+        transmission: full.transmission ?? row.transmission ?? "",
+        slug: full.slug ?? row.slug ?? "",
+        imageUrl: full.imageUrl ?? row.imageUrl ?? "",
 
-      // engine & performance
-      engineType: d.engineType ?? "",
-      specification: d.specification ?? "",
-      inductionType: d.inductionType ?? "",
-      power: d.power ?? 0,
-      powerRpm: d.powerRpm ?? 0,
-      torque: d.torque ?? 0,
-      torqueRpm: d.torqueRpm ?? 0,
-      emission: d.emission ?? "",
-      mileage: d.mileage ?? 0,
-      autoStartStop: d.autoStartStop ?? "",
-      range: d.range ?? 0,
+        // engine & performance
+        engineType: d.engineType ?? "",
+        specification: d.specification ?? "",
+        inductionType: d.inductionType ?? "",
+        power: d.power ?? 0,
+        powerRpm: d.powerRpm ?? 0,
+        torque: d.torque ?? 0,
+        torqueRpm: d.torqueRpm ?? 0,
+        emission: d.emission ?? "",
+        mileage: d.mileage ?? 0,
+        autoStartStop: d.autoStartStop ?? "",
+        range: d.range ?? 0,
 
-      // dimensions
-      length: d.length ?? 0,
-      width: d.width ?? 0,
-      height: d.height ?? 0,
-      weight: d.weight ?? 0,
-      groundClearance: d.groundClearance ?? 0,
-      wheelBase: d.wheelBase ?? 0,
+        // dimensions
+        length: d.length ?? 0,
+        width: d.width ?? 0,
+        height: d.height ?? 0,
+        weight: d.weight ?? 0,
+        groundClearance: d.groundClearance ?? 0,
+        wheelBase: d.wheelBase ?? 0,
 
-      // capacity
-      personCapacity: d.personCapacity ?? 0,
-      rows: d.rows ?? 0,
-      doors: d.doors ?? 0,
-      bootSpace: d.bootSpace ?? 0,
-      tankSize: d.tankSize ?? 0,
+        // capacity
+        personCapacity: d.personCapacity ?? 0,
+        rows: d.rows ?? 0,
+        doors: d.doors ?? 0,
+        bootSpace: d.bootSpace ?? 0,
+        tankSize: d.tankSize ?? 0,
 
-      // tyres & brakes
-      frontType: d.frontType ?? "",
-      backType: d.backType ?? "",
-      frontBrake: d.frontBrake ?? "",
-      backBrake: d.backBrake ?? "",
-      poweredSteering: d.poweredSteering ?? "",
-      tyreSizeFront: d.tyreSizeFront ?? "",
-      tyreSizeBack: d.tyreSizeBack ?? "",
-      tyreType: d.tyreType ?? "",
-      wheelMaterial: d.wheelMaterial ?? "",
-      spare: d.spare ?? "",
-    };
+        // tyres & brakes
+        frontType: d.frontType ?? "",
+        backType: d.backType ?? "",
+        frontBrake: d.frontBrake ?? "",
+        backBrake: d.backBrake ?? "",
+        poweredSteering: d.poweredSteering ?? "",
+        tyreSizeFront: d.tyreSizeFront ?? "",
+        tyreSizeBack: d.tyreSizeBack ?? "",
+        tyreType: d.tyreType ?? "",
+        wheelMaterial: d.wheelMaterial ?? "",
+        spare: d.spare ?? "",
+      };
 
-    setEditing(merged);
-  } catch (err: any) {
-    console.error(err);
-    setActionError(err.message ?? "Failed to load vehicle details");
-  } finally {
-    setEditLoading(false);
+      setEditing(merged);
+    } catch (err: any) {
+      console.error(err);
+      setActionError(err.message ?? "Failed to load vehicle details");
+    } finally {
+      setEditLoading(false);
+    }
   }
-}
-
 
   function closePanel() {
     setIsPanelOpen(false);
     setEditing(null);
+    // IMPORTANT: we do NOT reset query/filters/sort here -> preserves state
   }
 
   async function handleSubmit(data: Vehicle) {
@@ -197,10 +279,8 @@ export function VehicleListPage() {
       if (mode === "create") {
         await createVehicle(data);
       } else if (mode === "edit" && editing?.id) {
-        // 1) Update core vehicle
         await updateVehicle(editing.id, data);
 
-        // 2) Update details via dedicated endpoint
         await updateVehicleDetails(editing.id, {
           engineType: data.engineType,
           specification: data.specification,
@@ -285,7 +365,8 @@ export function VehicleListPage() {
         </button>
       </div>
 
-      <div style={{ marginBottom: "1rem" }}>
+      {/* Search */}
+      <div style={{ marginBottom: "0.75rem" }}>
         <input
           type="text"
           placeholder="Search by brand, model, variant, slug..."
@@ -295,18 +376,110 @@ export function VehicleListPage() {
         />
       </div>
 
-      {actionError && (
-        <div className="alert alert-error">{actionError}</div>
-      )}
+      {/* Filters row */}
+      <div
+        style={{
+          display: "flex",
+          gap: "0.6rem",
+          flexWrap: "wrap",
+          alignItems: "center",
+          marginBottom: "0.75rem",
+        }}
+      >
+        <select
+          className="search-input"
+          style={{ width: 160 }}
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as VehicleTypeFilter)}
+        >
+          <option value="all">All types</option>
+          <option value="Bike">Bike</option>
+          <option value="Car">Car</option>
+        </select>
 
-      <VehicleTable
-        vehicles={visibleVehicles}
-        sortBy={sortBy}
-        sortDir={sortDir}
-        onSortChange={handleSortChange}
-        onEdit={openEdit}
-        onDelete={handleDelete}
-      />
+        <select
+          className="search-input"
+          style={{ width: 180 }}
+          value={brandFilter}
+          onChange={(e) => setBrandFilter(e.target.value)}
+        >
+          <option value="all">All brands</option>
+          {brandOptions.map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="search-input"
+          style={{ width: 180 }}
+          value={transFilter}
+          onChange={(e) => setTransFilter(e.target.value)}
+        >
+          <option value="all">All transmissions</option>
+          {transmissionOptions.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="search-input"
+          style={{ width: 140 }}
+          value={yearFilter}
+          onChange={(e) => setYearFilter(e.target.value)}
+        >
+          <option value="all">All years</option>
+          {yearOptions.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </select>
+
+        {hasFilters && (
+          <button className="btn btn-ghost" onClick={clearFilters}>
+            Clear filters
+          </button>
+        )}
+      </div>
+
+      {actionError && <div className="alert alert-error">{actionError}</div>}
+
+      {/* Empty state for filters */}
+      {visibleVehicles.length === 0 ? (
+        <div
+          className="alert"
+          style={{
+            background: "#ffffff",
+            border: "1px solid var(--border)",
+            boxShadow: "var(--shadow-soft)",
+          }}
+        >
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>
+            No vehicles match your filters.
+          </div>
+          <div className="muted" style={{ marginBottom: 10 }}>
+            Try clearing filters or changing your search.
+          </div>
+          {hasFilters && (
+            <button className="btn btn-ghost" onClick={clearFilters}>
+              Reset filters
+            </button>
+          )}
+        </div>
+      ) : (
+        <VehicleTable
+          vehicles={visibleVehicles}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          onSortChange={handleSortChange}
+          onEdit={openEdit}
+          onDelete={handleDelete}
+        />
+      )}
 
       <div className={`slide-over ${isPanelOpen ? "is-open" : ""}`}>
         <div className="slide-over-backdrop" onClick={closePanel} />

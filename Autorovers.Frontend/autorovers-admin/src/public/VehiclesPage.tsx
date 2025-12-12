@@ -16,14 +16,7 @@ const BIKE_CATEGORIES = [
   "EV Bike",
 ];
 
-const CAR_CATEGORIES = [
-  "Hatchback",
-  "Sedan",
-  "SUV",
-  "MUV",
-  "Coupe",
-  "EV Car",
-];
+const CAR_CATEGORIES = ["Hatchback", "Sedan", "SUV", "MUV", "Coupe", "EV Car"];
 
 type CategoryFilter = "all" | "bike" | "car";
 
@@ -122,48 +115,48 @@ export function VehiclesPage() {
         {/* Foreground content */}
         <div className="hero-layer">
           <div className="hero-copy">
-            <h1 className="hero-title">Find the right machine</h1>
+            <h1 className="hero-title">Find the exact bike or car variant in seconds.</h1>
             <p className="hero-tagline">
-              Clean, structured specs for bikes and cars — no listings, no spam.
+              Clean specs, real variants, fast comparisons — no listings, no spam.
             </p>
             <p className="hero-subtext">
-              Power, torque, mileage and dimensions in one place so you can
-              compare without noise.
+               Stop guessing. Choose with confidence using structured specs and filters.
             </p>
           </div>
 
-          {/* Search + filters pinned near bottom of hero */}
-          <div className="hero-search-card">
-            <div className="catalog-controls catalog-controls-hero">
-              <input
-                type="text"
-                placeholder="Search by brand, model, variant..."
-                className="catalog-search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+          {/* PRIMARY: search */}
+          <div className="hero-primary">
+            <input
+              type="text"
+              placeholder="Search by brand, model, variant..."
+              className="hero-search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
-              <select
-                className="catalog-select"
-                value={category}
-                onChange={(e) => setCategory(e.target.value as CategoryFilter)}
-              >
-                <option value="all">All vehicles</option>
-                <option value="bike">Bikes</option>
-                <option value="car">Cars</option>
-              </select>
+          {/* SECONDARY: filters */}
+          <div className="hero-secondary">
+            <select
+              className="hero-select"
+              value={category}
+              onChange={(e) => setCategory(e.target.value as CategoryFilter)}
+            >
+              <option value="all">All vehicles</option>
+              <option value="bike">Bikes</option>
+              <option value="car">Cars</option>
+            </select>
 
-              <select
-                className="catalog-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="priceAsc">Price: Low to High</option>
-                <option value="priceDesc">Price: High to Low</option>
-                <option value="yearAsc">Year: Old to New</option>
-                <option value="yearDesc">Year: New to Old</option>
-              </select>
-            </div>
+            <select
+              className="hero-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="priceAsc">Price: Low to High</option>
+              <option value="priceDesc">Price: High to Low</option>
+              <option value="yearAsc">Year: Old to New</option>
+              <option value="yearDesc">Year: New to Old</option>
+            </select>
           </div>
         </div>
       </section>
@@ -196,8 +189,8 @@ export function VehiclesPage() {
                       alt={`${v.brand} ${v.model}`}
                       className="vehicle-card-image"
                       onError={(e) =>
-                        ((e.target as HTMLImageElement).src =
-                          "https://dummyimage.com/600x400/cccccc/000000&text=No+Image")
+                        (((e.target as HTMLImageElement).src =
+                          "https://dummyimage.com/600x400/cccccc/000000&text=No+Image"))
                       }
                     />
                   </div>
@@ -227,6 +220,7 @@ export function VehiclesPage() {
           })}
         </div>
       </section>
+
       <Footer />
     </div>
   );
