@@ -21,3 +21,8 @@ TestResults/
 # Env
 .env.local
 .env.*
+
+# Local structure dumps
+structure*.txt
+full-structure*.txt
+
