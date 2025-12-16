@@ -6,3 +6,18 @@ obj/
 .env.local
 .env.*
 
+# Build artifacts
+**/bin/
+**/obj/
+.vs/
+TestResults/
+*.user
+*.suo
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# Env
+.env.local
+.env.*
