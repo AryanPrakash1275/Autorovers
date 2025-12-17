@@ -13,12 +13,8 @@ namespace Autorovers.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "dbo");
-
             migrationBuilder.CreateTable(
                 name: "Locations",
-                schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -31,7 +27,6 @@ namespace Autorovers.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UserDetails",
-                schema: "dbo",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "integer", nullable: false)
@@ -53,7 +48,6 @@ namespace Autorovers.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Users",
-                schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -69,7 +63,6 @@ namespace Autorovers.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Vehicle",
-                schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -93,7 +86,6 @@ namespace Autorovers.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "TodoItems",
-                schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -112,7 +104,6 @@ namespace Autorovers.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_TodoItems_Users_UserId",
                         column: x => x.UserId,
-                        principalSchema: "dbo",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -120,7 +111,6 @@ namespace Autorovers.Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "VehicleDetails",
-                schema: "dbo",
                 columns: table => new
                 {
                     VehicleId = table.Column<int>(type: "integer", nullable: false),
@@ -196,7 +186,6 @@ namespace Autorovers.Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_VehicleDetails_Vehicle_VehicleId",
                         column: x => x.VehicleId,
-                        principalSchema: "dbo",
                         principalTable: "Vehicle",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -204,13 +193,11 @@ namespace Autorovers.Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_TodoItems_UserId",
-                schema: "dbo",
                 table: "TodoItems",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vehicle_Slug",
-                schema: "dbo",
                 table: "Vehicle",
                 column: "Slug",
                 unique: true);
@@ -220,28 +207,22 @@ namespace Autorovers.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Locations",
-                schema: "dbo");
+                name: "Locations");
 
             migrationBuilder.DropTable(
-                name: "TodoItems",
-                schema: "dbo");
+                name: "TodoItems");
 
             migrationBuilder.DropTable(
-                name: "UserDetails",
-                schema: "dbo");
+                name: "UserDetails");
 
             migrationBuilder.DropTable(
-                name: "VehicleDetails",
-                schema: "dbo");
+                name: "VehicleDetails");
 
             migrationBuilder.DropTable(
-                name: "Users",
-                schema: "dbo");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Vehicle",
-                schema: "dbo");
+                name: "Vehicle");
         }
     }
 }

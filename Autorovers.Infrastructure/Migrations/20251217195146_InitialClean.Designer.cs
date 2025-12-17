@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Autorovers.Infrastructure.Migrations
 {
     [DbContext(typeof(AutoroversDbContext))]
-    [Migration("20251217012959_InitialClean")]
+    [Migration("20251217195146_InitialClean")]
     partial class InitialClean
     {
         /// <inheritdoc />
@@ -21,7 +21,6 @@ namespace Autorovers.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("dbo")
                 .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -37,7 +36,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations", "dbo");
+                    b.ToTable("Locations", (string)null);
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Entities.UserDetails", b =>
@@ -84,7 +83,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("UserDetails", "dbo");
+                    b.ToTable("UserDetails", (string)null);
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Entities.Vehicle", b =>
@@ -145,7 +144,7 @@ namespace Autorovers.Infrastructure.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Vehicle", "dbo");
+                    b.ToTable("Vehicle", (string)null);
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Entities.VehicleDetails", b =>
@@ -164,7 +163,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                     b.HasKey("VehicleId");
 
-                    b.ToTable("VehicleDetails", "dbo");
+                    b.ToTable("VehicleDetails", (string)null);
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Todos.TodoItem", b =>
@@ -203,7 +202,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TodoItems", "dbo");
+                    b.ToTable("TodoItems");
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Users.User", b =>
@@ -230,7 +229,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", "dbo");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Entities.VehicleDetails", b =>
@@ -272,7 +271,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                             b1.HasKey("VehicleDetailsVehicleId");
 
-                            b1.ToTable("VehicleDetails", "dbo");
+                            b1.ToTable("VehicleDetails");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleDetailsVehicleId");
@@ -344,7 +343,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                             b1.HasKey("VehicleDetailsVehicleId");
 
-                            b1.ToTable("VehicleDetails", "dbo");
+                            b1.ToTable("VehicleDetails");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleDetailsVehicleId");
@@ -378,7 +377,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                             b1.HasKey("VehicleDetailsVehicleId");
 
-                            b1.ToTable("VehicleDetails", "dbo");
+                            b1.ToTable("VehicleDetails");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleDetailsVehicleId");
@@ -428,7 +427,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                             b1.HasKey("VehicleDetailsVehicleId");
 
-                            b1.ToTable("VehicleDetails", "dbo");
+                            b1.ToTable("VehicleDetails");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleDetailsVehicleId");
@@ -462,7 +461,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                             b1.HasKey("VehicleDetailsVehicleId");
 
-                            b1.ToTable("VehicleDetails", "dbo");
+                            b1.ToTable("VehicleDetails");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleDetailsVehicleId");
@@ -515,7 +514,7 @@ namespace Autorovers.Infrastructure.Migrations
 
                             b1.HasKey("VehicleDetailsVehicleId");
 
-                            b1.ToTable("VehicleDetails", "dbo");
+                            b1.ToTable("VehicleDetails");
 
                             b1.WithOwner()
                                 .HasForeignKey("VehicleDetailsVehicleId");
