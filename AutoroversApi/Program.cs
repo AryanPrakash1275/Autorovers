@@ -138,9 +138,15 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ========== APPLY DB MIGRATIONS ON STARTUP ==========
-using (var scope = app.Services.CreateScope())
+// ========== APPLY DB MIGRATIONS ON STARTUP (SAFE) ==========
+// Default behavior:
+// - Development: migrate automatically
+// - Production: migrate ONLY when RUN_MIGRATIONS=true is set in env/config
+var runMigrations = builder.Configuration.GetValue<bool>("RUN_MIGRATIONS");
+
+if (app.Environment.IsDevelopment() || runMigrations)
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AutoroversDbContext>();
     db.Database.Migrate();
 }
