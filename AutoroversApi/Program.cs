@@ -130,11 +130,15 @@ builder.Services.AddCors(options =>
     options.AddPolicy("FrontendCors", cors =>
     {
         cors
-            .AllowAnyOrigin()
+            .WithOrigins(
+                "https://autorovers-frontend-public.vercel.app",
+                "http://localhost:5173"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
+
 
 var app = builder.Build();
 
