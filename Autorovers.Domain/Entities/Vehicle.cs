@@ -1,29 +1,39 @@
+using System.Linq;
+
 namespace Autorovers.Domain.Entities;
 
 public class Vehicle
 {
     public int Id { get; set; }
-    //Adding type for later scope of seperating entities
-    public string VehicleType { get; set; } = string.Empty;
-    // Core values: Could add more. Basic info here. Skeleton.
+
+    // What the vehicle IS (body type family)
+    public VehicleKind Kind { get; set; } = VehicleKind.Car;
+
+    // How it is powered (lets you treat EV separately without breaking modeling)
+    public PowertrainKind Powertrain { get; set; } = PowertrainKind.Ice;
+
+    // Core identity
     public string Brand { get; set; } = null!;
     public string Model { get; set; } = null!;
-    public string? Variant { get; set; } = null!;
+    public string? Variant { get; set; }
+
     public int Year { get; set; }
     public int Price { get; set; }
-    public string Category { get; set; } = null!;      // of the type of vehicle (Car / Bike / SUV / etc.)
+
+    // "Segment" or "Body style" (NOT Bike/Car/EV)
+    // Examples: Hatchback, Sedan, SUV, SportsBike, Cruiser, Scooter, etc.
+    public string Category { get; set; } = null!;
+
+    // Base transmission label (e.g., "Manual", "Automatic", "CVT", "DCT")
     public string Transmission { get; set; } = null!;
-    public string? ImageUrl { get; set; } //for images
 
-
-    // Slug for SEO URLs: not sure about this but will see.
     public string Slug { get; set; } = null!;
+    public string? ImageUrl { get; set; }
 
-    // Navigation (1:1) have to ratio it to vehicleDetails
+    // 1:1
     public VehicleDetails? Details { get; set; }
 
-    //This is slug-gen. Might need to edit more. 
-    public static string GenerateSlug(string brand, string model, string variant)
+    public static string GenerateSlug(string brand, string model, string? variant)
     {
         var raw = $"{brand}-{model}-{variant}".ToLowerInvariant();
         var chars = raw.Select(c => char.IsLetterOrDigit(c) ? c : '-').ToArray();
@@ -34,5 +44,17 @@ public class Vehicle
 
         return slug.Trim('-');
     }
+}
 
+public enum VehicleKind
+{
+    Bike = 1,
+    Car = 2
+}
+
+public enum PowertrainKind
+{
+    Ice = 1,      // petrol/diesel
+    Ev = 2,       // battery electric
+    Hybrid = 3
 }

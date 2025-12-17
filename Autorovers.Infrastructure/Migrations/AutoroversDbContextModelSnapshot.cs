@@ -94,44 +94,55 @@ namespace Autorovers.Infrastructure.Migrations
 
                     b.Property<string>("Brand")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Category")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
 
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Model")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int>("Powertrain")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Price")
                         .HasColumnType("integer");
 
                     b.Property<string>("Slug")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)");
 
                     b.Property<string>("Transmission")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<string>("Variant")
-                        .HasColumnType("text");
-
-                    b.Property<string>("VehicleType")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.Property<int>("Year")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vehicel", "dbo");
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Vehicle", "dbo");
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Entities.VehicleDetails", b =>
@@ -139,194 +150,14 @@ namespace Autorovers.Infrastructure.Migrations
                     b.Property<int>("VehicleId")
                         .HasColumnType("integer");
 
-                    b.Property<bool?>("Abs")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("Airbags")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("AutoStartStop")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BackBrake")
-                        .HasColumnType("text");
-
-                    b.Property<string>("BackType")
-                        .HasColumnType("text");
-
-                    b.Property<double?>("BatteryCapacity")
-                        .HasColumnType("double precision");
-
-                    b.Property<bool?>("Bluetooth")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("BootSpace")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("ChargingTimeFast")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("ChargingTimeNormal")
-                        .HasColumnType("double precision");
-
                     b.Property<string>("ColorsAvailableJson")
                         .HasColumnType("text");
-
-                    b.Property<bool?>("CruiseControl")
-                        .HasColumnType("boolean");
-
-                    b.Property<double?>("DisplaySize")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("Doors")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("DriveType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Emission")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("EngineDisplacement")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("EngineType")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("FastChargingPort")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("FrontBrake")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FrontSuspension")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FrontType")
-                        .HasColumnType("text");
-
-                    b.Property<string>("FuelType")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("GroundClearance")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("Height")
-                        .HasColumnType("integer");
-
-                    b.Property<bool?>("HillAssist")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("InductionType")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("Length")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("Mileage")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("MotorPower")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("MotorTorque")
-                        .HasColumnType("integer");
-
-                    b.Property<bool?>("Navigation")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("NumberOfGears")
-                        .HasColumnType("integer");
-
-                    b.Property<bool?>("ParkingSensors")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("PersonCapacity")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("Power")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("PowerRpm")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PoweredSteering")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("Range")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("RearSuspension")
-                        .HasColumnType("text");
-
-                    b.Property<bool?>("RearViewCamera")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("Rows")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("ServiceIntervalKm")
                         .HasColumnType("integer");
 
-                    b.Property<bool?>("SmartConnectivity")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Spare")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Specification")
-                        .HasColumnType("text");
-
-                    b.Property<string>("SteeringType")
-                        .HasColumnType("text");
-
-                    b.Property<double?>("TankSize")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("TopSpeed")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("Torque")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("TorqueRpm")
-                        .HasColumnType("integer");
-
-                    b.Property<bool?>("TractionControl")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Transmission")
-                        .HasColumnType("text");
-
-                    b.Property<double?>("TurningRadius")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("TyreSizeBack")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TyreSizeFront")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TyreType")
-                        .HasColumnType("text");
-
                     b.Property<int?>("WarrantyYears")
                         .HasColumnType("integer");
-
-                    b.Property<int?>("Weight")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("WheelBase")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("WheelMaterial")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("Width")
-                        .HasColumnType("integer");
-
-                    b.Property<double?>("ZeroToHundred")
-                        .HasColumnType("double precision");
 
                     b.HasKey("VehicleId");
 
@@ -406,6 +237,298 @@ namespace Autorovers.Infrastructure.Migrations
                         .HasForeignKey("Autorovers.Domain.Entities.VehicleDetails", "VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsOne("Autorovers.Domain.Entities.BikeSpecs", "Bike", b1 =>
+                        {
+                            b1.Property<int>("VehicleDetailsVehicleId")
+                                .HasColumnType("integer");
+
+                            b1.Property<bool?>("Abs")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool?>("Bluetooth")
+                                .HasColumnType("boolean");
+
+                            b1.Property<double?>("DisplaySize")
+                                .HasColumnType("double precision");
+
+                            b1.Property<bool?>("Navigation")
+                                .HasColumnType("boolean");
+
+                            b1.Property<int?>("NumberOfGears")
+                                .HasColumnType("integer");
+
+                            b1.Property<bool?>("SmartConnectivity")
+                                .HasColumnType("boolean");
+
+                            b1.Property<double?>("TankSize")
+                                .HasColumnType("double precision");
+
+                            b1.Property<bool?>("TractionControl")
+                                .HasColumnType("boolean");
+
+                            b1.HasKey("VehicleDetailsVehicleId");
+
+                            b1.ToTable("VehicleDetails", "dbo");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VehicleDetailsVehicleId");
+                        });
+
+                    b.OwnsOne("Autorovers.Domain.Entities.CarSpecs", "Car", b1 =>
+                        {
+                            b1.Property<int>("VehicleDetailsVehicleId")
+                                .HasColumnType("integer");
+
+                            b1.Property<int?>("Airbags")
+                                .HasColumnType("integer");
+
+                            b1.Property<bool?>("Bluetooth")
+                                .HasColumnType("boolean");
+
+                            b1.Property<int?>("BootSpace")
+                                .HasColumnType("integer");
+
+                            b1.Property<bool?>("CruiseControl")
+                                .HasColumnType("boolean");
+
+                            b1.Property<double?>("DisplaySize")
+                                .HasColumnType("double precision");
+
+                            b1.Property<int?>("Doors")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("DriveType")
+                                .HasMaxLength(10)
+                                .HasColumnType("character varying(10)");
+
+                            b1.Property<bool?>("HasSpareWheel")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool?>("HillAssist")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool?>("Navigation")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool?>("ParkingSensors")
+                                .HasColumnType("boolean");
+
+                            b1.Property<int?>("PersonCapacity")
+                                .HasColumnType("integer");
+
+                            b1.Property<bool?>("PoweredSteering")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool?>("RearViewCamera")
+                                .HasColumnType("boolean");
+
+                            b1.Property<int?>("Rows")
+                                .HasColumnType("integer");
+
+                            b1.Property<bool?>("SmartConnectivity")
+                                .HasColumnType("boolean");
+
+                            b1.Property<string>("SteeringType")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.Property<int?>("TopSpeed")
+                                .HasColumnType("integer");
+
+                            b1.Property<double?>("ZeroToHundred")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("VehicleDetailsVehicleId");
+
+                            b1.ToTable("VehicleDetails", "dbo");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VehicleDetailsVehicleId");
+                        });
+
+                    b.OwnsOne("Autorovers.Domain.Entities.DimensionsSpecs", "Dimensions", b1 =>
+                        {
+                            b1.Property<int>("VehicleDetailsVehicleId")
+                                .HasColumnType("integer");
+
+                            b1.Property<int?>("GroundClearance")
+                                .HasColumnType("integer");
+
+                            b1.Property<int?>("Height")
+                                .HasColumnType("integer");
+
+                            b1.Property<int?>("Length")
+                                .HasColumnType("integer");
+
+                            b1.Property<double?>("TurningRadius")
+                                .HasColumnType("double precision");
+
+                            b1.Property<int?>("Weight")
+                                .HasColumnType("integer");
+
+                            b1.Property<int?>("WheelBase")
+                                .HasColumnType("integer");
+
+                            b1.Property<int?>("Width")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("VehicleDetailsVehicleId");
+
+                            b1.ToTable("VehicleDetails", "dbo");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VehicleDetailsVehicleId");
+                        });
+
+                    b.OwnsOne("Autorovers.Domain.Entities.EngineSpecs", "Engine", b1 =>
+                        {
+                            b1.Property<int>("VehicleDetailsVehicleId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Emission")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.Property<int?>("EngineDisplacement")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("EngineType")
+                                .HasMaxLength(80)
+                                .HasColumnType("character varying(80)");
+
+                            b1.Property<string>("FuelType")
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)");
+
+                            b1.Property<string>("InductionType")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.Property<double?>("Mileage")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double?>("Power")
+                                .HasColumnType("double precision");
+
+                            b1.Property<int?>("PowerRpm")
+                                .HasColumnType("integer");
+
+                            b1.Property<double?>("Range")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double?>("Torque")
+                                .HasColumnType("double precision");
+
+                            b1.Property<int?>("TorqueRpm")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("VehicleDetailsVehicleId");
+
+                            b1.ToTable("VehicleDetails", "dbo");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VehicleDetailsVehicleId");
+                        });
+
+                    b.OwnsOne("Autorovers.Domain.Entities.EvSpecs", "Ev", b1 =>
+                        {
+                            b1.Property<int>("VehicleDetailsVehicleId")
+                                .HasColumnType("integer");
+
+                            b1.Property<double?>("BatteryCapacity")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double?>("ChargingTimeFast")
+                                .HasColumnType("double precision");
+
+                            b1.Property<double?>("ChargingTimeNormal")
+                                .HasColumnType("double precision");
+
+                            b1.Property<bool?>("FastChargingPort")
+                                .HasColumnType("boolean");
+
+                            b1.Property<int?>("MotorPower")
+                                .HasColumnType("integer");
+
+                            b1.Property<int?>("MotorTorque")
+                                .HasColumnType("integer");
+
+                            b1.Property<double?>("Range")
+                                .HasColumnType("double precision");
+
+                            b1.HasKey("VehicleDetailsVehicleId");
+
+                            b1.ToTable("VehicleDetails", "dbo");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VehicleDetailsVehicleId");
+                        });
+
+                    b.OwnsOne("Autorovers.Domain.Entities.TyresBrakesSuspensionSpecs", "Dynamics", b1 =>
+                        {
+                            b1.Property<int>("VehicleDetailsVehicleId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("BackBrake")
+                                .HasMaxLength(60)
+                                .HasColumnType("character varying(60)");
+
+                            b1.Property<string>("BackType")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.Property<string>("FrontBrake")
+                                .HasMaxLength(60)
+                                .HasColumnType("character varying(60)");
+
+                            b1.Property<string>("FrontSuspension")
+                                .HasMaxLength(80)
+                                .HasColumnType("character varying(80)");
+
+                            b1.Property<string>("FrontType")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.Property<string>("RearSuspension")
+                                .HasMaxLength(80)
+                                .HasColumnType("character varying(80)");
+
+                            b1.Property<string>("TyreSizeBack")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.Property<string>("TyreSizeFront")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.Property<string>("TyreType")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.Property<string>("WheelMaterial")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.HasKey("VehicleDetailsVehicleId");
+
+                            b1.ToTable("VehicleDetails", "dbo");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VehicleDetailsVehicleId");
+                        });
+
+                    b.Navigation("Bike");
+
+                    b.Navigation("Car");
+
+                    b.Navigation("Dimensions");
+
+                    b.Navigation("Dynamics");
+
+                    b.Navigation("Engine");
+
+                    b.Navigation("Ev");
 
                     b.Navigation("Vehicle");
                 });

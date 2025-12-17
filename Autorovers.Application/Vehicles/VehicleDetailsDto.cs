@@ -1,42 +1,33 @@
-﻿public sealed class VehicleDetailsDto
-{
-    public int Id { get; init; }
-    public string Brand { get; init; } = null!;
-    public string Model { get; init; } = null!;
-    public string? Variant { get; init; }
-    public string Slug { get; init; } = null!;
-    public int Year { get; init; }
-    public decimal Price { get; init; }
-    public string Category { get; init; } = null!;
-    public string Transmission { get; init; } = null!;
-    public string? ImageUrl { get; init; }
+﻿namespace Autorovers.Application.Vehicles;
 
-    // ENGINE
+public sealed class VehicleDetailsDto
+{
+    // META
+    public string? ColorsAvailableJson { get; init; }
+    public int? WarrantyYears { get; init; }
+    public int? ServiceIntervalKm { get; init; }
+
+    // ENGINE (ICE)
     public string? EngineType { get; init; }
     public int? EngineDisplacement { get; init; }
-    public string? Specification { get; init; }
     public string? InductionType { get; init; }
     public double? Power { get; init; }
-    public int? PowerRpm { get; init; }   // NEW
+    public int? PowerRpm { get; init; }
     public double? Torque { get; init; }
     public int? TorqueRpm { get; init; }
     public string? Emission { get; init; }
     public double? Mileage { get; init; }
-
-    public string? AutoStartStop { get; init; }
-    public int? Range { get; init; }
+    public double? Range { get; init; }
     public string? FuelType { get; init; }
 
+    // EV
     public double? BatteryCapacity { get; init; }
     public double? ChargingTimeFast { get; init; }
     public double? ChargingTimeNormal { get; init; }
     public int? MotorPower { get; init; }
     public int? MotorTorque { get; init; }
-
-    public int? NumberOfGears { get; init; }
-    public string? DriveType { get; init; }
-    public double? ZeroToHundred { get; init; }
-    public int? TopSpeed { get; init; }
+    public bool? FastChargingPort { get; init; }
+    public double? EvRange { get; init; }
 
     // DIMENSIONS
     public int? Length { get; init; }
@@ -47,14 +38,7 @@
     public int? WheelBase { get; init; }
     public double? TurningRadius { get; init; }
 
-    // CAPACITY
-    public int? PersonCapacity { get; init; }
-    public int? Rows { get; init; }
-    public int? Doors { get; init; }
-    public int? BootSpace { get; init; }
-    public double? TankSize { get; init; }
-
-    // DYNAMICS
+    // DYNAMICS / TYRES / BRAKES / SUSPENSION
     public string? FrontType { get; init; }
     public string? BackType { get; init; }
     public string? FrontBrake { get; init; }
@@ -65,24 +49,35 @@
     public string? TyreSizeBack { get; init; }
     public string? TyreType { get; init; }
     public string? WheelMaterial { get; init; }
-    public string? Spare { get; init; }
 
-    public string? PoweredSteering { get; init; }
-    public string? SteeringType { get; init; }
-
-    // SAFETY
+    // BIKE-ONLY
+    public int? NumberOfGears { get; init; }
+    public double? TankSize { get; init; }
     public bool? Abs { get; init; }
     public bool? TractionControl { get; init; }
+    public double? BikeDisplaySize { get; init; }
+    public bool? BikeBluetooth { get; init; }
+    public bool? BikeNavigation { get; init; }
+    public bool? BikeSmartConnectivity { get; init; }
+
+    // CAR-ONLY
+    public string? DriveType { get; init; }
+    public double? ZeroToHundred { get; init; }
+    public int? TopSpeed { get; init; }
+    public int? PersonCapacity { get; init; }
+    public int? Rows { get; init; }
+    public int? Doors { get; init; }
+    public int? BootSpace { get; init; }
+    public bool? PoweredSteering { get; init; }
+    public string? SteeringType { get; init; }
+    public bool? HasSpareWheel { get; init; }
     public int? Airbags { get; init; }
     public bool? HillAssist { get; init; }
     public bool? RearViewCamera { get; init; }
     public bool? ParkingSensors { get; init; }
     public bool? CruiseControl { get; init; }
-
-    // FEATURES
-    public double? DisplaySize { get; init; }
-    public bool? Bluetooth { get; init; }
-    public bool? Navigation { get; init; }
-    public bool? SmartConnectivity { get; init; }
-    public bool? FastChargingPort { get; init; }
+    public double? CarDisplaySize { get; init; }
+    public bool? CarBluetooth { get; init; }
+    public bool? CarNavigation { get; init; }
+    public bool? CarSmartConnectivity { get; init; }
 }

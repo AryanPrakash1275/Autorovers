@@ -14,14 +14,21 @@ public class VehicleService : IVehicleService
         _db = db;
     }
 
+    // =====================================================
+    // CREATE
+    // =====================================================
     public async Task<int> CreateVehicleAsync(CreateVehicleRequest r)
     {
         var slug = string.IsNullOrWhiteSpace(r.Slug)
             ? Vehicle.GenerateSlug(r.Brand, r.Model, r.Variant ?? string.Empty)
             : r.Slug.Trim();
 
+        var kind = ParseKindOrThrow(r.VehicleType);
+
         var vehicle = new Vehicle
         {
+            Kind = kind,
+
             Brand = r.Brand!,
             Model = r.Model!,
             Variant = r.Variant,
@@ -38,40 +45,99 @@ public class VehicleService : IVehicleService
         var details = new VehicleDetails
         {
             Vehicle = vehicle,
-            EngineType = r.EngineType,
-            Specification = r.Specification,
-            InductionType = r.InductionType,
-            Power = r.Power,
-            PowerRpm = r.PowerRpm,
-            Torque = r.Torque,
-            TorqueRpm = r.TorqueRpm,
-            Emission = r.Emission,
-            Mileage = r.Mileage,
-            AutoStartStop = r.AutoStartStop,
-            Range = r.Range,
-            Transmission = r.Transmission,
-            Length = r.Length,
-            Width = r.Width,
-            Height = r.Height,
-            Weight = r.Weight,
-            GroundClearance = r.GroundClearance,
-            WheelBase = r.WheelBase,
-            PersonCapacity = r.PersonCapacity,
-            Rows = r.Rows,
-            Doors = r.Doors,
-            BootSpace = r.BootSpace,
-            TankSize = r.TankSize,
-            FrontType = r.FrontType,
-            BackType = r.BackType,
-            FrontBrake = r.FrontBrake,
-            BackBrake = r.BackBrake,
-            PoweredSteering = r.PoweredSteering,
-            TyreSizeFront = r.TyreSizeFront,
-            TyreSizeBack = r.TyreSizeBack,
-            TyreType = r.TyreType,
-            WheelMaterial = r.WheelMaterial,
-            Spare = r.Spare
+
+            Engine = r.Engine == null ? null : new EngineSpecs
+            {
+                EngineType = r.Engine.EngineType,
+                EngineDisplacement = r.Engine.EngineDisplacement,
+                InductionType = r.Engine.InductionType,
+                Emission = r.Engine.Emission,
+                Power = r.Engine.Power,
+                PowerRpm = r.Engine.PowerRpm,
+                Torque = r.Engine.Torque,
+                TorqueRpm = r.Engine.TorqueRpm,
+                Mileage = r.Engine.Mileage,
+                Range = r.Engine.Range,
+                FuelType = r.Engine.FuelType
+            },
+
+            Ev = r.Ev == null ? null : new EvSpecs
+            {
+                BatteryCapacity = r.Ev.BatteryCapacity,
+                ChargingTimeFast = r.Ev.ChargingTimeFast,
+                ChargingTimeNormal = r.Ev.ChargingTimeNormal,
+                MotorPower = r.Ev.MotorPower,
+                MotorTorque = r.Ev.MotorTorque,
+                FastChargingPort = r.Ev.FastChargingPort,
+                Range = r.Ev.Range
+            },
+
+            Dimensions = r.Dimensions == null ? null : new DimensionsSpecs
+            {
+                Length = r.Dimensions.Length,
+                Width = r.Dimensions.Width,
+                Height = r.Dimensions.Height,
+                Weight = r.Dimensions.Weight,
+                GroundClearance = r.Dimensions.GroundClearance,
+                WheelBase = r.Dimensions.WheelBase,
+                TurningRadius = r.Dimensions.TurningRadius
+            },
+
+            Dynamics = r.Dynamics == null ? null : new TyresBrakesSuspensionSpecs
+            {
+                FrontType = r.Dynamics.FrontType,
+                BackType = r.Dynamics.BackType,
+                FrontBrake = r.Dynamics.FrontBrake,
+                BackBrake = r.Dynamics.BackBrake,
+                FrontSuspension = r.Dynamics.FrontSuspension,
+                RearSuspension = r.Dynamics.RearSuspension,
+                TyreSizeFront = r.Dynamics.TyreSizeFront,
+                TyreSizeBack = r.Dynamics.TyreSizeBack,
+                TyreType = r.Dynamics.TyreType,
+                WheelMaterial = r.Dynamics.WheelMaterial
+            },
+
+            Bike = r.Bike == null ? null : new BikeSpecs
+            {
+                NumberOfGears = r.Bike.NumberOfGears,
+                TankSize = r.Bike.TankSize,
+                Abs = r.Bike.Abs,
+                TractionControl = r.Bike.TractionControl,
+                DisplaySize = r.Bike.DisplaySize,
+                Bluetooth = r.Bike.Bluetooth,
+                Navigation = r.Bike.Navigation,
+                SmartConnectivity = r.Bike.SmartConnectivity
+            },
+
+            Car = r.Car == null ? null : new CarSpecs
+            {
+                DriveType = r.Car.DriveType,
+                ZeroToHundred = r.Car.ZeroToHundred,
+                TopSpeed = r.Car.TopSpeed,
+                PersonCapacity = r.Car.PersonCapacity,
+                Rows = r.Car.Rows,
+                Doors = r.Car.Doors,
+                BootSpace = r.Car.BootSpace,
+                PoweredSteering = r.Car.PoweredSteering,
+                SteeringType = r.Car.SteeringType,
+                HasSpareWheel = r.Car.HasSpareWheel,
+                Airbags = r.Car.Airbags,
+                HillAssist = r.Car.HillAssist,
+                RearViewCamera = r.Car.RearViewCamera,
+                ParkingSensors = r.Car.ParkingSensors,
+                CruiseControl = r.Car.CruiseControl,
+                DisplaySize = r.Car.DisplaySize,
+                Bluetooth = r.Car.Bluetooth,
+                Navigation = r.Car.Navigation,
+                SmartConnectivity = r.Car.SmartConnectivity
+            },
+
+            ColorsAvailableJson = r.ColorsAvailableJson,
+            WarrantyYears = r.WarrantyYears,
+            ServiceIntervalKm = r.ServiceIntervalKm
         };
+
+        NormalizeByKind(vehicle.Kind, details);
 
         _db.VehicleDetails.Add(details);
         await _db.SaveChangesAsync();
@@ -79,6 +145,9 @@ public class VehicleService : IVehicleService
         return vehicle.Id;
     }
 
+    // =====================================================
+    // READ LIST (ADMIN / SUMMARY)
+    // =====================================================
     public async Task<IReadOnlyList<VehicleListItemDto>> GetAllAsync()
     {
         return await _db.Vehicles
@@ -140,6 +209,9 @@ public class VehicleService : IVehicleService
             .FirstOrDefaultAsync();
     }
 
+    // =====================================================
+    // UPDATE CORE
+    // =====================================================
     public async Task UpdateVehicleAsync(int id, UpdateVehicleRequest request)
     {
         var entity = await _db.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
@@ -173,6 +245,9 @@ public class VehicleService : IVehicleService
         return true;
     }
 
+    // =====================================================
+    // READ WITH DETAILS
+    // =====================================================
     public async Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id)
     {
         return await _db.Vehicles
@@ -190,41 +265,7 @@ public class VehicleService : IVehicleService
                 Transmission = v.Transmission!,
                 Slug = v.Slug!,
                 ImageUrl = v.ImageUrl,
-                Details = new VehicleDetailsDto
-                {
-                    EngineType = v.Details!.EngineType,
-                    Specification = v.Details!.Specification,
-                    InductionType = v.Details!.InductionType,
-                    Power = v.Details!.Power,
-                    PowerRpm = v.Details!.PowerRpm,
-                    Torque = v.Details!.Torque,
-                    TorqueRpm = v.Details!.TorqueRpm,
-                    Emission = v.Details!.Emission,
-                    Mileage = v.Details!.Mileage,
-                    AutoStartStop = v.Details!.AutoStartStop,
-                    Range = v.Details!.Range,
-                    Length = v.Details!.Length,
-                    Width = v.Details!.Width,
-                    Height = v.Details!.Height,
-                    Weight = v.Details!.Weight,
-                    GroundClearance = v.Details!.GroundClearance,
-                    WheelBase = v.Details!.WheelBase,
-                    PersonCapacity = v.Details!.PersonCapacity,
-                    Rows = v.Details!.Rows,
-                    Doors = v.Details!.Doors,
-                    BootSpace = v.Details!.BootSpace,
-                    TankSize = v.Details!.TankSize,
-                    FrontType = v.Details!.FrontType,
-                    BackType = v.Details!.BackType,
-                    FrontBrake = v.Details!.FrontBrake,
-                    BackBrake = v.Details!.BackBrake,
-                    PoweredSteering = v.Details!.PoweredSteering,
-                    TyreSizeFront = v.Details!.TyreSizeFront,
-                    TyreSizeBack = v.Details!.TyreSizeBack,
-                    TyreType = v.Details!.TyreType,
-                    WheelMaterial = v.Details!.WheelMaterial,
-                    Spare = v.Details!.Spare
-                }
+                Details = MapDetailsToFlatDto(v, v.Details)
             })
             .FirstOrDefaultAsync();
     }
@@ -246,83 +287,129 @@ public class VehicleService : IVehicleService
                 Transmission = v.Transmission!,
                 Slug = v.Slug!,
                 ImageUrl = v.ImageUrl,
-                Details = new VehicleDetailsDto
-                {
-                    EngineType = v.Details!.EngineType,
-                    Specification = v.Details!.Specification,
-                    InductionType = v.Details!.InductionType,
-                    Power = v.Details!.Power,
-                    PowerRpm = v.Details!.PowerRpm,
-                    Torque = v.Details!.Torque,
-                    TorqueRpm = v.Details!.TorqueRpm,
-                    Emission = v.Details!.Emission,
-                    Mileage = v.Details!.Mileage,
-                    AutoStartStop = v.Details!.AutoStartStop,
-                    Range = v.Details!.Range,
-                    Length = v.Details!.Length,
-                    Width = v.Details!.Width,
-                    Height = v.Details!.Height,
-                    Weight = v.Details!.Weight,
-                    GroundClearance = v.Details!.GroundClearance,
-                    WheelBase = v.Details!.WheelBase,
-                    PersonCapacity = v.Details!.PersonCapacity,
-                    Rows = v.Details!.Rows,
-                    Doors = v.Details!.Doors,
-                    BootSpace = v.Details!.BootSpace,
-                    TankSize = v.Details!.TankSize,
-                    FrontType = v.Details!.FrontType,
-                    BackType = v.Details!.BackType,
-                    FrontBrake = v.Details!.FrontBrake,
-                    BackBrake = v.Details!.BackBrake,
-                    PoweredSteering = v.Details!.PoweredSteering,
-                    TyreSizeFront = v.Details!.TyreSizeFront,
-                    TyreSizeBack = v.Details!.TyreSizeBack,
-                    TyreType = v.Details!.TyreType,
-                    WheelMaterial = v.Details!.WheelMaterial,
-                    Spare = v.Details!.Spare
-                }
+                Details = MapDetailsToFlatDto(v, v.Details)
             })
             .FirstOrDefaultAsync();
     }
 
+    // =====================================================
+    // UPDATE DETAILS
+    // =====================================================
     public async Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req)
     {
-        var details = await _db.VehicleDetails.FirstOrDefaultAsync(d => d.VehicleId == id);
+        var details = await _db.VehicleDetails
+            .Include(d => d.Vehicle)
+            .FirstOrDefaultAsync(d => d.VehicleId == id);
+
         if (details is null) throw new KeyNotFoundException();
 
-        details.EngineType = req.EngineType ?? details.EngineType;
-        details.Specification = req.Specification ?? details.Specification;
-        details.InductionType = req.InductionType ?? details.InductionType;
-        details.Power = req.Power ?? details.Power;
-        details.PowerRpm = req.PowerRpm ?? details.PowerRpm;
-        details.Torque = req.Torque ?? details.Torque;
-        details.TorqueRpm = req.TorqueRpm ?? details.TorqueRpm;
-        details.Emission = req.Emission ?? details.Emission;
-        details.Mileage = req.Mileage ?? details.Mileage;
-        details.AutoStartStop = req.AutoStartStop ?? details.AutoStartStop;
-        details.Range = req.Range ?? details.Range;
-        details.Length = req.Length ?? details.Length;
-        details.Width = req.Width ?? details.Width;
-        details.Height = req.Height ?? details.Height;
-        details.Weight = req.Weight ?? details.Weight;
-        details.GroundClearance = req.GroundClearance ?? details.GroundClearance;
-        details.WheelBase = req.WheelBase ?? details.WheelBase;
-        details.PersonCapacity = req.PersonCapacity ?? details.PersonCapacity;
-        details.Rows = req.Rows ?? details.Rows;
-        details.Doors = req.Doors ?? details.Doors;
-        details.BootSpace = req.BootSpace ?? details.BootSpace;
-        details.TankSize = req.TankSize ?? details.TankSize;
-        details.FrontType = req.FrontType ?? details.FrontType;
-        details.BackType = req.BackType ?? details.BackType;
-        details.FrontBrake = req.FrontBrake ?? details.FrontBrake;
-        details.BackBrake = req.BackBrake ?? details.BackBrake;
-        details.PoweredSteering = req.PoweredSteering ?? details.PoweredSteering;
-        details.TyreSizeFront = req.TyreSizeFront ?? details.TyreSizeFront;
-        details.TyreSizeBack = req.TyreSizeBack ?? details.TyreSizeBack;
-        details.TyreType = req.TyreType ?? details.TyreType;
-        details.WheelMaterial = req.WheelMaterial ?? details.WheelMaterial;
-        details.Spare = req.Spare ?? details.Spare;
+        details.ColorsAvailableJson = req.ColorsAvailableJson ?? details.ColorsAvailableJson;
+        details.WarrantyYears = req.WarrantyYears ?? details.WarrantyYears;
+        details.ServiceIntervalKm = req.ServiceIntervalKm ?? details.ServiceIntervalKm;
+
+        if (details.Vehicle != null)
+            NormalizeByKind(details.Vehicle.Kind, details);
 
         await _db.SaveChangesAsync();
+    }
+
+    // =====================================================
+    // MAPPING (IMMUTABLE DTO)
+    // =====================================================
+    private static VehicleDetailsDto MapDetailsToFlatDto(Vehicle v, VehicleDetails? d)
+    {
+        return new VehicleDetailsDto
+        {
+            ColorsAvailableJson = d?.ColorsAvailableJson,
+            WarrantyYears = d?.WarrantyYears,
+            ServiceIntervalKm = d?.ServiceIntervalKm,
+
+            EngineType = d?.Engine?.EngineType,
+            EngineDisplacement = d?.Engine?.EngineDisplacement,
+            InductionType = d?.Engine?.InductionType,
+            Power = d?.Engine?.Power,
+            PowerRpm = d?.Engine?.PowerRpm,
+            Torque = d?.Engine?.Torque,
+            TorqueRpm = d?.Engine?.TorqueRpm,
+            Emission = d?.Engine?.Emission,
+            Mileage = d?.Engine?.Mileage,
+            Range = d?.Engine?.Range,
+            FuelType = d?.Engine?.FuelType,
+
+            BatteryCapacity = d?.Ev?.BatteryCapacity,
+            ChargingTimeFast = d?.Ev?.ChargingTimeFast,
+            ChargingTimeNormal = d?.Ev?.ChargingTimeNormal,
+            MotorPower = d?.Ev?.MotorPower,
+            MotorTorque = d?.Ev?.MotorTorque,
+            FastChargingPort = d?.Ev?.FastChargingPort,
+            EvRange = d?.Ev?.Range,
+
+            Length = d?.Dimensions?.Length,
+            Width = d?.Dimensions?.Width,
+            Height = d?.Dimensions?.Height,
+            Weight = d?.Dimensions?.Weight,
+            GroundClearance = d?.Dimensions?.GroundClearance,
+            WheelBase = d?.Dimensions?.WheelBase,
+            TurningRadius = d?.Dimensions?.TurningRadius,
+
+            FrontType = d?.Dynamics?.FrontType,
+            BackType = d?.Dynamics?.BackType,
+            FrontBrake = d?.Dynamics?.FrontBrake,
+            BackBrake = d?.Dynamics?.BackBrake,
+            FrontSuspension = d?.Dynamics?.FrontSuspension,
+            RearSuspension = d?.Dynamics?.RearSuspension,
+            TyreSizeFront = d?.Dynamics?.TyreSizeFront,
+            TyreSizeBack = d?.Dynamics?.TyreSizeBack,
+            TyreType = d?.Dynamics?.TyreType,
+            WheelMaterial = d?.Dynamics?.WheelMaterial,
+
+            NumberOfGears = d?.Bike?.NumberOfGears,
+            TankSize = d?.Bike?.TankSize,
+            Abs = d?.Bike?.Abs,
+            TractionControl = d?.Bike?.TractionControl,
+            BikeDisplaySize = d?.Bike?.DisplaySize,
+            BikeBluetooth = d?.Bike?.Bluetooth,
+            BikeNavigation = d?.Bike?.Navigation,
+            BikeSmartConnectivity = d?.Bike?.SmartConnectivity,
+
+            DriveType = d?.Car?.DriveType,
+            ZeroToHundred = d?.Car?.ZeroToHundred,
+            TopSpeed = d?.Car?.TopSpeed,
+            PersonCapacity = d?.Car?.PersonCapacity,
+            Rows = d?.Car?.Rows,
+            Doors = d?.Car?.Doors,
+            BootSpace = d?.Car?.BootSpace,
+            PoweredSteering = d?.Car?.PoweredSteering,
+            SteeringType = d?.Car?.SteeringType,
+            HasSpareWheel = d?.Car?.HasSpareWheel,
+            Airbags = d?.Car?.Airbags,
+            HillAssist = d?.Car?.HillAssist,
+            RearViewCamera = d?.Car?.RearViewCamera,
+            ParkingSensors = d?.Car?.ParkingSensors,
+            CruiseControl = d?.Car?.CruiseControl,
+            CarDisplaySize = d?.Car?.DisplaySize,
+            CarBluetooth = d?.Car?.Bluetooth,
+            CarNavigation = d?.Car?.Navigation,
+            CarSmartConnectivity = d?.Car?.SmartConnectivity
+        };
+    }
+
+    private static void NormalizeByKind(VehicleKind kind, VehicleDetails details)
+    {
+        if (kind == VehicleKind.Bike) details.Car = null;
+        if (kind == VehicleKind.Car) details.Bike = null;
+    }
+
+    private static VehicleKind ParseKindOrThrow(string? vehicleType)
+    {
+        if (string.IsNullOrWhiteSpace(vehicleType))
+            throw new ArgumentException("VehicleType is required and must be 'Bike' or 'Car'.");
+
+        return vehicleType.Trim().ToLowerInvariant() switch
+        {
+            "bike" => VehicleKind.Bike,
+            "car" => VehicleKind.Car,
+            _ => throw new ArgumentException("VehicleType must be 'Bike' or 'Car'.")
+        };
     }
 }
