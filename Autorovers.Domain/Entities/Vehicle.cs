@@ -20,6 +20,7 @@ public class Vehicle
     public int Year { get; set; }
     public int Price { get; set; }
 
+
     // "Segment" or "Body style" (NOT Bike/Car/EV)
     // Examples: Hatchback, Sedan, SUV, SportsBike, Cruiser, Scooter, etc.
     public string Category { get; set; } = null!;

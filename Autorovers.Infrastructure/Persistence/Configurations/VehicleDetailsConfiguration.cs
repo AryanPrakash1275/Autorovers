@@ -11,6 +11,10 @@ public class VehicleDetailsConfiguration : IEntityTypeConfiguration<VehicleDetai
         builder.ToTable("VehicleDetails");
         builder.HasKey(d => d.VehicleId);
 
+        builder.Property(x => x.Description)
+       .HasMaxLength(1200);
+
+
         builder.Property(d => d.ColorsAvailableJson).IsRequired(false);
         builder.Property(d => d.WarrantyYears).IsRequired(false);
         builder.Property(d => d.ServiceIntervalKm).IsRequired(false);

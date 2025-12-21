@@ -13,6 +13,8 @@ public class CreateVehicleRequest
     public string? Variant { get; set; }
     public int Year { get; set; }
     public int Price { get; set; }
+    public string? Description { get; set; }
+
 
     public string Category { get; set; } = null!;
     public string Transmission { get; set; } = null!;

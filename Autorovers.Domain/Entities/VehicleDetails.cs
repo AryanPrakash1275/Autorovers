@@ -12,6 +12,8 @@ public class VehicleDetails
     // =========================
     // SHARED (both bike & car)
     // =========================
+    public string? Description { get; set; }
+
     public EngineSpecs? Engine { get; set; }          // ICE / Hybrid engine info
     public EvSpecs? Ev { get; set; }                  // EV / Hybrid electrical info
 

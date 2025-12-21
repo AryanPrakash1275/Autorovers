@@ -7,6 +7,9 @@ public sealed class VehicleDetailsDto
     public int? WarrantyYears { get; init; }
     public int? ServiceIntervalKm { get; init; }
 
+    //Description
+    public string? Description { get; init; }
+
     // ENGINE (ICE)
     public string? EngineType { get; init; }
     public int? EngineDisplacement { get; init; }

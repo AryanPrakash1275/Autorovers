@@ -152,6 +152,10 @@ namespace Autorovers.Infrastructure.Migrations
                     b.Property<string>("ColorsAvailableJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(1200)
+                        .HasColumnType("character varying(1200)");
+
                     b.Property<int?>("ServiceIntervalKm")
                         .HasColumnType("integer");
 

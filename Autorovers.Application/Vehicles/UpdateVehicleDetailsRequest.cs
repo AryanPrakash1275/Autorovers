@@ -10,6 +10,7 @@ public class UpdateVehicleDetailsRequest
     public string? ColorsAvailableJson { get; set; }
     public int? WarrantyYears { get; set; }
     public int? ServiceIntervalKm { get; set; }
+    public string? Description { get; set; } //Description
 
     // Nested specs
     public EngineSpecsUpdateRequest? Engine { get; set; }
