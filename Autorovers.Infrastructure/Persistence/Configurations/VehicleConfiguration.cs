@@ -8,12 +8,13 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
 {
     public void Configure(EntityTypeBuilder<Vehicle> builder)
     {
-        builder.ToTable("Vehicle"); // FIX: was "Vehicel"
+        builder.ToTable("Vehicle");
         builder.HasKey(v => v.Id);
 
         builder.Property(v => v.Brand).HasMaxLength(100).IsRequired();
         builder.Property(v => v.Model).HasMaxLength(120).IsRequired();
-        builder.Property(v => v.Variant).HasMaxLength(120).IsRequired(false);
+
+        builder.Property(v => v.Year).IsRequired();
 
         builder.Property(v => v.Category).HasMaxLength(80).IsRequired();
         builder.Property(v => v.Transmission).HasMaxLength(40).IsRequired();
@@ -23,7 +24,9 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
 
         builder.Property(v => v.ImageUrl).HasMaxLength(512).IsRequired(false);
 
-        // enums as ints (default), explicit so you don’t accidentally switch later
+        builder.Property(v => v.StartingPrice).IsRequired(false);
+
+        // enums as ints
         builder.Property(v => v.Kind).HasConversion<int>().IsRequired();
         builder.Property(v => v.Powertrain).HasConversion<int>().IsRequired();
 
@@ -31,6 +34,12 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.HasOne(v => v.Details)
             .WithOne(d => d.Vehicle)
             .HasForeignKey<VehicleDetails>(d => d.VehicleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // 1:many Vehicle -> VehicleVariant (also configured in VehicleVariantConfiguration; safe to keep)
+        builder.HasMany(v => v.Variants)
+            .WithOne(vr => vr.Vehicle)
+            .HasForeignKey(vr => vr.VehicleId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

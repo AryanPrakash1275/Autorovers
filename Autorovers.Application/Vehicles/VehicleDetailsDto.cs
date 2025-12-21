@@ -83,4 +83,6 @@ public sealed class VehicleDetailsDto
     public bool? CarBluetooth { get; init; }
     public bool? CarNavigation { get; init; }
     public bool? CarSmartConnectivity { get; init; }
+
+    public List<VehicleVariantDto> Variants { get; set; } = new();
 }

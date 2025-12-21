@@ -83,6 +83,38 @@ namespace Autorovers.Infrastructure.Migrations
                     b.ToTable("UserDetails", (string)null);
                 });
 
+            modelBuilder.Entity("Autorovers.Domain.Entities.VariantAddon", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int?>("Price")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VariantAddon", (string)null);
+                });
+
             modelBuilder.Entity("Autorovers.Domain.Entities.Vehicle", b =>
                 {
                     b.Property<int>("Id")
@@ -116,22 +148,18 @@ namespace Autorovers.Infrastructure.Migrations
                     b.Property<int>("Powertrain")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(180)
                         .HasColumnType("character varying(180)");
 
+                    b.Property<int?>("StartingPrice")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Transmission")
                         .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
-
-                    b.Property<string>("Variant")
-                        .HasMaxLength(120)
-                        .HasColumnType("character varying(120)");
 
                     b.Property<int>("Year")
                         .HasColumnType("integer");
@@ -165,6 +193,88 @@ namespace Autorovers.Infrastructure.Migrations
                     b.HasKey("VehicleId");
 
                     b.ToTable("VehicleDetails", (string)null);
+                });
+
+            modelBuilder.Entity("Autorovers.Domain.Entities.VehicleVariant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTime>("CreatedUtc")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int?>("ExShowroomPrice")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int?>("Powertrain")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PriceDelta")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)");
+
+                    b.Property<string>("Transmission")
+                        .HasColumnType("text");
+
+                    b.Property<int>("VehicleId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VehicleId", "Slug")
+                        .IsUnique();
+
+                    b.ToTable("VehicleVariant", (string)null);
+                });
+
+            modelBuilder.Entity("Autorovers.Domain.Entities.VehicleVariantAddon", b =>
+                {
+                    b.Property<int>("VehicleVariantId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VariantAddonId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsIncluded")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("OverridePrice")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("VehicleVariantId", "VariantAddonId");
+
+                    b.HasIndex("VariantAddonId");
+
+                    b.ToTable("VehicleVariantAddon", (string)null);
                 });
 
             modelBuilder.Entity("Autorovers.Domain.Todos.TodoItem", b =>
@@ -536,6 +646,36 @@ namespace Autorovers.Infrastructure.Migrations
                     b.Navigation("Vehicle");
                 });
 
+            modelBuilder.Entity("Autorovers.Domain.Entities.VehicleVariant", b =>
+                {
+                    b.HasOne("Autorovers.Domain.Entities.Vehicle", "Vehicle")
+                        .WithMany("Variants")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("Autorovers.Domain.Entities.VehicleVariantAddon", b =>
+                {
+                    b.HasOne("Autorovers.Domain.Entities.VariantAddon", "VariantAddon")
+                        .WithMany("Variants")
+                        .HasForeignKey("VariantAddonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Autorovers.Domain.Entities.VehicleVariant", "VehicleVariant")
+                        .WithMany("Addons")
+                        .HasForeignKey("VehicleVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("VariantAddon");
+
+                    b.Navigation("VehicleVariant");
+                });
+
             modelBuilder.Entity("Autorovers.Domain.Todos.TodoItem", b =>
                 {
                     b.HasOne("Autorovers.Domain.Users.User", null)
@@ -545,9 +685,21 @@ namespace Autorovers.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Autorovers.Domain.Entities.VariantAddon", b =>
+                {
+                    b.Navigation("Variants");
+                });
+
             modelBuilder.Entity("Autorovers.Domain.Entities.Vehicle", b =>
                 {
                     b.Navigation("Details");
+
+                    b.Navigation("Variants");
+                });
+
+            modelBuilder.Entity("Autorovers.Domain.Entities.VehicleVariant", b =>
+                {
+                    b.Navigation("Addons");
                 });
 #pragma warning restore 612, 618
         }
