@@ -16,6 +16,8 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
 
         builder.Property(v => v.Year).IsRequired();
 
+        builder.Property(v => v.StartingPrice).IsRequired(false);
+
         builder.Property(v => v.Category).HasMaxLength(80).IsRequired();
         builder.Property(v => v.Transmission).HasMaxLength(40).IsRequired();
 
@@ -24,9 +26,6 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
 
         builder.Property(v => v.ImageUrl).HasMaxLength(512).IsRequired(false);
 
-        builder.Property(v => v.StartingPrice).IsRequired(false);
-
-        // enums as ints
         builder.Property(v => v.Kind).HasConversion<int>().IsRequired();
         builder.Property(v => v.Powertrain).HasConversion<int>().IsRequired();
 
@@ -36,7 +35,7 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .HasForeignKey<VehicleDetails>(d => d.VehicleId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // 1:many Vehicle -> VehicleVariant (also configured in VehicleVariantConfiguration; safe to keep)
+        // 1:many Vehicle -> VehicleVariant
         builder.HasMany(v => v.Variants)
             .WithOne(vr => vr.Vehicle)
             .HasForeignKey(vr => vr.VehicleId)

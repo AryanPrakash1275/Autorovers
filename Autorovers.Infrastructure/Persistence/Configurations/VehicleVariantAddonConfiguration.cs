@@ -10,17 +10,12 @@ public class VehicleVariantAddonConfiguration : IEntityTypeConfiguration<Vehicle
     {
         builder.ToTable("VehicleVariantAddon");
 
-        // Composite key (join table)
+        // Composite key for join table
         builder.HasKey(x => new { x.VehicleVariantId, x.VariantAddonId });
 
-        builder.Property(x => x.IsIncluded)
-            .IsRequired();
-
-        builder.Property(x => x.SortOrder)
-            .IsRequired();
-
-        builder.Property(x => x.OverridePrice)
-            .IsRequired(false);
+        builder.Property(x => x.IsIncluded).IsRequired();
+        builder.Property(x => x.SortOrder).IsRequired();
+        builder.Property(x => x.OverridePrice).IsRequired(false);
 
         builder.HasOne(x => x.VehicleVariant)
             .WithMany(v => v.Addons)
