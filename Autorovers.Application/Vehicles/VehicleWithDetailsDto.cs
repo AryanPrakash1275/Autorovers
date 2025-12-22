@@ -22,4 +22,5 @@ public class VehicleWithDetailsDto
     public string? ImageUrl { get; init; }
 
     public VehicleDetailsDto Details { get; set; } = new();
+    public List<VehicleVariantDto> Variants { get; init; } = new();
 }
