@@ -1,9 +1,11 @@
-using AppDI = Autorovers.Application.DependencyInjection;
+﻿using AppDI = Autorovers.Application.DependencyInjection;
 using InfraDI = Autorovers.Infrastructure.DependencyInjection;
 
 using AutoroversApi.Endpoints;
 using AutoroversApi.Auth;
 using Autorovers.Infrastructure.Persistence.Context;
+
+using Autorovers.Application.Vehicles.Admin; // ✅ ADD THIS
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +39,9 @@ builder.Host.UseSerilog();
 // ========== Application & Infrastructure ==========
 AppDI.AddApplication(builder.Services);
 InfraDI.AddInfrastructure(builder.Services, builder.Configuration);
+
+// ✅ ADD THIS (Admin Variants DI)
+builder.Services.AddScoped<IVariantAdminService, VariantAdminService>();
 
 // ========== JWT AUTH CONFIG ==========
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -138,7 +143,6 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
-
 
 var app = builder.Build();
 
