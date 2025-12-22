@@ -1,26 +1,27 @@
-﻿namespace Autorovers.Application.Vehicles;
+﻿using System.Collections.Generic;
 
-public class VehicleWithDetailsDto
+namespace Autorovers.Application.Vehicles;
+
+public sealed class VehicleWithDetailsDto
 {
-    public int Id { get; set; }
+    public int Id { get; init; }
 
-    public string Brand { get; set; } = "";
-    public string Model { get; set; } = "";
-    public string? Variant { get; set; }
+    public string Brand { get; init; } = "";
+    public string Model { get; init; } = "";
+    public string? Variant { get; init; }
 
-    public int Year { get; set; }
+    public int Year { get; init; }
 
-    // keep consistent with Create/Update requests
-    public int Price { get; set; }
+    // List card price (starting price). Variant price comes from Variants[]
+    public int Price { get; init; }
 
-    public string Category { get; set; } = "";
-    public string Transmission { get; set; } = "";
+    public string Category { get; init; } = "";
+    public string Transmission { get; init; } = "";
 
-    // keep consistent with list DTO
-    public string? Slug { get; set; }
-
+    public string? Slug { get; init; }
     public string? ImageUrl { get; init; }
 
-    public VehicleDetailsDto Details { get; set; } = new();
-    public List<VehicleVariantDto> Variants { get; set; } = new();
+    public VehicleDetailsDto Details { get; init; } = new();
+
+    public List<VehicleVariantDto> Variants { get; init; } = new();
 }
