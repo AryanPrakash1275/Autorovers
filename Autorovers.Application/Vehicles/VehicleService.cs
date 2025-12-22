@@ -207,7 +207,11 @@ public class VehicleService : IVehicleService
     public async Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id)
     {
         return await _db.Vehicles
+            .AsNoTracking()
             .Include(v => v.Details)
+            .Include(v => v.Variants)
+                .ThenInclude(vr => vr.Addons)
+                    .ThenInclude(va => va.VariantAddon)
             .Where(v => v.Id == id)
             .Select(v => new VehicleWithDetailsDto
             {
@@ -220,7 +224,30 @@ public class VehicleService : IVehicleService
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
                 ImageUrl = v.ImageUrl,
-                Details = MapDetailsToFlatDto(v.Details)
+
+                Details = MapDetailsToFlatDto(v.Details),
+
+                Variants = v.Variants
+                    .Where(x => x.IsActive)
+                    .OrderByDescending(x => x.IsDefault)
+                    .ThenBy(x => x.ExShowroomPrice ?? int.MaxValue)
+                    .Select(x => new VehicleVariantDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Price = x.ExShowroomPrice ?? 0,
+                        IsDefault = x.IsDefault,
+                        Addons = x.Addons
+                            .OrderBy(a => a.SortOrder)
+                            .Select(a => new VariantAddonDto
+                            {
+                                Id = a.VariantAddonId,
+                                Name = a.VariantAddon.Name,
+                                Price = (a.OverridePrice ?? a.VariantAddon.Price) ?? 0
+                            })
+                            .ToList()
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }
@@ -228,7 +255,11 @@ public class VehicleService : IVehicleService
     public async Task<VehicleWithDetailsDto?> GetWithDetailsBySlugAsync(string slug)
     {
         return await _db.Vehicles
+            .AsNoTracking()
             .Include(v => v.Details)
+            .Include(v => v.Variants)
+                .ThenInclude(vr => vr.Addons)
+                    .ThenInclude(va => va.VariantAddon)
             .Where(v => v.Slug == slug)
             .Select(v => new VehicleWithDetailsDto
             {
@@ -241,7 +272,30 @@ public class VehicleService : IVehicleService
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
                 ImageUrl = v.ImageUrl,
-                Details = MapDetailsToFlatDto(v.Details)
+
+                Details = MapDetailsToFlatDto(v.Details),
+
+                Variants = v.Variants
+                    .Where(x => x.IsActive)
+                    .OrderByDescending(x => x.IsDefault)
+                    .ThenBy(x => x.ExShowroomPrice ?? int.MaxValue)
+                    .Select(x => new VehicleVariantDto
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Price = x.ExShowroomPrice ?? 0,
+                        IsDefault = x.IsDefault,
+                        Addons = x.Addons
+                            .OrderBy(a => a.SortOrder)
+                            .Select(a => new VariantAddonDto
+                            {
+                                Id = a.VariantAddonId,
+                                Name = a.VariantAddon.Name,
+                                Price = (a.OverridePrice ?? a.VariantAddon.Price) ?? 0
+                            })
+                            .ToList()
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }
