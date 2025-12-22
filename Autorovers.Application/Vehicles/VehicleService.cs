@@ -112,6 +112,7 @@ public class VehicleService : IVehicleService
     // =====================================================
     // READ LIST
     // =====================================================
+  
     public async Task<IReadOnlyList<VehicleListItemDto>> GetAllAsync()
     {
         return await _db.Vehicles
@@ -123,7 +124,18 @@ public class VehicleService : IVehicleService
                 Brand = v.Brand!,
                 Model = v.Model!,
                 Year = v.Year,
-                Price = v.StartingPrice ?? 0,
+
+                // ✅ Public list price = default active variant price (else cheapest active variant, else StartingPrice)
+                Price =
+                    v.Variants
+                        .Where(vr => vr.IsActive && vr.ExShowroomPrice != null)
+                        .OrderByDescending(vr => vr.IsDefault)
+                        .ThenBy(vr => vr.ExShowroomPrice)
+                        .Select(vr => (int?)vr.ExShowroomPrice)
+                        .FirstOrDefault()
+                    ?? v.StartingPrice
+                    ?? 0,
+
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
@@ -142,7 +154,17 @@ public class VehicleService : IVehicleService
                 Brand = v.Brand!,
                 Model = v.Model!,
                 Year = v.Year,
-                Price = v.StartingPrice ?? 0,
+
+                Price =
+                    v.Variants
+                        .Where(vr => vr.IsActive && vr.ExShowroomPrice != null)
+                        .OrderByDescending(vr => vr.IsDefault)
+                        .ThenBy(vr => vr.ExShowroomPrice)
+                        .Select(vr => (int?)vr.ExShowroomPrice)
+                        .FirstOrDefault()
+                    ?? v.StartingPrice
+                    ?? 0,
+
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
@@ -161,7 +183,17 @@ public class VehicleService : IVehicleService
                 Brand = v.Brand!,
                 Model = v.Model!,
                 Year = v.Year,
-                Price = v.StartingPrice ?? 0,
+
+                Price =
+                    v.Variants
+                        .Where(vr => vr.IsActive && vr.ExShowroomPrice != null)
+                        .OrderByDescending(vr => vr.IsDefault)
+                        .ThenBy(vr => vr.ExShowroomPrice)
+                        .Select(vr => (int?)vr.ExShowroomPrice)
+                        .FirstOrDefault()
+                    ?? v.StartingPrice
+                    ?? 0,
+
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
@@ -169,6 +201,7 @@ public class VehicleService : IVehicleService
             })
             .FirstOrDefaultAsync();
     }
+
 
     // =====================================================
     // UPDATE CORE
