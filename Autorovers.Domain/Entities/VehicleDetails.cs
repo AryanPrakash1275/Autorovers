@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿// Autorovers.Domain/Entities/VehicleDetails.cs
+// FULL FILE — CLEAN (NO EF CORE REFERENCES, NO [Owned] ATTRIBUTES)
+
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Autorovers.Domain.Entities;
 

@@ -1,3 +1,6 @@
+﻿// Autorovers.Infrastructure/Persistence/Configurations/VehicleDetailsConfiguration.cs
+// FULL FILE — explicit 1:1 Vehicle ↔ VehicleDetails + OwnsOne for nested specs
+
 using Autorovers.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,15 +14,18 @@ public class VehicleDetailsConfiguration : IEntityTypeConfiguration<VehicleDetai
         builder.ToTable("VehicleDetails");
         builder.HasKey(d => d.VehicleId);
 
-        builder.Property(x => x.Description)
-       .HasMaxLength(1200);
+        builder.HasOne(d => d.Vehicle)
+            .WithOne(v => v.Details)
+            .HasForeignKey<VehicleDetails>(d => d.VehicleId)
+            .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Property(x => x.Description)
+            .HasMaxLength(1200);
 
         builder.Property(d => d.ColorsAvailableJson).IsRequired(false);
         builder.Property(d => d.WarrantyYears).IsRequired(false);
         builder.Property(d => d.ServiceIntervalKm).IsRequired(false);
 
-        // Owned specs (flattened into VehicleDetails table)
         builder.OwnsOne(d => d.Engine, b =>
         {
             b.Property(x => x.EngineType).HasMaxLength(80).IsRequired(false);
@@ -29,7 +35,6 @@ public class VehicleDetailsConfiguration : IEntityTypeConfiguration<VehicleDetai
         });
 
         builder.OwnsOne(d => d.Ev);
-
         builder.OwnsOne(d => d.Dimensions);
 
         builder.OwnsOne(d => d.Dynamics, b =>

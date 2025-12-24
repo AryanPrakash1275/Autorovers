@@ -1,6 +1,4 @@
-﻿// Autorovers.Application/Vehicles/VehicleService.cs
-
-using Autorovers.Application.Abstractions.Data;
+﻿using Autorovers.Application.Abstractions.Data;
 using Autorovers.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +14,7 @@ public class VehicleService : IVehicleService
     }
 
     // =====================================================
-    // CREATE (single)  (unchanged from your version)
+    // CREATE (single)
     // =====================================================
     public async Task<int> CreateVehicleAsync(CreateVehicleRequest r)
     {
@@ -46,6 +44,7 @@ public class VehicleService : IVehicleService
         var details = BuildDetails(vehicle, r);
         NormalizeByKind(vehicle.Kind, details);
 
+        // if EV, engine must be null
         if (vehicle.Powertrain == PowertrainKind.Ev)
             details.Engine = null;
 
@@ -57,7 +56,7 @@ public class VehicleService : IVehicleService
     }
 
     // =====================================================
-    // CREATE (bulk) (unchanged from your version)
+    // CREATE (bulk)
     // =====================================================
     public async Task<IReadOnlyList<int>> BulkCreateAsync(List<CreateVehicleRequest> requests)
     {
@@ -112,7 +111,6 @@ public class VehicleService : IVehicleService
     // =====================================================
     // READ LIST
     // =====================================================
-  
     public async Task<IReadOnlyList<VehicleListItemDto>> GetAllAsync()
     {
         return await _db.Vehicles
@@ -125,7 +123,6 @@ public class VehicleService : IVehicleService
                 Model = v.Model!,
                 Year = v.Year,
 
-                // ✅ Public list price = default active variant price (else cheapest active variant, else StartingPrice)
                 Price =
                     v.Variants
                         .Where(vr => vr.IsActive && vr.ExShowroomPrice != null)
@@ -202,7 +199,6 @@ public class VehicleService : IVehicleService
             .FirstOrDefaultAsync();
     }
 
-
     // =====================================================
     // UPDATE CORE
     // =====================================================
@@ -236,7 +232,7 @@ public class VehicleService : IVehicleService
     }
 
     // =====================================================
-    // READ WITH DETAILS + VARIANTS  ✅ FIXED HERE
+    // READ WITH DETAILS + VARIANTS
     // =====================================================
     public async Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id)
     {
@@ -327,7 +323,7 @@ public class VehicleService : IVehicleService
     }
 
     // =====================================================
-    // UPDATE DETAILS (unchanged from your version)
+    // UPDATE DETAILS
     // =====================================================
     public async Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req)
     {
@@ -380,17 +376,106 @@ public class VehicleService : IVehicleService
         throw new ArgumentException("Powertrain cannot be derived.");
     }
 
+    // ✅ FIXED: actually persist nested spec objects from request
     private static VehicleDetails BuildDetails(Vehicle vehicle, CreateVehicleRequest r)
     {
-        // Keep your original BuildDetails logic here (unchanged).
-        // If you already have it implemented elsewhere, paste it back in.
         return new VehicleDetails
         {
-            Vehicle = vehicle
+            Vehicle = vehicle,
+
+            Description = r.Description,
+            ColorsAvailableJson = r.ColorsAvailableJson,
+            WarrantyYears = r.WarrantyYears,
+            ServiceIntervalKm = r.ServiceIntervalKm,
+
+            Engine = r.Engine == null ? null : new EngineSpecs
+            {
+                EngineType = r.Engine.EngineType,
+                EngineDisplacement = r.Engine.EngineDisplacement,
+                InductionType = r.Engine.InductionType,
+                Emission = r.Engine.Emission,
+                FuelType = r.Engine.FuelType,
+                Power = r.Engine.Power,
+                PowerRpm = r.Engine.PowerRpm,
+                Torque = r.Engine.Torque,
+                TorqueRpm = r.Engine.TorqueRpm,
+                Mileage = r.Engine.Mileage,
+                Range = r.Engine.Range
+            },
+
+            Ev = r.Ev == null ? null : new EvSpecs
+            {
+                BatteryCapacity = r.Ev.BatteryCapacity,
+                ChargingTimeFast = r.Ev.ChargingTimeFast,
+                ChargingTimeNormal = r.Ev.ChargingTimeNormal,
+                MotorPower = r.Ev.MotorPower,
+                MotorTorque = r.Ev.MotorTorque,
+                FastChargingPort = r.Ev.FastChargingPort,
+                Range = r.Ev.Range
+            },
+
+            Dimensions = r.Dimensions == null ? null : new DimensionsSpecs
+            {
+                Length = r.Dimensions.Length,
+                Width = r.Dimensions.Width,
+                Height = r.Dimensions.Height,
+                WheelBase = r.Dimensions.WheelBase,
+                GroundClearance = r.Dimensions.GroundClearance,
+                Weight = r.Dimensions.Weight,
+                TurningRadius = r.Dimensions.TurningRadius
+            },
+
+            Dynamics = r.Dynamics == null ? null : new TyresBrakesSuspensionSpecs
+            {
+                FrontType = r.Dynamics.FrontType,
+                BackType = r.Dynamics.BackType,
+                FrontBrake = r.Dynamics.FrontBrake,
+                BackBrake = r.Dynamics.BackBrake,
+                FrontSuspension = r.Dynamics.FrontSuspension,
+                RearSuspension = r.Dynamics.RearSuspension,
+                TyreSizeFront = r.Dynamics.TyreSizeFront,
+                TyreSizeBack = r.Dynamics.TyreSizeBack,
+                TyreType = r.Dynamics.TyreType,
+                WheelMaterial = r.Dynamics.WheelMaterial
+            },
+
+            Bike = r.Bike == null ? null : new BikeSpecs
+            {
+                NumberOfGears = r.Bike.NumberOfGears,
+                TankSize = r.Bike.TankSize,
+                Abs = r.Bike.Abs,
+                TractionControl = r.Bike.TractionControl,
+                DisplaySize = r.Bike.DisplaySize,
+                Bluetooth = r.Bike.Bluetooth,
+                Navigation = r.Bike.Navigation,
+                SmartConnectivity = r.Bike.SmartConnectivity
+            },
+
+            Car = r.Car == null ? null : new CarSpecs
+            {
+                DriveType = r.Car.DriveType,
+                ZeroToHundred = r.Car.ZeroToHundred,
+                TopSpeed = r.Car.TopSpeed,
+                PersonCapacity = r.Car.PersonCapacity,
+                Rows = r.Car.Rows,
+                Doors = r.Car.Doors,
+                BootSpace = r.Car.BootSpace,
+                PoweredSteering = r.Car.PoweredSteering,
+                SteeringType = r.Car.SteeringType,
+                HasSpareWheel = r.Car.HasSpareWheel,
+                Airbags = r.Car.Airbags,
+                HillAssist = r.Car.HillAssist,
+                RearViewCamera = r.Car.RearViewCamera,
+                ParkingSensors = r.Car.ParkingSensors,
+                CruiseControl = r.Car.CruiseControl,
+                DisplaySize = r.Car.DisplaySize,
+                Bluetooth = r.Car.Bluetooth,
+                Navigation = r.Car.Navigation,
+                SmartConnectivity = r.Car.SmartConnectivity
+            }
         };
     }
 
-    // ✅ THE REAL FIX: stop returning only 3-4 meta fields.
     private static VehicleDetailsDto MapDetailsToDto(VehicleDetails? d)
     {
         if (d is null) return new VehicleDetailsDto();
