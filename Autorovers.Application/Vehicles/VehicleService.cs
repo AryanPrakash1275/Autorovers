@@ -1,6 +1,5 @@
 ﻿using Autorovers.Application.Abstractions.Data;
 using Autorovers.Domain.Entities;
-using Autorovers.Domain.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace Autorovers.Application.Vehicles;
@@ -22,7 +21,7 @@ public class VehicleService : IVehicleService
         ValidateCreatePayload(r);
 
         var slug = string.IsNullOrWhiteSpace(r.Slug)
-            ? Vehicle.GenerateSlug(r.Brand, r.Model, r.Variant ?? string.Empty)
+            ? Vehicle.GenerateSlug(r.Brand, r.Model, null)
             : r.Slug.Trim();
 
         var kind = ParseKindOrThrow(r.VehicleType);
@@ -34,10 +33,9 @@ public class VehicleService : IVehicleService
             Powertrain = powertrain,
             Brand = r.Brand!,
             Model = r.Model!,
-            Variant = r.Variant,
             Year = r.Year,
             Category = r.Category!,
-            Price = r.Price,
+            StartingPrice = r.Price,
             Transmission = r.Transmission!,
             Slug = slug,
             ImageUrl = r.ImageUrl
@@ -46,6 +44,7 @@ public class VehicleService : IVehicleService
         var details = BuildDetails(vehicle, r);
         NormalizeByKind(vehicle.Kind, details);
 
+        // if EV, engine must be null
         if (vehicle.Powertrain == PowertrainKind.Ev)
             details.Engine = null;
 
@@ -72,7 +71,7 @@ public class VehicleService : IVehicleService
             ValidateCreatePayload(r);
 
             var slug = string.IsNullOrWhiteSpace(r.Slug)
-                ? Vehicle.GenerateSlug(r.Brand, r.Model, r.Variant ?? string.Empty)
+                ? Vehicle.GenerateSlug(r.Brand, r.Model, null)
                 : r.Slug.Trim();
 
             var kind = ParseKindOrThrow(r.VehicleType);
@@ -84,10 +83,9 @@ public class VehicleService : IVehicleService
                 Powertrain = powertrain,
                 Brand = r.Brand!,
                 Model = r.Model!,
-                Variant = r.Variant,
                 Year = r.Year,
                 Category = r.Category!,
-                Price = r.Price,
+                StartingPrice = r.Price,
                 Transmission = r.Transmission!,
                 Slug = slug,
                 ImageUrl = r.ImageUrl
@@ -123,9 +121,18 @@ public class VehicleService : IVehicleService
                 Id = v.Id,
                 Brand = v.Brand!,
                 Model = v.Model!,
-                Variant = v.Variant,
                 Year = v.Year,
-                Price = v.Price,
+
+                Price =
+                    v.Variants
+                        .Where(vr => vr.IsActive && vr.ExShowroomPrice != null)
+                        .OrderByDescending(vr => vr.IsDefault)
+                        .ThenBy(vr => vr.ExShowroomPrice)
+                        .Select(vr => (int?)vr.ExShowroomPrice)
+                        .FirstOrDefault()
+                    ?? v.StartingPrice
+                    ?? 0,
+
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
@@ -143,9 +150,18 @@ public class VehicleService : IVehicleService
                 Id = v.Id,
                 Brand = v.Brand!,
                 Model = v.Model!,
-                Variant = v.Variant,
                 Year = v.Year,
-                Price = v.Price,
+
+                Price =
+                    v.Variants
+                        .Where(vr => vr.IsActive && vr.ExShowroomPrice != null)
+                        .OrderByDescending(vr => vr.IsDefault)
+                        .ThenBy(vr => vr.ExShowroomPrice)
+                        .Select(vr => (int?)vr.ExShowroomPrice)
+                        .FirstOrDefault()
+                    ?? v.StartingPrice
+                    ?? 0,
+
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
@@ -163,9 +179,18 @@ public class VehicleService : IVehicleService
                 Id = v.Id,
                 Brand = v.Brand!,
                 Model = v.Model!,
-                Variant = v.Variant,
                 Year = v.Year,
-                Price = v.Price,
+
+                Price =
+                    v.Variants
+                        .Where(vr => vr.IsActive && vr.ExShowroomPrice != null)
+                        .OrderByDescending(vr => vr.IsDefault)
+                        .ThenBy(vr => vr.ExShowroomPrice)
+                        .Select(vr => (int?)vr.ExShowroomPrice)
+                        .FirstOrDefault()
+                    ?? v.StartingPrice
+                    ?? 0,
+
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
@@ -184,15 +209,14 @@ public class VehicleService : IVehicleService
 
         entity.Brand = request.Brand!;
         entity.Model = request.Model!;
-        entity.Variant = request.Variant;
         entity.Year = request.Year;
-        entity.Price = request.Price;
+        entity.StartingPrice = request.Price;
         entity.Category = request.Category!;
         entity.Transmission = request.Transmission!;
         entity.ImageUrl = request.ImageUrl;
 
         if (string.IsNullOrWhiteSpace(entity.Slug))
-            entity.Slug = Vehicle.GenerateSlug(entity.Brand, entity.Model, entity.Variant ?? string.Empty);
+            entity.Slug = Vehicle.GenerateSlug(entity.Brand, entity.Model, null);
 
         await _db.SaveChangesAsync();
     }
@@ -208,26 +232,48 @@ public class VehicleService : IVehicleService
     }
 
     // =====================================================
-    // READ WITH DETAILS
+    // READ WITH DETAILS + VARIANTS
     // =====================================================
     public async Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id)
     {
         return await _db.Vehicles
-            .Include(v => v.Details)
             .Where(v => v.Id == id)
             .Select(v => new VehicleWithDetailsDto
             {
                 Id = v.Id,
                 Brand = v.Brand!,
                 Model = v.Model!,
-                Variant = v.Variant,
                 Year = v.Year,
-                Price = v.Price,
+                Price = v.StartingPrice ?? 0,
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
                 ImageUrl = v.ImageUrl,
-                Details = MapDetailsToFlatDto(v.Details)
+
+                Details = MapDetailsToDto(v.Details),
+
+                Variants = v.Variants
+                    .Where(vr => vr.IsActive)
+                    .OrderByDescending(vr => vr.IsDefault)
+                    .ThenBy(vr => vr.ExShowroomPrice ?? int.MaxValue)
+                    .ThenBy(vr => vr.Name)
+                    .Select(vr => new VehicleVariantDto
+                    {
+                        Id = vr.Id,
+                        Name = vr.Name,
+                        Price = vr.ExShowroomPrice ?? 0,
+                        IsDefault = vr.IsDefault,
+                        Addons = vr.Addons
+                            .OrderBy(x => x.SortOrder)
+                            .Select(x => new VariantAddonDto
+                            {
+                                Id = x.VariantAddonId,
+                                Name = x.VariantAddon.Name,
+                                Price = x.OverridePrice ?? x.VariantAddon.Price ?? 0
+                            })
+                            .ToList()
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }
@@ -235,21 +281,43 @@ public class VehicleService : IVehicleService
     public async Task<VehicleWithDetailsDto?> GetWithDetailsBySlugAsync(string slug)
     {
         return await _db.Vehicles
-            .Include(v => v.Details)
             .Where(v => v.Slug == slug)
             .Select(v => new VehicleWithDetailsDto
             {
                 Id = v.Id,
                 Brand = v.Brand!,
                 Model = v.Model!,
-                Variant = v.Variant,
                 Year = v.Year,
-                Price = v.Price,
+                Price = v.StartingPrice ?? 0,
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
                 ImageUrl = v.ImageUrl,
-                Details = MapDetailsToFlatDto(v.Details)
+
+                Details = MapDetailsToDto(v.Details),
+
+                Variants = v.Variants
+                    .Where(vr => vr.IsActive)
+                    .OrderByDescending(vr => vr.IsDefault)
+                    .ThenBy(vr => vr.ExShowroomPrice ?? int.MaxValue)
+                    .ThenBy(vr => vr.Name)
+                    .Select(vr => new VehicleVariantDto
+                    {
+                        Id = vr.Id,
+                        Name = vr.Name,
+                        Price = vr.ExShowroomPrice ?? 0,
+                        IsDefault = vr.IsDefault,
+                        Addons = vr.Addons
+                            .OrderBy(x => x.SortOrder)
+                            .Select(x => new VariantAddonDto
+                            {
+                                Id = x.VariantAddonId,
+                                Name = x.VariantAddon.Name,
+                                Price = x.OverridePrice ?? x.VariantAddon.Price ?? 0
+                            })
+                            .ToList()
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync();
     }
@@ -261,12 +329,6 @@ public class VehicleService : IVehicleService
     {
         var details = await _db.VehicleDetails
             .Include(d => d.Vehicle)
-            .Include(d => d.Engine)
-            .Include(d => d.Ev)
-            .Include(d => d.Dimensions)
-            .Include(d => d.Dynamics)
-            .Include(d => d.Bike)
-            .Include(d => d.Car)
             .FirstOrDefaultAsync(d => d.VehicleId == id);
 
         if (details is null) throw new KeyNotFoundException();
@@ -280,107 +342,51 @@ public class VehicleService : IVehicleService
     }
 
     // =====================================================
-    // MAPPING
+    // HELPERS
     // =====================================================
-    private static VehicleDetailsDto MapDetailsToFlatDto(VehicleDetails? d)
+    private static void NormalizeByKind(VehicleKind kind, VehicleDetails details)
     {
-        return new VehicleDetailsDto
+        if (kind == VehicleKind.Bike) details.Car = null;
+        if (kind == VehicleKind.Car) details.Bike = null;
+    }
+
+    private static VehicleKind ParseKindOrThrow(string? vehicleType)
+    {
+        if (string.IsNullOrWhiteSpace(vehicleType))
+            throw new ArgumentException("VehicleType is required.");
+
+        return vehicleType.Trim().ToLowerInvariant() switch
         {
-            // ✅ NEW
-            Description = d?.Description,
-
-            // META
-            ColorsAvailableJson = d?.ColorsAvailableJson,
-            WarrantyYears = d?.WarrantyYears,
-            ServiceIntervalKm = d?.ServiceIntervalKm,
-
-            // ENGINE (ICE)
-            EngineType = d?.Engine?.EngineType,
-            EngineDisplacement = d?.Engine?.EngineDisplacement,
-            InductionType = d?.Engine?.InductionType,
-            Power = d?.Engine?.Power,
-            PowerRpm = d?.Engine?.PowerRpm,
-            Torque = d?.Engine?.Torque,
-            TorqueRpm = d?.Engine?.TorqueRpm,
-            Emission = d?.Engine?.Emission,
-            Mileage = d?.Engine?.Mileage,
-            Range = d?.Engine?.Range,
-            FuelType = d?.Engine?.FuelType,
-
-            // EV
-            BatteryCapacity = d?.Ev?.BatteryCapacity,
-            ChargingTimeFast = d?.Ev?.ChargingTimeFast,
-            ChargingTimeNormal = d?.Ev?.ChargingTimeNormal,
-            MotorPower = d?.Ev?.MotorPower,
-            MotorTorque = d?.Ev?.MotorTorque,
-            FastChargingPort = d?.Ev?.FastChargingPort,
-            EvRange = d?.Ev?.Range,
-
-            // DIMENSIONS
-            Length = d?.Dimensions?.Length,
-            Width = d?.Dimensions?.Width,
-            Height = d?.Dimensions?.Height,
-            Weight = d?.Dimensions?.Weight,
-            GroundClearance = d?.Dimensions?.GroundClearance,
-            WheelBase = d?.Dimensions?.WheelBase,
-            TurningRadius = d?.Dimensions?.TurningRadius,
-
-            // DYNAMICS
-            FrontType = d?.Dynamics?.FrontType,
-            BackType = d?.Dynamics?.BackType,
-            FrontBrake = d?.Dynamics?.FrontBrake,
-            BackBrake = d?.Dynamics?.BackBrake,
-            FrontSuspension = d?.Dynamics?.FrontSuspension,
-            RearSuspension = d?.Dynamics?.RearSuspension,
-            TyreSizeFront = d?.Dynamics?.TyreSizeFront,
-            TyreSizeBack = d?.Dynamics?.TyreSizeBack,
-            TyreType = d?.Dynamics?.TyreType,
-            WheelMaterial = d?.Dynamics?.WheelMaterial,
-
-            // BIKE
-            NumberOfGears = d?.Bike?.NumberOfGears,
-            TankSize = d?.Bike?.TankSize,
-            Abs = d?.Bike?.Abs,
-            TractionControl = d?.Bike?.TractionControl,
-            BikeDisplaySize = d?.Bike?.DisplaySize,
-            BikeBluetooth = d?.Bike?.Bluetooth,
-            BikeNavigation = d?.Bike?.Navigation,
-            BikeSmartConnectivity = d?.Bike?.SmartConnectivity,
-
-            // CAR
-            DriveType = d?.Car?.DriveType,
-            ZeroToHundred = d?.Car?.ZeroToHundred,
-            TopSpeed = d?.Car?.TopSpeed,
-            PersonCapacity = d?.Car?.PersonCapacity,
-            Rows = d?.Car?.Rows,
-            Doors = d?.Car?.Doors,
-            BootSpace = d?.Car?.BootSpace,
-            PoweredSteering = d?.Car?.PoweredSteering,
-            SteeringType = d?.Car?.SteeringType,
-            HasSpareWheel = d?.Car?.HasSpareWheel,
-            Airbags = d?.Car?.Airbags,
-            HillAssist = d?.Car?.HillAssist,
-            RearViewCamera = d?.Car?.RearViewCamera,
-            ParkingSensors = d?.Car?.ParkingSensors,
-            CruiseControl = d?.Car?.CruiseControl,
-            CarDisplaySize = d?.Car?.DisplaySize,
-            CarBluetooth = d?.Car?.Bluetooth,
-            CarNavigation = d?.Car?.Navigation,
-            CarSmartConnectivity = d?.Car?.SmartConnectivity
+            "bike" => VehicleKind.Bike,
+            "car" => VehicleKind.Car,
+            _ => throw new ArgumentException("VehicleType must be Bike or Car.")
         };
     }
 
-    // =====================================================
-    // BUILD DETAILS
-    // =====================================================
+    private static void ValidateCreatePayload(CreateVehicleRequest r)
+    {
+        if (string.IsNullOrWhiteSpace(r.VehicleType))
+            throw new ArgumentException("VehicleType is required.");
+    }
+
+    private static PowertrainKind DerivePowertrainOrThrow(CreateVehicleRequest r)
+    {
+        if (r.Ev != null) return PowertrainKind.Ev;
+        if (r.Engine != null) return PowertrainKind.Ice;
+        throw new ArgumentException("Powertrain cannot be derived.");
+    }
+
+    // ✅ FIXED: actually persist nested spec objects from request
     private static VehicleDetails BuildDetails(Vehicle vehicle, CreateVehicleRequest r)
     {
         return new VehicleDetails
         {
             Vehicle = vehicle,
 
-            // ✅ NEW
             Description = r.Description,
+            ColorsAvailableJson = r.ColorsAvailableJson,
+            WarrantyYears = r.WarrantyYears,
+            ServiceIntervalKm = r.ServiceIntervalKm,
 
             Engine = r.Engine == null ? null : new EngineSpecs
             {
@@ -388,13 +394,13 @@ public class VehicleService : IVehicleService
                 EngineDisplacement = r.Engine.EngineDisplacement,
                 InductionType = r.Engine.InductionType,
                 Emission = r.Engine.Emission,
+                FuelType = r.Engine.FuelType,
                 Power = r.Engine.Power,
                 PowerRpm = r.Engine.PowerRpm,
                 Torque = r.Engine.Torque,
                 TorqueRpm = r.Engine.TorqueRpm,
                 Mileage = r.Engine.Mileage,
-                Range = r.Engine.Range,
-                FuelType = r.Engine.FuelType
+                Range = r.Engine.Range
             },
 
             Ev = r.Ev == null ? null : new EvSpecs
@@ -413,9 +419,9 @@ public class VehicleService : IVehicleService
                 Length = r.Dimensions.Length,
                 Width = r.Dimensions.Width,
                 Height = r.Dimensions.Height,
-                Weight = r.Dimensions.Weight,
-                GroundClearance = r.Dimensions.GroundClearance,
                 WheelBase = r.Dimensions.WheelBase,
+                GroundClearance = r.Dimensions.GroundClearance,
+                Weight = r.Dimensions.Weight,
                 TurningRadius = r.Dimensions.TurningRadius
             },
 
@@ -466,46 +472,106 @@ public class VehicleService : IVehicleService
                 Bluetooth = r.Car.Bluetooth,
                 Navigation = r.Car.Navigation,
                 SmartConnectivity = r.Car.SmartConnectivity
+            }
+        };
+    }
+
+    private static VehicleDetailsDto MapDetailsToDto(VehicleDetails? d)
+    {
+        if (d is null) return new VehicleDetailsDto();
+
+        return new VehicleDetailsDto
+        {
+            Description = d.Description,
+            ColorsAvailableJson = d.ColorsAvailableJson,
+            WarrantyYears = d.WarrantyYears,
+            ServiceIntervalKm = d.ServiceIntervalKm,
+
+            Engine = d.Engine == null ? null : new EngineSpecsDto
+            {
+                EngineType = d.Engine.EngineType,
+                EngineDisplacement = d.Engine.EngineDisplacement,
+                InductionType = d.Engine.InductionType,
+                Emission = d.Engine.Emission,
+                FuelType = d.Engine.FuelType,
+                Power = d.Engine.Power,
+                PowerRpm = d.Engine.PowerRpm,
+                Torque = d.Engine.Torque,
+                TorqueRpm = d.Engine.TorqueRpm,
+                Mileage = d.Engine.Mileage,
+                Range = d.Engine.Range
             },
 
-            ColorsAvailableJson = r.ColorsAvailableJson,
-            WarrantyYears = r.WarrantyYears,
-            ServiceIntervalKm = r.ServiceIntervalKm
+            Ev = d.Ev == null ? null : new EvSpecsDto
+            {
+                BatteryCapacity = d.Ev.BatteryCapacity,
+                ChargingTimeFast = d.Ev.ChargingTimeFast,
+                ChargingTimeNormal = d.Ev.ChargingTimeNormal,
+                MotorPower = d.Ev.MotorPower,
+                MotorTorque = d.Ev.MotorTorque,
+                FastChargingPort = d.Ev.FastChargingPort,
+                Range = d.Ev.Range
+            },
+
+            Dimensions = d.Dimensions == null ? null : new DimensionsSpecsDto
+            {
+                Length = d.Dimensions.Length,
+                Width = d.Dimensions.Width,
+                Height = d.Dimensions.Height,
+                WheelBase = d.Dimensions.WheelBase,
+                GroundClearance = d.Dimensions.GroundClearance,
+                Weight = d.Dimensions.Weight,
+                TurningRadius = d.Dimensions.TurningRadius
+            },
+
+            Dynamics = d.Dynamics == null ? null : new TyresBrakesSuspensionSpecsDto
+            {
+                FrontType = d.Dynamics.FrontType,
+                BackType = d.Dynamics.BackType,
+                FrontBrake = d.Dynamics.FrontBrake,
+                BackBrake = d.Dynamics.BackBrake,
+                FrontSuspension = d.Dynamics.FrontSuspension,
+                RearSuspension = d.Dynamics.RearSuspension,
+                TyreSizeFront = d.Dynamics.TyreSizeFront,
+                TyreSizeBack = d.Dynamics.TyreSizeBack,
+                TyreType = d.Dynamics.TyreType,
+                WheelMaterial = d.Dynamics.WheelMaterial
+            },
+
+            Bike = d.Bike == null ? null : new BikeSpecsDto
+            {
+                NumberOfGears = d.Bike.NumberOfGears,
+                TankSize = d.Bike.TankSize,
+                Abs = d.Bike.Abs,
+                TractionControl = d.Bike.TractionControl,
+                DisplaySize = d.Bike.DisplaySize,
+                Bluetooth = d.Bike.Bluetooth,
+                Navigation = d.Bike.Navigation,
+                SmartConnectivity = d.Bike.SmartConnectivity
+            },
+
+            Car = d.Car == null ? null : new CarSpecsDto
+            {
+                DriveType = d.Car.DriveType,
+                ZeroToHundred = d.Car.ZeroToHundred,
+                TopSpeed = d.Car.TopSpeed,
+                PersonCapacity = d.Car.PersonCapacity,
+                Rows = d.Car.Rows,
+                Doors = d.Car.Doors,
+                BootSpace = d.Car.BootSpace,
+                PoweredSteering = d.Car.PoweredSteering,
+                SteeringType = d.Car.SteeringType,
+                HasSpareWheel = d.Car.HasSpareWheel,
+                Airbags = d.Car.Airbags,
+                HillAssist = d.Car.HillAssist,
+                RearViewCamera = d.Car.RearViewCamera,
+                ParkingSensors = d.Car.ParkingSensors,
+                CruiseControl = d.Car.CruiseControl,
+                DisplaySize = d.Car.DisplaySize,
+                Bluetooth = d.Car.Bluetooth,
+                Navigation = d.Car.Navigation,
+                SmartConnectivity = d.Car.SmartConnectivity
+            }
         };
-    }
-
-    // =====================================================
-    // HELPERS
-    // =====================================================
-    private static void NormalizeByKind(VehicleKind kind, VehicleDetails details)
-    {
-        if (kind == VehicleKind.Bike) details.Car = null;
-        if (kind == VehicleKind.Car) details.Bike = null;
-    }
-
-    private static VehicleKind ParseKindOrThrow(string? vehicleType)
-    {
-        if (string.IsNullOrWhiteSpace(vehicleType))
-            throw new ArgumentException("VehicleType is required.");
-
-        return vehicleType.Trim().ToLowerInvariant() switch
-        {
-            "bike" => VehicleKind.Bike,
-            "car" => VehicleKind.Car,
-            _ => throw new ArgumentException("VehicleType must be Bike or Car.")
-        };
-    }
-
-    private static void ValidateCreatePayload(CreateVehicleRequest r)
-    {
-        if (string.IsNullOrWhiteSpace(r.VehicleType))
-            throw new ArgumentException("VehicleType is required.");
-    }
-
-    private static PowertrainKind DerivePowertrainOrThrow(CreateVehicleRequest r)
-    {
-        if (r.Ev != null) return PowertrainKind.Ev;
-        if (r.Engine != null) return PowertrainKind.Ice;
-        throw new ArgumentException("Powertrain cannot be derived.");
     }
 }

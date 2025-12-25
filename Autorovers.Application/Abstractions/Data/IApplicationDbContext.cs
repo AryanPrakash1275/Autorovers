@@ -9,8 +9,14 @@ namespace Autorovers.Application.Abstractions.Data
     {
         DbSet<Autorovers.Domain.Users.User> Users { get; }
         DbSet<Autorovers.Domain.Todos.TodoItem> TodoItems { get; }
+
         DbSet<Vehicle> Vehicles { get; }
         DbSet<VehicleDetails> VehicleDetails { get; }
+
+        DbSet<VehicleVariant> VehicleVariants { get; }
+        DbSet<VariantAddon> VariantAddons { get; }
+        DbSet<VehicleVariantAddon> VehicleVariantAddons { get; }
+
         DbSet<T> Set<T>() where T : class;
         Task<int> SaveChangesAsync(CancellationToken ct = default);
     }

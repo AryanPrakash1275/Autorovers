@@ -1,12 +1,15 @@
-using System.Linq;
+﻿// Autorovers.Infrastructure/Persistence/Context/AutoroversDbContext.cs
+// FULL FILE — declares spec classes as OWNED via Fluent API (Domain stays EF-free)
+
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Autorovers.Application.Abstractions.Data;
-using Autorovers.Common;
 using Autorovers.Domain.Common; // AggregateRoot
-using DomainUsers = Autorovers.Domain.Users;
-using DomainTodos = Autorovers.Domain.Todos;
+using Autorovers.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using DomainEntities = Autorovers.Domain.Entities;
+using DomainTodos = Autorovers.Domain.Todos;
+using DomainUsers = Autorovers.Domain.Users;
 
 namespace Autorovers.Infrastructure.Persistence.Context
 {
@@ -17,25 +20,35 @@ namespace Autorovers.Infrastructure.Persistence.Context
 
         public DbSet<DomainUsers.User> Users => Set<DomainUsers.User>();
         public DbSet<DomainTodos.TodoItem> TodoItems => Set<DomainTodos.TodoItem>();
+
         public DbSet<DomainEntities.Vehicle> Vehicles => Set<DomainEntities.Vehicle>();
-        public DbSet<DomainEntities.Location> Locations => Set<DomainEntities.Location>();
         public DbSet<DomainEntities.VehicleDetails> VehicleDetails => Set<DomainEntities.VehicleDetails>();
+
+        public DbSet<VehicleVariant> VehicleVariants => Set<VehicleVariant>();
+        public DbSet<VariantAddon> VariantAddons => Set<VariantAddon>();
+        public DbSet<VehicleVariantAddon> VehicleVariantAddons => Set<VehicleVariantAddon>();
+
+        public DbSet<DomainEntities.Location> Locations => Set<DomainEntities.Location>();
         public DbSet<DomainEntities.UserDetails> UserDetails => Set<DomainEntities.UserDetails>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // ✅ Force these Domain spec classes to be owned/value objects (no PKs needed)
+            modelBuilder.Owned<EngineSpecs>();
+            modelBuilder.Owned<EvSpecs>();
+            modelBuilder.Owned<DimensionsSpecs>();
+            modelBuilder.Owned<TyresBrakesSuspensionSpecs>();
+            modelBuilder.Owned<BikeSpecs>();
+            modelBuilder.Owned<CarSpecs>();
+
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AutoroversDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
 
-        /// <summary>
-        /// Finds aggregates that have pending domain events.
-        /// Your DomainEventsDispatcher will read from this.
-        /// </summary>
         public IEnumerable<AggregateRoot> GetAggregatesWithEvents() =>
             ChangeTracker.Entries<AggregateRoot>()
-                         .Where(e => e.Entity.HasDomainEvents)
-                         .Select(e => e.Entity)
-                         .ToList();
+                .Where(e => e.Entity.HasDomainEvents)
+                .Select(e => e.Entity)
+                .ToList();
     }
 }
