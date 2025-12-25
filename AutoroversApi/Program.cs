@@ -92,7 +92,7 @@ builder.Services.AddSwaggerGen(c =>
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Description = "JWT Authorization header using the Bearer scheme",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.Http,
@@ -116,6 +116,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+/* =========================
+   CORS (FINAL + SAFE)
+   ========================= */
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendCors", cors =>
@@ -125,12 +128,17 @@ builder.Services.AddCors(options =>
             {
                 if (string.IsNullOrWhiteSpace(origin)) return false;
 
-                if (origin == "http://localhost:5173") return true;
+                if (origin.Equals("http://localhost:5173", StringComparison.OrdinalIgnoreCase))
+                    return true;
 
-                if (origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)) return true;
+                if (origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase))
+                    return true;
 
                 if (origin.Equals("https://autorovers.com", StringComparison.OrdinalIgnoreCase)) return true;
                 if (origin.Equals("https://www.autorovers.com", StringComparison.OrdinalIgnoreCase)) return true;
+
+                if (origin.Equals("https://autorovers.in", StringComparison.OrdinalIgnoreCase)) return true;
+                if (origin.Equals("https://www.autorovers.in", StringComparison.OrdinalIgnoreCase)) return true;
 
                 return false;
             })
