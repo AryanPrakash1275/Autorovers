@@ -5,7 +5,7 @@ using AutoroversApi.Endpoints;
 using AutoroversApi.Auth;
 using Autorovers.Infrastructure.Persistence.Context;
 
-using Autorovers.Application.Vehicles.Admin; // ✅ ADD THIS
+using Autorovers.Application.Vehicles.Admin;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -21,13 +21,10 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Optional, helps with some timestamp behavior in Npgsql
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// Detect Render platform
 var isRender = Environment.GetEnvironmentVariable("RENDER") == "true";
 
-// ========== Serilog ==========
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
@@ -36,14 +33,11 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// ========== Application & Infrastructure ==========
 AppDI.AddApplication(builder.Services);
 InfraDI.AddInfrastructure(builder.Services, builder.Configuration);
 
-// ✅ ADD THIS (Admin Variants DI)
 builder.Services.AddScoped<IVariantAdminService, VariantAdminService>();
 
-// ========== JWT AUTH CONFIG ==========
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key is missing");
 
@@ -55,26 +49,22 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false; // dev; Render will be behind HTTPS anyway
+        options.RequireHttpsMetadata = false;
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-
             ValidateIssuer = true,
             ValidIssuer = jwtSection["Issuer"],
-
             ValidateAudience = true,
             ValidAudience = jwtSection["Audience"],
-
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(1),
             RoleClaimType = ClaimTypes.Role
         };
     });
 
-// ========== AUTHORIZATION POLICIES ==========
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy =>
@@ -84,12 +74,10 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-// ========== MVC / Swagger ==========
 builder.Services
     .AddControllers()
     .AddJsonOptions(o =>
     {
-        // This removes all "field": null from your API responses
         o.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
 
@@ -102,7 +90,6 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1"
     });
 
-    // ---- JWT Bearer for Swagger ----
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
@@ -129,16 +116,24 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ========== CORS (relaxed for initial deploy) ==========
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendCors", cors =>
     {
         cors
-            .WithOrigins(
-                "https://autorovers-frontend-public.vercel.app",
-                "http://localhost:5173"
-            )
+            .SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrWhiteSpace(origin)) return false;
+
+                if (origin == "http://localhost:5173") return true;
+
+                if (origin.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)) return true;
+
+                if (origin.Equals("https://autorovers.com", StringComparison.OrdinalIgnoreCase)) return true;
+                if (origin.Equals("https://www.autorovers.com", StringComparison.OrdinalIgnoreCase)) return true;
+
+                return false;
+            })
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -146,10 +141,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ========== APPLY DB MIGRATIONS ON STARTUP (SAFE) ==========
-// Default behavior:
-// - Development: migrate automatically
-// - Production: migrate ONLY when RUN_MIGRATIONS=true is set in env/config
 var runMigrations = builder.Configuration.GetValue<bool>("RUN_MIGRATIONS");
 
 if (app.Environment.IsDevelopment() || runMigrations)
@@ -159,7 +150,6 @@ if (app.Environment.IsDevelopment() || runMigrations)
     db.Database.Migrate();
 }
 
-// ========== AUTH LOGIN ENDPOINT ==========
 app.MapPost("/api/auth/login", (LoginRequest login, IConfiguration config) =>
 {
     var adminSection = config.GetSection("Admin");
@@ -203,14 +193,12 @@ app.MapPost("/api/auth/login", (LoginRequest login, IConfiguration config) =>
     });
 });
 
-// ========== Swagger ==========
 if (app.Environment.IsDevelopment() || isRender)
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// ========== PIPELINE ==========
 app.UseSerilogRequestLogging();
 
 app.UseCors("FrontendCors");
