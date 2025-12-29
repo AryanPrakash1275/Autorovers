@@ -21,6 +21,9 @@ public sealed class VehicleWithDetailsDto
     public string? Slug { get; init; }
     public string? ImageUrl { get; init; }
 
+    public string VehicleType { get; init; } = null!;
+    public string FuelType { get; init; } = null!;
+
     public VehicleDetailsDto Details { get; init; } = new();
 
     public List<VehicleVariantDto> Variants { get; init; } = new();

@@ -1,14 +1,18 @@
-﻿// Autorovers.Application/Vehicles/IVehicleService.cs
-namespace Autorovers.Application.Vehicles;
+﻿namespace Autorovers.Application.Vehicles;
+
+using Autorovers.Common;
 
 public interface IVehicleService
 {
     Task<int> CreateVehicleAsync(CreateVehicleRequest request);
 
-    // REAL bulk (one SaveChanges)
     Task<IReadOnlyList<int>> BulkCreateAsync(List<CreateVehicleRequest> requests);
 
     Task<IReadOnlyList<VehicleListItemDto>> GetAllAsync();
+
+    Task<PagedResult<VehicleListItemDto>> GetPublicVehiclesAsync(
+        PublicVehiclesQueryParams query,
+        CancellationToken ct = default);
 
     Task<VehicleListItemDto?> GetByIdAsync(int id);
 

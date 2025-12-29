@@ -1,15 +1,23 @@
 ﻿namespace Autorovers.Application.Vehicles;
 
-public class VehicleListItemDto
+public sealed class VehicleListItemDto
 {
-    public int Id { get; set; }
-    public string Brand { get; set; } = null!;
-    public string Model { get; set; } = null!;
-    public string? Variant { get; set; } = null!;
-    public int Year { get; set; }
-    public int Price { get; set; }
-    public string Category { get; set; } = null!;
-    public string Transmission { get; set; } = null!;
-    public string? Slug { get; set; }
+    public int Id { get; init; }
+
+    public string Brand { get; init; } = null!;
+    public string Model { get; init; } = null!;
+    public string? Variant { get; init; }
+
+    public int Year { get; init; }
+    public decimal Price { get; init; }
+
+    public string Category { get; init; } = null!;
+    public string Transmission { get; init; } = null!;
+
+    public string Slug { get; init; } = null!;
     public string? ImageUrl { get; init; }
+
+    // Added: blockers removal for frontend (compare/filter/type gating)
+    public string VehicleType { get; init; } = null!; // "bike" | "car"
+    public string FuelType { get; init; } = null!;    // "EV" | "Hybrid" | "Petrol" | "Diesel" | ...
 }

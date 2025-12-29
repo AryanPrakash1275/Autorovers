@@ -1,4 +1,5 @@
 ﻿using Autorovers.Application.Abstractions.Data;
+using Autorovers.Common;
 using Autorovers.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,9 +14,6 @@ public class VehicleService : IVehicleService
         _db = db;
     }
 
-    // =====================================================
-    // CREATE (single)
-    // =====================================================
     public async Task<int> CreateVehicleAsync(CreateVehicleRequest r)
     {
         ValidateCreatePayload(r);
@@ -44,7 +42,6 @@ public class VehicleService : IVehicleService
         var details = BuildDetails(vehicle, r);
         NormalizeByKind(vehicle.Kind, details);
 
-        // if EV, engine must be null
         if (vehicle.Powertrain == PowertrainKind.Ev)
             details.Engine = null;
 
@@ -55,9 +52,6 @@ public class VehicleService : IVehicleService
         return vehicle.Id;
     }
 
-    // =====================================================
-    // CREATE (bulk)
-    // =====================================================
     public async Task<IReadOnlyList<int>> BulkCreateAsync(List<CreateVehicleRequest> requests)
     {
         if (requests == null || requests.Count == 0)
@@ -108,9 +102,6 @@ public class VehicleService : IVehicleService
         return vehicles.Select(v => v.Id).ToList();
     }
 
-    // =====================================================
-    // READ LIST
-    // =====================================================
     public async Task<IReadOnlyList<VehicleListItemDto>> GetAllAsync()
     {
         return await _db.Vehicles
@@ -136,9 +127,130 @@ public class VehicleService : IVehicleService
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
-                ImageUrl = v.ImageUrl
+                ImageUrl = v.ImageUrl,
+
+                VehicleType = v.Kind == VehicleKind.Bike ? "bike" : "car",
+
+                FuelType =
+                    v.Powertrain == PowertrainKind.Ev ? "EV" :
+                    v.Powertrain == PowertrainKind.Hybrid ? "Hybrid" :
+                    v.Powertrain == PowertrainKind.Ice
+                        ? (v.Details != null && v.Details.Engine != null && v.Details.Engine.FuelType != null
+                            ? v.Details.Engine.FuelType
+                            : "ICE")
+                        : "ICE"
             })
             .ToListAsync();
+    }
+
+    public async Task<PagedResult<VehicleListItemDto>> GetPublicVehiclesAsync(
+        PublicVehiclesQueryParams query,
+        CancellationToken ct = default)
+    {
+        var page = query.Page < 1 ? 1 : query.Page;
+        var pageSize = query.PageSize < 1 ? 24 : query.PageSize;
+        if (pageSize > 100) pageSize = 100;
+
+        var q = _db.Vehicles
+            .AsNoTracking()
+            .Select(v => new
+            {
+                v.Id,
+                Brand = v.Brand!,
+                Model = v.Model!,
+                v.Year,
+
+                Price =
+                    v.Variants
+                        .Where(vr => vr.IsActive && vr.ExShowroomPrice != null)
+                        .OrderByDescending(vr => vr.IsDefault)
+                        .ThenBy(vr => vr.ExShowroomPrice)
+                        .Select(vr => (int?)vr.ExShowroomPrice)
+                        .FirstOrDefault()
+                    ?? v.StartingPrice
+                    ?? 0,
+
+                Category = v.Category!,
+                Transmission = v.Transmission!,
+                v.Slug,
+                v.ImageUrl,
+
+                VehicleType = v.Kind == VehicleKind.Bike ? "bike" : "car",
+
+                FuelType =
+                    v.Powertrain == PowertrainKind.Ev ? "EV" :
+                    v.Powertrain == PowertrainKind.Hybrid ? "Hybrid" :
+                    v.Powertrain == PowertrainKind.Ice
+                        ? (v.Details != null && v.Details.Engine != null && v.Details.Engine.FuelType != null
+                            ? v.Details.Engine.FuelType
+                            : "ICE")
+                        : "ICE"
+            });
+
+        if (!string.IsNullOrWhiteSpace(query.Brand))
+        {
+            var brand = query.Brand.Trim();
+            q = q.Where(x => x.Brand == brand);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Category))
+        {
+            var category = query.Category.Trim();
+            q = q.Where(x => x.Category == category);
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.FuelType))
+        {
+            var fuelType = query.FuelType.Trim();
+            q = q.Where(x => x.FuelType == fuelType);
+        }
+
+        if (query.MinPrice.HasValue)
+            q = q.Where(x => x.Price >= query.MinPrice.Value);
+
+        if (query.MaxPrice.HasValue)
+            q = q.Where(x => x.Price <= query.MaxPrice.Value);
+
+        var totalCount = await q.CountAsync(ct);
+
+        q = (query.Sort ?? "").Trim() switch
+        {
+            "priceAsc" => q.OrderBy(x => x.Price),
+            "priceDesc" => q.OrderByDescending(x => x.Price),
+            "yearAsc" => q.OrderBy(x => x.Year),
+            "yearDesc" => q.OrderByDescending(x => x.Year),
+            "brandAsc" => q.OrderBy(x => x.Brand).ThenBy(x => x.Model),
+            _ => q.OrderByDescending(x => x.Year).ThenBy(x => x.Brand).ThenBy(x => x.Model),
+        };
+
+        var skip = (page - 1) * pageSize;
+
+        var items = await q
+            .Skip(skip)
+            .Take(pageSize)
+            .Select(x => new VehicleListItemDto
+            {
+                Id = x.Id,
+                Brand = x.Brand,
+                Model = x.Model,
+                Year = x.Year,
+                Price = x.Price,
+                Category = x.Category,
+                Transmission = x.Transmission,
+                Slug = x.Slug,
+                ImageUrl = x.ImageUrl,
+                VehicleType = x.VehicleType,
+                FuelType = x.FuelType
+            })
+            .ToListAsync(ct);
+
+        return new PagedResult<VehicleListItemDto>
+        {
+            Items = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<VehicleListItemDto?> GetByIdAsync(int id)
@@ -165,7 +277,18 @@ public class VehicleService : IVehicleService
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
-                ImageUrl = v.ImageUrl
+                ImageUrl = v.ImageUrl,
+
+                VehicleType = v.Kind == VehicleKind.Bike ? "bike" : "car",
+
+                FuelType =
+                    v.Powertrain == PowertrainKind.Ev ? "EV" :
+                    v.Powertrain == PowertrainKind.Hybrid ? "Hybrid" :
+                    v.Powertrain == PowertrainKind.Ice
+                        ? (v.Details != null && v.Details.Engine != null && v.Details.Engine.FuelType != null
+                            ? v.Details.Engine.FuelType
+                            : "ICE")
+                        : "ICE"
             })
             .FirstOrDefaultAsync();
     }
@@ -194,14 +317,22 @@ public class VehicleService : IVehicleService
                 Category = v.Category!,
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
-                ImageUrl = v.ImageUrl
+                ImageUrl = v.ImageUrl,
+
+                VehicleType = v.Kind == VehicleKind.Bike ? "bike" : "car",
+
+                FuelType =
+                    v.Powertrain == PowertrainKind.Ev ? "EV" :
+                    v.Powertrain == PowertrainKind.Hybrid ? "Hybrid" :
+                    v.Powertrain == PowertrainKind.Ice
+                        ? (v.Details != null && v.Details.Engine != null && v.Details.Engine.FuelType != null
+                            ? v.Details.Engine.FuelType
+                            : "ICE")
+                        : "ICE"
             })
             .FirstOrDefaultAsync();
     }
 
-    // =====================================================
-    // UPDATE CORE
-    // =====================================================
     public async Task UpdateVehicleAsync(int id, UpdateVehicleRequest request)
     {
         var entity = await _db.Vehicles.FirstOrDefaultAsync(v => v.Id == id);
@@ -231,9 +362,6 @@ public class VehicleService : IVehicleService
         return true;
     }
 
-    // =====================================================
-    // READ WITH DETAILS + VARIANTS
-    // =====================================================
     public async Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id)
     {
         return await _db.Vehicles
@@ -249,6 +377,17 @@ public class VehicleService : IVehicleService
                 Transmission = v.Transmission!,
                 Slug = v.Slug,
                 ImageUrl = v.ImageUrl,
+
+                VehicleType = v.Kind == VehicleKind.Bike ? "bike" : "car",
+
+                FuelType =
+                    v.Powertrain == PowertrainKind.Ev ? "EV" :
+                    v.Powertrain == PowertrainKind.Hybrid ? "Hybrid" :
+                    v.Powertrain == PowertrainKind.Ice
+                        ? (v.Details != null && v.Details.Engine != null && v.Details.Engine.FuelType != null
+                            ? v.Details.Engine.FuelType
+                            : "ICE")
+                        : "ICE",
 
                 Details = MapDetailsToDto(v.Details),
 
@@ -294,6 +433,17 @@ public class VehicleService : IVehicleService
                 Slug = v.Slug,
                 ImageUrl = v.ImageUrl,
 
+                VehicleType = v.Kind == VehicleKind.Bike ? "bike" : "car",
+
+                FuelType =
+                    v.Powertrain == PowertrainKind.Ev ? "EV" :
+                    v.Powertrain == PowertrainKind.Hybrid ? "Hybrid" :
+                    v.Powertrain == PowertrainKind.Ice
+                        ? (v.Details != null && v.Details.Engine != null && v.Details.Engine.FuelType != null
+                            ? v.Details.Engine.FuelType
+                            : "ICE")
+                        : "ICE",
+
                 Details = MapDetailsToDto(v.Details),
 
                 Variants = v.Variants
@@ -322,9 +472,6 @@ public class VehicleService : IVehicleService
             .FirstOrDefaultAsync();
     }
 
-    // =====================================================
-    // UPDATE DETAILS
-    // =====================================================
     public async Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req)
     {
         var details = await _db.VehicleDetails
@@ -341,9 +488,6 @@ public class VehicleService : IVehicleService
         await _db.SaveChangesAsync();
     }
 
-    // =====================================================
-    // HELPERS
-    // =====================================================
     private static void NormalizeByKind(VehicleKind kind, VehicleDetails details)
     {
         if (kind == VehicleKind.Bike) details.Car = null;
@@ -376,7 +520,6 @@ public class VehicleService : IVehicleService
         throw new ArgumentException("Powertrain cannot be derived.");
     }
 
-    // ✅ FIXED: actually persist nested spec objects from request
     private static VehicleDetails BuildDetails(Vehicle vehicle, CreateVehicleRequest r)
     {
         return new VehicleDetails

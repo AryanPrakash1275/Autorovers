@@ -1,9 +1,9 @@
 ﻿using Autorovers.Application.Vehicles;
+using Autorovers.Common;
 using Microsoft.AspNetCore.Mvc;
-// using whatever namespace your service/DTOs live in
 
 [ApiController]
-[Route("api/Vehicles")] // → /api/Vehicles
+[Route("api/Vehicles")]
 public class VehiclesController : ControllerBase
 {
     private readonly IVehicleService _vehicleService;
@@ -13,14 +13,15 @@ public class VehiclesController : ControllerBase
         _vehicleService = vehicleService;
     }
 
-    // GET: /api/Vehicles
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<PagedResult<VehicleListItemDto>>> GetAll(
+        [FromQuery] PublicVehiclesQueryParams query,
+        CancellationToken ct)
     {
-        var vehicles = await _vehicleService.GetAllAsync();
-        return Ok(vehicles);
+        var result = await _vehicleService.GetPublicVehiclesAsync(query, ct);
+        return Ok(result);
     }
-    // GET: /api/Vehicles/{id}  → FULL DETAILS
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
