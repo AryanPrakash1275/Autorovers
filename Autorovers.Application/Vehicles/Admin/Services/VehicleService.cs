@@ -480,10 +480,151 @@ public class VehicleService : IVehicleService
 
         if (details is null) throw new KeyNotFoundException();
 
+        // Optional strict check (prevents wrong-type edits)
+        if (!string.IsNullOrWhiteSpace(req.VehicleType))
+        {
+            var requestedKind = ParseKindOrThrow(req.VehicleType);
+            if (details.Vehicle.Kind != requestedKind)
+                throw new ArgumentException("VehicleType mismatch for this vehicle.");
+        }
+
+        // ===== META (replace if provided) =====
+        if (req.Description is not null) details.Description = req.Description;
         if (req.ColorsAvailableJson is not null) details.ColorsAvailableJson = req.ColorsAvailableJson;
         if (req.WarrantyYears.HasValue) details.WarrantyYears = req.WarrantyYears;
         if (req.ServiceIntervalKm.HasValue) details.ServiceIntervalKm = req.ServiceIntervalKm;
-        if (req.Description is not null) details.Description = req.Description;
+
+        // Canonical normalization by entity kind
+        NormalizeByKind(details.Vehicle.Kind, details);
+
+        var powertrain = details.Vehicle.Powertrain;
+
+        // ===== ENGINE =====
+        if (req.Engine is not null)
+        {
+            if (powertrain == PowertrainKind.Ev)
+            {
+                // EV must never keep ICE engine specs
+                details.Engine = null;
+            }
+            else
+            {
+                details.Engine ??= new EngineSpecs();
+                details.Engine.EngineType = req.Engine.EngineType;
+                details.Engine.EngineDisplacement = req.Engine.EngineDisplacement;
+                details.Engine.InductionType = req.Engine.InductionType;
+                details.Engine.Emission = req.Engine.Emission;
+                details.Engine.Power = req.Engine.Power;
+                details.Engine.PowerRpm = req.Engine.PowerRpm;
+                details.Engine.Torque = req.Engine.Torque;
+                details.Engine.TorqueRpm = req.Engine.TorqueRpm;
+                details.Engine.Mileage = req.Engine.Mileage;
+                details.Engine.Range = req.Engine.Range;
+                details.Engine.FuelType = req.Engine.FuelType;
+            }
+        }
+        else if (powertrain == PowertrainKind.Ev)
+        {
+            // Invariant enforcement even if client omitted Engine
+            details.Engine = null;
+        }
+
+        // ===== EV =====
+        if (req.Ev is not null)
+        {
+            details.Ev ??= new EvSpecs();
+            details.Ev.BatteryCapacity = req.Ev.BatteryCapacity;
+            details.Ev.ChargingTimeFast = req.Ev.ChargingTimeFast;
+            details.Ev.ChargingTimeNormal = req.Ev.ChargingTimeNormal;
+            details.Ev.MotorPower = req.Ev.MotorPower;
+            details.Ev.MotorTorque = req.Ev.MotorTorque;
+            details.Ev.FastChargingPort = req.Ev.FastChargingPort;
+            details.Ev.Range = req.Ev.Range;
+        }
+
+        // Optional: stricter invariants (uncomment if you want hard enforcement)
+        // if (powertrain == PowertrainKind.Ev && details.Ev is null)
+        //     throw new ArgumentException("EV vehicles must include Ev specs.");
+
+        // ===== DIMENSIONS =====
+        if (req.Dimensions is not null)
+        {
+            details.Dimensions ??= new DimensionsSpecs();
+            details.Dimensions.Length = req.Dimensions.Length;
+            details.Dimensions.Width = req.Dimensions.Width;
+            details.Dimensions.Height = req.Dimensions.Height;
+            details.Dimensions.WheelBase = req.Dimensions.WheelBase;
+            details.Dimensions.GroundClearance = req.Dimensions.GroundClearance;
+            details.Dimensions.Weight = req.Dimensions.Weight;
+            details.Dimensions.TurningRadius = req.Dimensions.TurningRadius;
+        }
+
+        // ===== DYNAMICS =====
+        if (req.Dynamics is not null)
+        {
+            details.Dynamics ??= new TyresBrakesSuspensionSpecs();
+            details.Dynamics.FrontType = req.Dynamics.FrontType;
+            details.Dynamics.BackType = req.Dynamics.BackType;
+            details.Dynamics.FrontBrake = req.Dynamics.FrontBrake;
+            details.Dynamics.BackBrake = req.Dynamics.BackBrake;
+            details.Dynamics.FrontSuspension = req.Dynamics.FrontSuspension;
+            details.Dynamics.RearSuspension = req.Dynamics.RearSuspension;
+            details.Dynamics.TyreSizeFront = req.Dynamics.TyreSizeFront;
+            details.Dynamics.TyreSizeBack = req.Dynamics.TyreSizeBack;
+            details.Dynamics.TyreType = req.Dynamics.TyreType;
+            details.Dynamics.WheelMaterial = req.Dynamics.WheelMaterial;
+        }
+
+        // ===== BIKE =====
+        if (details.Vehicle.Kind == VehicleKind.Bike)
+        {
+            if (req.Bike is not null)
+            {
+                details.Bike ??= new BikeSpecs();
+                details.Bike.NumberOfGears = req.Bike.NumberOfGears;
+                details.Bike.TankSize = req.Bike.TankSize;
+                details.Bike.Abs = req.Bike.Abs;
+                details.Bike.TractionControl = req.Bike.TractionControl;
+                details.Bike.DisplaySize = req.Bike.DisplaySize;
+                details.Bike.Bluetooth = req.Bike.Bluetooth;
+                details.Bike.Navigation = req.Bike.Navigation;
+                details.Bike.SmartConnectivity = req.Bike.SmartConnectivity;
+            }
+
+            // Hard invariant
+            details.Car = null;
+        }
+
+        // ===== CAR =====
+        if (details.Vehicle.Kind == VehicleKind.Car)
+        {
+            if (req.Car is not null)
+            {
+                details.Car ??= new CarSpecs();
+                details.Car.DriveType = req.Car.DriveType;
+                details.Car.ZeroToHundred = req.Car.ZeroToHundred;
+                details.Car.TopSpeed = req.Car.TopSpeed;
+                details.Car.PersonCapacity = req.Car.PersonCapacity;
+                details.Car.Rows = req.Car.Rows;
+                details.Car.Doors = req.Car.Doors;
+                details.Car.BootSpace = req.Car.BootSpace;
+                details.Car.PoweredSteering = req.Car.PoweredSteering;
+                details.Car.SteeringType = req.Car.SteeringType;
+                details.Car.HasSpareWheel = req.Car.HasSpareWheel;
+                details.Car.Airbags = req.Car.Airbags;
+                details.Car.HillAssist = req.Car.HillAssist;
+                details.Car.RearViewCamera = req.Car.RearViewCamera;
+                details.Car.ParkingSensors = req.Car.ParkingSensors;
+                details.Car.CruiseControl = req.Car.CruiseControl;
+                details.Car.DisplaySize = req.Car.DisplaySize;
+                details.Car.Bluetooth = req.Car.Bluetooth;
+                details.Car.Navigation = req.Car.Navigation;
+                details.Car.SmartConnectivity = req.Car.SmartConnectivity;
+            }
+
+            // Hard invariant
+            details.Bike = null;
+        }
 
         await _db.SaveChangesAsync();
     }
