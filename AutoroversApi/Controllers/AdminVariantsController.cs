@@ -16,9 +16,6 @@ public class AdminVariantsController : ControllerBase
         _svc = svc;
     }
 
-    // -------------------------
-    // Variants
-    // -------------------------
     [HttpGet("Vehicles/{vehicleId:int}/variants")]
     public async Task<IActionResult> GetVehicleVariants(int vehicleId)
     {
@@ -47,9 +44,6 @@ public class AdminVariantsController : ControllerBase
         return NoContent();
     }
 
-    // -------------------------
-    // Addons (catalog)
-    // -------------------------
     [HttpGet("Addons")]
     public async Task<IActionResult> GetAllAddons()
     {
@@ -78,11 +72,11 @@ public class AdminVariantsController : ControllerBase
         return NoContent();
     }
 
-    // -------------------------
-    // Link addon ↔ variant
-    // -------------------------
     [HttpPost("Variants/{variantId:int}/addons/{addonId:int}")]
-    public async Task<IActionResult> UpsertVariantAddonLink(int variantId, int addonId, [FromBody] UpsertVariantAddonLinkRequest req)
+    public async Task<IActionResult> UpsertVariantAddonLink(
+        int variantId,
+        int addonId,
+        [FromBody] UpsertVariantAddonLinkRequest req)
     {
         await _svc.UpsertAddonLinkAsync(variantId, addonId, req);
         return NoContent();

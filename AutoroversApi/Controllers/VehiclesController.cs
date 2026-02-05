@@ -2,6 +2,8 @@
 using Autorovers.Common;
 using Microsoft.AspNetCore.Mvc;
 
+namespace AutoroversApi.Controllers;
+
 [ApiController]
 [Route("api/Vehicles")]
 public class VehiclesController : ControllerBase
@@ -26,15 +28,13 @@ public class VehiclesController : ControllerBase
     public async Task<IActionResult> Get(int id)
     {
         var vehicle = await _vehicleService.GetWithDetailsByIdAsync(id);
-        if (vehicle == null) return NotFound();
-        return Ok(vehicle);
+        return vehicle is null ? NotFound() : Ok(vehicle);
     }
 
     [HttpGet("slug/{slug}")]
     public async Task<IActionResult> GetBySlug(string slug)
     {
         var vehicle = await _vehicleService.GetWithDetailsBySlugAsync(slug);
-        if (vehicle is null) return NotFound();
-        return Ok(vehicle);
+        return vehicle is null ? NotFound() : Ok(vehicle);
     }
 }
