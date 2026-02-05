@@ -1,10 +1,10 @@
+using Autorovers.Application.Abstractions.Exceptions;
+using AutoroversApi.Contracts;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
 
 namespace AutoroversApi.Infrastructure;
 
-internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
-    : IExceptionHandler
+internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
@@ -13,16 +13,65 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
     {
         logger.LogError(exception, "Unhandled exception occurred");
 
-        var problemDetails = new ProblemDetails
+        if (exception is ValidationException vex)
         {
-            Status = StatusCodes.Status500InternalServerError,
-            Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
-            Title = "Server failure"
-        };
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
 
-        httpContext.Response.StatusCode = problemDetails.Status.Value;
+            await httpContext.Response.WriteAsJsonAsync(
+                ApiErrors.From(
+                    code: "validation_failed",
+                    message: vex.Message,
+                    errors: vex.Errors is null
+                        ? null
+                        : new Dictionary<string, string[]>(vex.Errors),
+                    traceId: httpContext.TraceIdentifier
+                ),
+                cancellationToken
+            );
 
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            return true;
+        }
+
+        if (exception is NotFoundException nf)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            await httpContext.Response.WriteAsJsonAsync(
+                ApiErrors.From(
+                    code: "not_found",
+                    message: nf.Message,
+                    errors: null,
+                    traceId: httpContext.TraceIdentifier
+                ),
+                cancellationToken
+            );
+            return true;
+        }
+
+        if (exception is ForbiddenAccessException fb)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await httpContext.Response.WriteAsJsonAsync(
+                ApiErrors.From(
+                    code: "forbidden",
+                    message: fb.Message,
+                    errors: null,
+                    traceId: httpContext.TraceIdentifier
+                ),
+                cancellationToken
+            );
+            return true;
+        }
+
+        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await httpContext.Response.WriteAsJsonAsync(
+            ApiErrors.From(
+                code: "server_error",
+                message: "Server failure.",
+                errors: null,
+                traceId: httpContext.TraceIdentifier
+            ),
+            cancellationToken
+        );
 
         return true;
     }
