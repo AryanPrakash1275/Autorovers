@@ -16,6 +16,8 @@ namespace Autorovers.Application.Abstractions.Data
         DbSet<VehicleVariant> VehicleVariants { get; }
         DbSet<VariantAddon> VariantAddons { get; }
         DbSet<VehicleVariantAddon> VehicleVariantAddons { get; }
+        DbSet<Autorovers.Domain.Entities.FieldDefinition> FieldDefinitions { get; }
+        DbSet<Autorovers.Domain.Entities.VariantFeature> VariantFeatures { get; }
 
         DbSet<T> Set<T>() where T : class;
         Task<int> SaveChangesAsync(CancellationToken ct = default);
