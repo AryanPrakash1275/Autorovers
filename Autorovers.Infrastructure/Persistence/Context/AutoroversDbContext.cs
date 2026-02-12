@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using Autorovers.Application.Abstractions.Data;
 using Autorovers.Domain.Common;
 using Autorovers.Domain.Entities;
@@ -24,6 +25,10 @@ public sealed class AutoroversDbContext : DbContext, IApplicationDbContext
     public DbSet<VehicleVariant> VehicleVariants => Set<VehicleVariant>();
     public DbSet<VariantAddon> VariantAddons => Set<VariantAddon>();
     public DbSet<VehicleVariantAddon> VehicleVariantAddons => Set<VehicleVariantAddon>();
+
+    public DbSet<DomainEntities.FieldDefinition> FieldDefinitions => Set<DomainEntities.FieldDefinition>();
+    public DbSet<DomainEntities.VariantFeature> VariantFeatures => Set<DomainEntities.VariantFeature>();
+
 
     public DbSet<DomainEntities.Location> Locations => Set<DomainEntities.Location>();
     public DbSet<DomainEntities.UserDetails> UserDetails => Set<DomainEntities.UserDetails>();
