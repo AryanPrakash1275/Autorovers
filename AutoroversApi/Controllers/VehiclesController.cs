@@ -37,4 +37,15 @@ public class VehiclesController : ControllerBase
         var vehicle = await _vehicleService.GetWithDetailsBySlugAsync(slug);
         return vehicle is null ? NotFound() : Ok(vehicle);
     }
+
+    // Variant details by (vehicleSlug, variantSlug)
+    [HttpGet("slug/{vehicleSlug}/variants/{variantSlug}")]
+    public async Task<IActionResult> GetVariantBySlug(
+        string vehicleSlug,
+        string variantSlug,
+        CancellationToken ct)
+    {
+        var variant = await _vehicleService.GetPublicVariantBySlugAsync(vehicleSlug, variantSlug, ct);
+        return variant is null ? NotFound() : Ok(variant);
+    }
 }

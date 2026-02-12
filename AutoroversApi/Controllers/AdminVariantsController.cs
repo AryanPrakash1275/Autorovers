@@ -1,4 +1,5 @@
-﻿using Autorovers.Application.Vehicles.Admin;
+﻿using Autorovers.Application.Abstractions.Exceptions;
+using Autorovers.Application.Vehicles.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,6 +27,7 @@ public class AdminVariantsController : ControllerBase
     [HttpPost("Vehicles/{vehicleId:int}/variants")]
     public async Task<IActionResult> CreateVariant(int vehicleId, [FromBody] CreateVehicleVariantRequest req)
     {
+        ThrowIfModelInvalid();
         var id = await _svc.CreateVariantAsync(vehicleId, req);
         return Ok(new { id });
     }
@@ -33,6 +35,7 @@ public class AdminVariantsController : ControllerBase
     [HttpPut("Variants/{variantId:int}")]
     public async Task<IActionResult> UpdateVariant(int variantId, [FromBody] UpdateVehicleVariantRequest req)
     {
+        ThrowIfModelInvalid();
         await _svc.UpdateVariantAsync(variantId, req);
         return NoContent();
     }
@@ -54,6 +57,7 @@ public class AdminVariantsController : ControllerBase
     [HttpPost("Addons")]
     public async Task<IActionResult> CreateAddon([FromBody] CreateVariantAddonRequest req)
     {
+        ThrowIfModelInvalid();
         var id = await _svc.CreateAddonAsync(req);
         return Ok(new { id });
     }
@@ -61,6 +65,7 @@ public class AdminVariantsController : ControllerBase
     [HttpPut("Addons/{addonId:int}")]
     public async Task<IActionResult> UpdateAddon(int addonId, [FromBody] UpdateVariantAddonRequest req)
     {
+        ThrowIfModelInvalid();
         await _svc.UpdateAddonAsync(addonId, req);
         return NoContent();
     }
@@ -78,6 +83,7 @@ public class AdminVariantsController : ControllerBase
         int addonId,
         [FromBody] UpsertVariantAddonLinkRequest req)
     {
+        ThrowIfModelInvalid();
         await _svc.UpsertAddonLinkAsync(variantId, addonId, req);
         return NoContent();
     }
@@ -87,5 +93,21 @@ public class AdminVariantsController : ControllerBase
     {
         await _svc.RemoveAddonLinkAsync(variantId, addonId);
         return NoContent();
+    }
+
+    private void ThrowIfModelInvalid()
+    {
+        if (ModelState.IsValid) return;
+
+        var errors = ModelState
+            .Where(kvp => kvp.Value is not null && kvp.Value.Errors.Count > 0)
+            .ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value!.Errors
+                    .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Invalid value." : e.ErrorMessage)
+                    .ToArray()
+            );
+
+        throw new ValidationException("Validation failed.", errors);
     }
 }

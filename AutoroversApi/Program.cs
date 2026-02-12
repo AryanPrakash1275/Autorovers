@@ -1,8 +1,9 @@
 ﻿using AppDI = Autorovers.Application.DependencyInjection;
 using InfraDI = Autorovers.Infrastructure.DependencyInjection;
 
-using AutoroversApi.Endpoints;
 using AutoroversApi.Auth;
+using AutoroversApi.Endpoints;
+using AutoroversApi.Infrastructure;
 using Autorovers.Infrastructure.Persistence.Context;
 
 using Autorovers.Application.Vehicles.Admin;
@@ -37,6 +38,9 @@ AppDI.AddApplication(builder.Services);
 InfraDI.AddInfrastructure(builder.Services, builder.Configuration);
 
 builder.Services.AddScoped<IVariantAdminService, VariantAdminService>();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key is missing");
@@ -116,9 +120,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-/* =========================
-   CORS (FINAL + SAFE)
-   ========================= */
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("FrontendCors", cors =>
@@ -208,6 +209,7 @@ if (app.Environment.IsDevelopment() || isRender)
 }
 
 app.UseSerilogRequestLogging();
+app.UseExceptionHandler();
 
 app.UseCors("FrontendCors");
 

@@ -1,4 +1,5 @@
-﻿using Autorovers.Application.Vehicles;
+﻿using Autorovers.Application.Abstractions.Exceptions;
+using Autorovers.Application.Vehicles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,20 +25,22 @@ public class AdminVehiclesController : ControllerBase
     public async Task<IActionResult> Get(int id)
     {
         var v = await _vehicleService.GetByIdAsync(id);
-        return v is null ? NotFound() : Ok(v);
+        if (v is null) throw new NotFoundException($"Vehicle {id} not found.");
+        return Ok(v);
     }
 
     [HttpGet("{id:int}/details")]
     public async Task<IActionResult> GetWithDetails(int id)
     {
         var v = await _vehicleService.GetWithDetailsByIdAsync(id);
-        return v is null ? NotFound() : Ok(v);
+        if (v is null) throw new NotFoundException($"Vehicle {id} not found.");
+        return Ok(v);
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateVehicleRequest req)
     {
-        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        ThrowIfModelInvalid();
 
         var id = await _vehicleService.CreateVehicleAsync(req);
         return CreatedAtAction(nameof(Get), new { id }, new { id });
@@ -46,9 +49,18 @@ public class AdminVehiclesController : ControllerBase
     [HttpPost("bulk")]
     public async Task<IActionResult> BulkCreate([FromBody] List<CreateVehicleRequest> reqs)
     {
-        if (!ModelState.IsValid) return ValidationProblem(ModelState);
-        if (reqs == null || reqs.Count == 0)
-            return BadRequest("Request body must be a non-empty array of vehicles.");
+        ThrowIfModelInvalid();
+
+        if (reqs is null || reqs.Count == 0)
+        {
+            throw new ValidationException(
+                "Request body must be a non-empty array of vehicles.",
+                new Dictionary<string, string[]>
+                {
+                    ["vehicles"] = ["Request body must be a non-empty array of vehicles."]
+                }
+            );
+        }
 
         var ids = await _vehicleService.BulkCreateAsync(reqs);
         return Ok(new { count = ids.Count, ids });
@@ -57,7 +69,7 @@ public class AdminVehiclesController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateVehicleRequest req)
     {
-        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        ThrowIfModelInvalid();
 
         await _vehicleService.UpdateVehicleAsync(id, req);
         return NoContent();
@@ -66,7 +78,7 @@ public class AdminVehiclesController : ControllerBase
     [HttpPut("{id:int}/details")]
     public async Task<IActionResult> UpdateDetails(int id, [FromBody] UpdateVehicleDetailsRequest req)
     {
-        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+        ThrowIfModelInvalid();
 
         await _vehicleService.UpdateVehicleDetailsAsync(id, req);
         return NoContent();
@@ -76,6 +88,23 @@ public class AdminVehiclesController : ControllerBase
     public async Task<IActionResult> Delete(int id)
     {
         var ok = await _vehicleService.DeleteVehicleAsync(id);
-        return ok ? NoContent() : NotFound();
+        if (!ok) throw new NotFoundException($"Vehicle {id} not found.");
+        return NoContent();
+    }
+
+    private void ThrowIfModelInvalid()
+    {
+        if (ModelState.IsValid) return;
+
+        var errors = ModelState
+            .Where(kvp => kvp.Value is not null && kvp.Value.Errors.Count > 0)
+            .ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value!.Errors
+                    .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage) ? "Invalid value." : e.ErrorMessage)
+                    .ToArray()
+            );
+
+        throw new ValidationException("Validation failed.", errors);
     }
 }

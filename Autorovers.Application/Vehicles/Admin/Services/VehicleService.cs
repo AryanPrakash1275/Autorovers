@@ -472,6 +472,44 @@ public class VehicleService : IVehicleService
             .FirstOrDefaultAsync();
     }
 
+    public async Task<VehicleVariantDto?> GetPublicVariantBySlugAsync(
+     string vehicleSlug,
+     string variantSlug,
+     CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(vehicleSlug) || string.IsNullOrWhiteSpace(variantSlug))
+            return null;
+
+        vehicleSlug = vehicleSlug.Trim();
+        variantSlug = variantSlug.Trim();
+
+        return await _db.Vehicles
+            .AsNoTracking()
+            .Where(v => v.Slug == vehicleSlug)
+            .SelectMany(v => v.Variants)
+            .Where(vr =>
+                vr.IsActive &&
+                (vr.Slug == variantSlug || vr.Slug.EndsWith("-" + variantSlug)))
+            .OrderByDescending(vr => vr.IsDefault)
+            .Select(vr => new VehicleVariantDto
+            {
+                Id = vr.Id,
+                Name = vr.Name,
+                Price = vr.ExShowroomPrice ?? 0,
+                IsDefault = vr.IsDefault,
+                Addons = vr.Addons
+                    .OrderBy(x => x.SortOrder)
+                    .Select(x => new VariantAddonDto
+                    {
+                        Id = x.VariantAddonId,
+                        Name = x.VariantAddon.Name,
+                        Price = x.OverridePrice ?? x.VariantAddon.Price ?? 0
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(ct);
+    }
+
     public async Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req)
     {
         var details = await _db.VehicleDetails
@@ -480,7 +518,6 @@ public class VehicleService : IVehicleService
 
         if (details is null) throw new KeyNotFoundException();
 
-        // Optional strict check (prevents wrong-type edits)
         if (!string.IsNullOrWhiteSpace(req.VehicleType))
         {
             var requestedKind = ParseKindOrThrow(req.VehicleType);
@@ -488,23 +525,19 @@ public class VehicleService : IVehicleService
                 throw new ArgumentException("VehicleType mismatch for this vehicle.");
         }
 
-        // ===== META (replace if provided) =====
         if (req.Description is not null) details.Description = req.Description;
         if (req.ColorsAvailableJson is not null) details.ColorsAvailableJson = req.ColorsAvailableJson;
         if (req.WarrantyYears.HasValue) details.WarrantyYears = req.WarrantyYears;
         if (req.ServiceIntervalKm.HasValue) details.ServiceIntervalKm = req.ServiceIntervalKm;
 
-        // Canonical normalization by entity kind
         NormalizeByKind(details.Vehicle.Kind, details);
 
         var powertrain = details.Vehicle.Powertrain;
 
-        // ===== ENGINE =====
         if (req.Engine is not null)
         {
             if (powertrain == PowertrainKind.Ev)
             {
-                // EV must never keep ICE engine specs
                 details.Engine = null;
             }
             else
@@ -525,11 +558,9 @@ public class VehicleService : IVehicleService
         }
         else if (powertrain == PowertrainKind.Ev)
         {
-            // Invariant enforcement even if client omitted Engine
             details.Engine = null;
         }
 
-        // ===== EV =====
         if (req.Ev is not null)
         {
             details.Ev ??= new EvSpecs();
@@ -542,11 +573,6 @@ public class VehicleService : IVehicleService
             details.Ev.Range = req.Ev.Range;
         }
 
-        // Optional: stricter invariants (uncomment if you want hard enforcement)
-        // if (powertrain == PowertrainKind.Ev && details.Ev is null)
-        //     throw new ArgumentException("EV vehicles must include Ev specs.");
-
-        // ===== DIMENSIONS =====
         if (req.Dimensions is not null)
         {
             details.Dimensions ??= new DimensionsSpecs();
@@ -559,7 +585,6 @@ public class VehicleService : IVehicleService
             details.Dimensions.TurningRadius = req.Dimensions.TurningRadius;
         }
 
-        // ===== DYNAMICS =====
         if (req.Dynamics is not null)
         {
             details.Dynamics ??= new TyresBrakesSuspensionSpecs();
@@ -575,7 +600,6 @@ public class VehicleService : IVehicleService
             details.Dynamics.WheelMaterial = req.Dynamics.WheelMaterial;
         }
 
-        // ===== BIKE =====
         if (details.Vehicle.Kind == VehicleKind.Bike)
         {
             if (req.Bike is not null)
@@ -591,11 +615,9 @@ public class VehicleService : IVehicleService
                 details.Bike.SmartConnectivity = req.Bike.SmartConnectivity;
             }
 
-            // Hard invariant
             details.Car = null;
         }
 
-        // ===== CAR =====
         if (details.Vehicle.Kind == VehicleKind.Car)
         {
             if (req.Car is not null)
@@ -622,7 +644,6 @@ public class VehicleService : IVehicleService
                 details.Car.SmartConnectivity = req.Car.SmartConnectivity;
             }
 
-            // Hard invariant
             details.Bike = null;
         }
 

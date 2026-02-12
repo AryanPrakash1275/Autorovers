@@ -17,13 +17,16 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         {
             httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
 
+            Dictionary<string, string[]>? errors = null;
+
+            if (vex.Errors is not null && vex.Errors.Count > 0)
+                errors = new Dictionary<string, string[]>(vex.Errors);
+
             await httpContext.Response.WriteAsJsonAsync(
                 ApiErrors.From(
                     code: "validation_failed",
                     message: vex.Message,
-                    errors: vex.Errors is null
-                        ? null
-                        : new Dictionary<string, string[]>(vex.Errors),
+                    errors: errors,
                     traceId: httpContext.TraceIdentifier
                 ),
                 cancellationToken
@@ -35,6 +38,7 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         if (exception is NotFoundException nf)
         {
             httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+
             await httpContext.Response.WriteAsJsonAsync(
                 ApiErrors.From(
                     code: "not_found",
@@ -44,12 +48,14 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
                 ),
                 cancellationToken
             );
+
             return true;
         }
 
         if (exception is ForbiddenAccessException fb)
         {
             httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+
             await httpContext.Response.WriteAsJsonAsync(
                 ApiErrors.From(
                     code: "forbidden",
@@ -59,10 +65,12 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
                 ),
                 cancellationToken
             );
+
             return true;
         }
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
         await httpContext.Response.WriteAsJsonAsync(
             ApiErrors.From(
                 code: "server_error",

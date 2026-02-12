@@ -16,15 +16,20 @@ public interface IVehicleService
 
     Task<VehicleListItemDto?> GetByIdAsync(int id);
 
+    Task<VehicleListItemDto?> GetBySlugAsync(string slug);
+
     Task UpdateVehicleAsync(int id, UpdateVehicleRequest request);
 
     Task<bool> DeleteVehicleAsync(int id);
 
-    Task<VehicleListItemDto?> GetBySlugAsync(string slug);
-
     Task<VehicleWithDetailsDto?> GetWithDetailsByIdAsync(int id);
 
     Task<VehicleWithDetailsDto?> GetWithDetailsBySlugAsync(string slug);
+
+    Task<VehicleVariantDto?> GetPublicVariantBySlugAsync(
+        string vehicleSlug,
+        string variantSlug,
+        CancellationToken ct = default);
 
     Task UpdateVehicleDetailsAsync(int id, UpdateVehicleDetailsRequest req);
 }
