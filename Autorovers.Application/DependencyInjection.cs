@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 using Autorovers.Application.Abstractions.Behaviors;
+using Autorovers.Application.FieldRegistry;
 using Autorovers.Application.Abstractions.Messaging;
 using Autorovers.Application.Vehicles;
 using FluentValidation;
@@ -32,6 +33,7 @@ public static class DependencyInjection
         }
 
         services.AddScoped<IVehicleService, VehicleService>();// added for new service 
+        services.AddScoped<IFieldRegistryService, FieldRegistryService>();
 
         // ⚠️ Skip query decorator entirely until you actually have queries
         // If you want it later, add the same guard as above and re-enable.
